@@ -1,23 +1,25 @@
-[
-  {
-    "type": "ActivityObservation",
-    "mapping": [
-      {
-        "sourceCode": "completed",
-        "targetCode": {
-          "code": "final",
-          "system": "http://hl7.org/fhir/observation-status",
-          "display": "Final"
+{
+  "cdaFhirMappings": [
+    {
+      "type": "ActivityObservation",
+      "mapping": [
+        {
+          "sourceCode": "completed",
+          "targetCode": {
+            "code": "final",
+            "system": "http://hl7.org/fhir/observation-status",
+            "display": "Final"
+          }
+        },
+        {
+          "sourceCode": "active",
+          "targetCode": {
+            "code": "registered",
+            "system": "http://hl7.org/fhir/observation-status",
+            "display": "Registered"
+          }
         }
-      },
-      {
-        "sourceCode": "active",
-        "targetCode": {
-          "code": "registered",
-          "system": "http://hl7.org/fhir/observation-status",
-          "display": "Registered"
-        }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

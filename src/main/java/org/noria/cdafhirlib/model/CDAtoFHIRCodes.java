@@ -6,5 +6,5 @@ import java.util.List;
 
 @Data
 public class CDAtoFHIRCodes {
-    List<CDAtoFHIRCodeElement> cdAtoFHIRCodeElements;
+    List<CDAtoFHIRCodeElement> cdaFhirMappings;
 }

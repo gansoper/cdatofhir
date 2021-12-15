@@ -1,8 +1,12 @@
 package org.noria.cdafhirlib.cdaconverter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
+import org.noria.cdafhirlib.model.CDAtoFHIRCodes;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
+
+import java.io.File;
 
 public class SimpleCDATypesConverter {
 
@@ -22,6 +26,13 @@ public class SimpleCDATypesConverter {
             code.getTranslations().forEach(e -> codeableConcept.addCoding(this.createFHIRCoding(e)));
         }
         return codeableConcept;
+    }
+
+    public void testJSON() throws Exception{
+        File file = new File(this.getClass().getClassLoader().getResource("CDAtoFHIRCodes.json").getFile());
+        ObjectMapper om = new ObjectMapper();
+        CDAtoFHIRCodes cdAtoFHIRCodes  = om.readValue(file,CDAtoFHIRCodes.class);
+       cdAtoFHIRCodes.getCdaFhirMappings().stream().forEach(e-> System.out.println(e.getType()));
     }
 
 }

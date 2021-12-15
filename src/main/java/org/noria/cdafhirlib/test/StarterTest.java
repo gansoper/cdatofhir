@@ -1,6 +1,7 @@
 package org.noria.cdafhirlib.test;
 
 import lombok.extern.log4j.Log4j2;
+import org.noria.cdafhirlib.cdaconverter.SimpleCDATypesConverter;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.ccd.CCDFactory;
 import org.openhealthtools.mdht.uml.cda.ccd.ContinuityOfCareDocument;
@@ -8,12 +9,17 @@ import org.openhealthtools.mdht.uml.cda.consol.ConsolFactory;
 import org.openhealthtools.mdht.uml.cda.consol.ConsultationNote;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 
+import java.io.File;
 import java.io.FileInputStream;
 
 @Log4j2
 public class StarterTest {
     public static void main(String[] args) throws Exception {
         CDAUtil.loadPackages();
+        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter();
+        simpleCDATypesConverter.testJSON();
+
+
 
         // Read a Continuity of Care Document (CCD) instance, which is the official sample CCD instance
         // distributed with C-CDA 2.1 specs, with a few extensions for having a more complete document
