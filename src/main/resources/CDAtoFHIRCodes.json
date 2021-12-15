@@ -1,7 +1,7 @@
 {
   "cdaFhirMappings": [
     {
-      "type": "ActivityObservation",
+      "type": "ObservationStatus",
       "mapping": [
         {
           "sourceCode": "completed",

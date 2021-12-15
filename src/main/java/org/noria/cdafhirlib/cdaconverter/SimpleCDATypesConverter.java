@@ -11,11 +11,19 @@ import java.io.File;
 
 public class SimpleCDATypesConverter {
 
-    public Coding createFHIRCoding(CD code, CDAtoFHIRCodes codes, CDAtoFHIRCodeConversionType conversionType) {
+    public Coding createFHIRCoding(CD code, CDAtoFHIRCodes codeMappings, CDAtoFHIRCodeConversionType conversionType) {
         Coding coding = new Coding();
-        coding.setCode(code.getCode());
-        coding.setSystem(code.getCodeSystem());
-        coding.setDisplay(code.getDisplayName());
+        if (conversionType != null){
+               String cdaCode = code.getCode();
+
+        }
+
+        if (coding.getCode() != null)
+        {
+            coding.setCode(code.getCode());
+            coding.setSystem(code.getCodeSystem());
+            coding.setDisplay(code.getDisplayName());
+        }
         return coding;
     }
 
