@@ -16,8 +16,8 @@ import java.io.FileInputStream;
 public class StarterTest {
     public static void main(String[] args) throws Exception {
         CDAUtil.loadPackages();
-        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter();
-        simpleCDATypesConverter.testJSON();
+        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(null);
+       //simpleCDATypesConverter.testJSON();
 
 
 

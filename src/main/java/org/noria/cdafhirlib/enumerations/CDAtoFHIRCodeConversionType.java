@@ -3,7 +3,8 @@ package org.noria.cdafhirlib.enumerations;
 public enum CDAtoFHIRCodeConversionType {
 
 
-    ACTIVITY_OBSERVATION_STATUS("ActivityObservation");
+    ACTIVITY_OBSERVATION_STATUS("ActivityObservation"),
+    OBSERVATION_STATUS("ObservationStatus");
 
     private String type;
 
