@@ -1,0 +1,41 @@
+{
+  "fhirCdaMappings": [
+    {
+      "type": "ReactionStatusCodingVerification",
+      "mapping": [
+        {
+          "sourceCode": "confirmed",
+          "targetCode": {
+            "code": "completed",
+            "system": "2.16.840.1.113883.5.14",
+            "display": "completed"
+          }
+        },
+        {
+          "sourceCode": "unconfirmed",
+          "targetCode": {
+            "code": "completed",
+            "system": "2.16.840.1.113883.5.14",
+            "display": "completed"
+          }
+        },
+        {
+          "sourceCode": "refuted",
+          "targetCode": {
+            "code": "completed",
+            "system": "2.16.840.1.113883.5.14",
+            "display": "completed"
+          }
+        },
+        {
+          "sourceCode": "entered-in-error",
+          "targetCode": {
+            "code": "completed",
+            "system": "2.16.840.1.113883.5.14",
+            "display": "completed"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -5,6 +5,6 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class CDAtoFHIRCodes {
-    private List<CodeToCodeMappingElement> cdaFhirMappings;
+public class FHIRtoCDACodes {
+    private List<CodeToCodeMappingElement> fhirCdaMappings;
 }

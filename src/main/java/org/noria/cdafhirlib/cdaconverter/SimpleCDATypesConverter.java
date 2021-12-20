@@ -1,16 +1,12 @@
 package org.noria.cdafhirlib.cdaconverter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
-import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
-import org.noria.cdafhirlib.model.CDAtoFHIRCodeElement;
+import org.noria.cdafhirlib.model.CodeToCodeMappingElement;
 import org.noria.cdafhirlib.model.CDAtoFHIRCodes;
 import org.noria.cdafhirlib.model.CodesMapping;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
-
-import java.io.File;
 
 public class SimpleCDATypesConverter {
 
@@ -49,7 +45,7 @@ public class SimpleCDATypesConverter {
 
         Coding coding = new Coding();
         if (StringUtils.isNoneBlank(conversionType) && this.codeMappings != null) {
-            CDAtoFHIRCodeElement cdAtoFHIRCodeElement = this.codeMappings.getCdaFhirMappings().stream()
+            CodeToCodeMappingElement cdAtoFHIRCodeElement = this.codeMappings.getCdaFhirMappings().stream()
                     .filter(e -> e.getType().equalsIgnoreCase(conversionType))
                     .findFirst().orElse(null);
 
