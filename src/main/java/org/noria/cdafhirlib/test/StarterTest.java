@@ -1,6 +1,7 @@
 package org.noria.cdafhirlib.test;
 
 import lombok.extern.log4j.Log4j2;
+import org.eclipse.emf.common.util.EList;
 import org.noria.cdafhirlib.cdaconverter.SimpleCDATypesConverter;
 import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.ccd.CCDFactory;
@@ -8,6 +9,8 @@ import org.openhealthtools.mdht.uml.cda.ccd.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.consol.ConsolFactory;
 import org.openhealthtools.mdht.uml.cda.consol.ConsultationNote;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
+import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
+import org.openhealthtools.mdht.uml.hl7.datatypes.ADXP;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,6 +29,9 @@ public class StarterTest {
         log.info("Start application");
         FileInputStream fis = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
         ClinicalDocument cda = CDAUtil.load(fis);
+        EList<AD> addresses = cda.getPatientRoles().get(0).getAddrs();
+        EList<ADXP> cities = addresses.get(0).getCities();
+        cities.forEach(e -> System.out.println(e.getText()));
         ContinuityOfCareDocument ccd = CCDFactory.eINSTANCE.createContinuityOfCareDocument().init();
         ConsultationNote cn  = ConsolFactory.eINSTANCE.createConsultationNote();
         log.error("End");

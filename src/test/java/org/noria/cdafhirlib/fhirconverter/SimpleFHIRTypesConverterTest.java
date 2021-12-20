@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.noria.cdafhirlib.enumerations.FHIRtoCDACodeConversionType;
 import org.noria.cdafhirlib.model.FHIRtoCDACodes;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
+import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
 
 import java.io.File;
 
@@ -20,6 +21,7 @@ class SimpleFHIRTypesConverterTest {
         CD cd = simpleFHIRTypesConverter.createCD(null, null);
         assertNotNull(cd);
         assertNull(cd.getCode());
+        assertEquals(cd.getNullFlavor(), NullFlavor.UNK);
         assertEquals(cd.getTranslations().size(), 0);
     }
 
@@ -29,6 +31,7 @@ class SimpleFHIRTypesConverterTest {
         CD cd = simpleFHIRTypesConverter.createCD(new Coding(), null);
         assertNotNull(cd);
         assertNull(cd.getCode());
+        assertEquals(cd.getNullFlavor(), NullFlavor.UNK);
         assertEquals(cd.getTranslations().size(), 0);
     }
 
@@ -60,6 +63,7 @@ class SimpleFHIRTypesConverterTest {
         CD cd = simpleFHIRTypesConverter.createCDWithTranslation(codeableConcept, "test");
         assertNotNull(cd);
         assertNull(cd.getCode());
+        assertEquals(cd.getNullFlavor(), NullFlavor.UNK);
         assertEquals(cd.getTranslations().size(), 0);
     }
 

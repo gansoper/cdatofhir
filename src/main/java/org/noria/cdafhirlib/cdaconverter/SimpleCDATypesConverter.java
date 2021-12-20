@@ -1,11 +1,13 @@
 package org.noria.cdafhirlib.cdaconverter;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hl7.fhir.r4.model.Address;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.noria.cdafhirlib.model.CodeToCodeMappingElement;
 import org.noria.cdafhirlib.model.CDAtoFHIRCodes;
 import org.noria.cdafhirlib.model.CodesMapping;
+import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
 import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
 
 public class SimpleCDATypesConverter {
@@ -39,6 +41,34 @@ public class SimpleCDATypesConverter {
             code.getTranslations().forEach(e -> codeableConcept.addCoding(this.createFHIRCoding(e, conversionType)));
         }
         return codeableConcept;
+    }
+
+    public Address createFHIRAddress(AD cdaAddress){
+        Address address = new Address();
+       // cdaAddress.ge
+       // address.setCity(cdaAddress.get)
+        return address;
+    }
+
+
+    private String getStringCodeFromMapping(String sourceCode, String conversionType){
+        if (StringUtils.isNoneBlank(conversionType) && this.codeMappings != null) {
+            CodeToCodeMappingElement cdAtoFHIRCodeElement = this.codeMappings.getCdaFhirMappings().stream()
+                    .filter(e -> e.getType().equalsIgnoreCase(conversionType))
+                    .findFirst().orElse(null);
+
+            if (cdAtoFHIRCodeElement != null) {
+                CodesMapping codesMapping = cdAtoFHIRCodeElement.getMapping().stream()
+                        .filter(e -> e.getSourceCode().equalsIgnoreCase(sourceCode))
+                        .findFirst().orElse(null);
+
+                if (codesMapping != null) {
+                    return codesMapping.getTargetCode().getCode();
+                }
+            }
+        }
+
+        return sourceCode;
     }
 
     private Coding getCodeFromMapping(String sourceCode, String conversionType){

@@ -21,10 +21,13 @@ public class SimpleFHIRTypesConverter {
     public CD createCD(Coding coding, String conversionType) {
         if (coding != null) {
             CD cd = this.getCodeFromMapping(coding.getCode(), conversionType);
-            if (StringUtils.isAllBlank(cd.getCode())) {
+            if (StringUtils.isAllBlank(cd.getCode()) && StringUtils.isNotBlank(coding.getCode())) {
                 cd.setCode(coding.getCode());
                 cd.setCodeSystem(coding.getSystem());
                 cd.setDisplayName(coding.getDisplay());
+            }
+            else{
+                cd.setNullFlavor(NullFlavor.UNK);
             }
 
             return cd;
