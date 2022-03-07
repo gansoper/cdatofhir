@@ -20,6 +20,27 @@
           }
         }
       ]
+    },
+    {
+      "type": "AddressUse",
+      "mapping": [
+        {
+          "sourceCode": "BAD",
+          "targetCode": {
+            "code": "old",
+            "system": "http://hl7.org/fhir/address-use",
+            "display": "Old/Incorrect"
+          }
+        },
+        {
+          "sourceCode": "CONF",
+          "targetCode": {
+            "code": "billing",
+            "system": "http://hl7.org/fhir/address-use",
+            "display": "Billing"
+          }
+        }
+      ]
     }
   ]
 }

@@ -1,13 +1,14 @@
 package org.noria.cdafhirlib.cdaconverter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.eclipse.mdht.uml.hl7.datatypes.AD;
+import org.eclipse.mdht.uml.hl7.datatypes.CD;
+import org.eclipse.mdht.uml.hl7.datatypes.DatatypesFactory;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.junit.jupiter.api.Test;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
 import org.noria.cdafhirlib.model.CDAtoFHIRCodes;
-import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
-import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
 
 import java.io.File;
 
@@ -54,7 +55,7 @@ class SimpleCDATypesConverterTest {
 
 
     @Test
-    void codeabelConceptNull(){
+    void codeabelConceptNull() {
         SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(null);
         CD cd = DatatypesFactory.eINSTANCE.createCD();
         cd.setCode("test");
@@ -65,7 +66,7 @@ class SimpleCDATypesConverterTest {
     }
 
     @Test
-    void codeabelConceptNotNull(){
+    void codeabelConceptNotNull() {
         SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(null);
         CD cd = DatatypesFactory.eINSTANCE.createCD();
         cd.setCode("test");
@@ -76,7 +77,7 @@ class SimpleCDATypesConverterTest {
     }
 
     @Test
-    void codeabelConceptNotNullFromJson(){
+    void codeabelConceptNotNullFromJson() {
         SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(this.getTestCodes());
         CD cd = DatatypesFactory.eINSTANCE.createCD();
         cd.setCode("completed");
@@ -91,13 +92,20 @@ class SimpleCDATypesConverterTest {
     }
 
 
+    @Test
+    void addressConversionTest(){
+        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(this.getTestCodes());
+        AD ad = DatatypesFactory.eINSTANCE.createAD();
+        //TODO: complete test
+    }
+
+
     private CDAtoFHIRCodes getTestCodes() {
-        try{
+        try {
             File file = new File(this.getClass().getClassLoader().getResource("CDAtoFHIRCodes.json").getFile());
             ObjectMapper om = new ObjectMapper();
             return om.readValue(file, CDAtoFHIRCodes.class);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
     }

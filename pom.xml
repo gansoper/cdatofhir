@@ -16,11 +16,11 @@
 
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.openehealth.ipf.modules/ipf-modules-cda-mdht -->
-        <dependency>
+        <!--<dependency>
             <groupId>org.openehealth.ipf.modules</groupId>
             <artifactId>ipf-modules-cda-mdht</artifactId>
             <version>4.2.0</version>
-        </dependency>
+        </dependency>-->
 
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>

@@ -2,17 +2,16 @@ package org.noria.cdafhirlib.test;
 
 import lombok.extern.log4j.Log4j2;
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.mdht.uml.cda.ClinicalDocument;
+import org.eclipse.mdht.uml.cda.util.CDAUtil;
+import org.eclipse.mdht.uml.hl7.datatypes.AD;
+import org.eclipse.mdht.uml.hl7.datatypes.ADXP;
 import org.noria.cdafhirlib.cdaconverter.SimpleCDATypesConverter;
-import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
-import org.openhealthtools.mdht.uml.cda.ccd.CCDFactory;
-import org.openhealthtools.mdht.uml.cda.ccd.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.consol.ConsolFactory;
 import org.openhealthtools.mdht.uml.cda.consol.ConsultationNote;
-import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
-import org.openhealthtools.mdht.uml.hl7.datatypes.AD;
-import org.openhealthtools.mdht.uml.hl7.datatypes.ADXP;
+import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
 
-import java.io.File;
+
 import java.io.FileInputStream;
 
 @Log4j2
@@ -20,8 +19,7 @@ public class StarterTest {
     public static void main(String[] args) throws Exception {
         CDAUtil.loadPackages();
         SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(null);
-       //simpleCDATypesConverter.testJSON();
-
+        //simpleCDATypesConverter.testJSON();
 
 
         // Read a Continuity of Care Document (CCD) instance, which is the official sample CCD instance
@@ -32,8 +30,9 @@ public class StarterTest {
         EList<AD> addresses = cda.getPatientRoles().get(0).getAddrs();
         EList<ADXP> cities = addresses.get(0).getCities();
         cities.forEach(e -> System.out.println(e.getText()));
-        ContinuityOfCareDocument ccd = CCDFactory.eINSTANCE.createContinuityOfCareDocument().init();
-        ConsultationNote cn  = ConsolFactory.eINSTANCE.createConsultationNote();
+
+        ContinuityOfCareDocument ccd = ConsolFactory.eINSTANCE.createContinuityOfCareDocument();//CCDFactory.eINSTANCE.createContinuityOfCareDocument().init();
+        ConsultationNote cn = ConsolFactory.eINSTANCE.createConsultationNote();
         log.error("End");
 
     }

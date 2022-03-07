@@ -4,7 +4,8 @@ public enum CDAtoFHIRCodeConversionType {
 
 
     ACTIVITY_OBSERVATION_STATUS("ActivityObservation"),
-    OBSERVATION_STATUS("ObservationStatus");
+    OBSERVATION_STATUS("ObservationStatus"),
+    ADDRESS_USE("AddressUse");
 
     private String type;
 
