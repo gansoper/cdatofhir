@@ -64,6 +64,11 @@ public class SimpleCDATypesConverter {
 
     public ContactPoint createContactPoint(TEL telecom) {
         ContactPoint contactPoint = new ContactPoint();
+        if (telecom.getUses() != null && telecom.getUses().size() != 0){
+            contactPoint.setUse(ContactPoint.ContactPointUse.fromCode(this.getStringCodeFromMapping(telecom.getUses().get(0).toString(), CDAtoFHIRCodeConversionType.TELECOM_USE.toValue())));
+        }
+
+        contactPoint.setValue(telecom.getValue());
         return contactPoint;
     }
 

@@ -1,11 +1,9 @@
 package org.noria.cdafhirlib.cdaconverter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.eclipse.mdht.uml.hl7.datatypes.AD;
-import org.eclipse.mdht.uml.hl7.datatypes.ADXP;
-import org.eclipse.mdht.uml.hl7.datatypes.CD;
-import org.eclipse.mdht.uml.hl7.datatypes.DatatypesFactory;
+import org.eclipse.mdht.uml.hl7.datatypes.*;
 import org.eclipse.mdht.uml.hl7.vocab.PostalAddressUse;
+import org.eclipse.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
 import org.hl7.fhir.r4.model.Address;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
@@ -144,6 +142,19 @@ class SimpleCDATypesConverterTest {
         ContactPoint contactPoint  = simpleCDATypesConverter.createContactPoint(null);
         assertNotNull(contactPoint);
         assertNull(contactPoint.getUse());
+    }
+
+    @Test
+    void createContactPointFilled() {
+        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(this.getTestCodes());
+        TEL telecom = DatatypesFactory.eINSTANCE.createTEL();
+        telecom.getUses().add(TelecommunicationAddressUse.HP);
+        telecom.setValue("test");
+        ContactPoint contactPoint  = simpleCDATypesConverter.createContactPoint(telecom);
+        assertNotNull(contactPoint);
+        assertNotNull(contactPoint.getUse());
+        assertEquals(contactPoint.getUse(), ContactPoint.ContactPointUse.HOME);
+        assertEquals(contactPoint.getValue(), "test");
     }
 
 

@@ -1,5 +1,5 @@
 {
-    "fhirCdaMappings": [
+    "cdaFhirMappings": [
         {
             "type": "AddressUse",
             "mapping": [
@@ -348,7 +348,7 @@
             ]
         },
         {
-            "type": "ObsercationCategory",
+            "type": "ObservationCategory",
             "mapping": [
                 {
                     "sourceCode": "functionalStatus",
@@ -433,7 +433,7 @@
             ]
         },
         {
-            "type": "ObsercationStatus",
+            "type": "ObservationStatus",
             "mapping": [
                 {
                     "sourceCode": "completed",
