@@ -1,0 +1,47 @@
+import groovy.io.FileType
+import groovy.json.JsonOutput
+
+def dir = new File("D:\\Work\\Personal\\CDA\\MappingCodes\\UsualMapping") // see in folder DataSearchesForDaVinci
+
+FHIRtoCDACodes codes = new FHIRtoCDACodes();
+
+dir.eachFileRecurse(FileType.FILES) {
+    file ->
+        CodeToCodeMappingElement codeToCodeMappingElement = new CodeToCodeMappingElement();
+        codeToCodeMappingElement.setType(file.getName().substring(0, file.getName().length() - 4))
+        codes.getFhirCdaMappings().add(codeToCodeMappingElement);
+        file.splitEachLine(",") {
+            fields ->
+                CodesMapping codesMapping = new CodesMapping();
+                CDAFHIRCommonCode cdafhirCommonCode = new CDAFHIRCommonCode();
+                codesMapping.setSourceCode(fields[0])
+                cdafhirCommonCode.setCode(fields[1])
+                cdafhirCommonCode.setSystem(fields[2].contains("http") ? fields[2] : fields[3])
+                cdafhirCommonCode.setDisplay(fields[2].contains("http") ? fields[3] : fields[2])
+                codesMapping.setTargetCode(cdafhirCommonCode)
+                codeToCodeMappingElement.getMapping().add(codesMapping)
+        }
+
+}
+
+System.out.println(JsonOutput.prettyPrint(JsonOutput.toJson(codes)));
+
+class CDAFHIRCommonCode {
+    String code;
+    String system;
+    String display;
+}
+
+class CodeToCodeMappingElement {
+    String type;
+    List<CodesMapping> mapping = [];
+}
+
+class CodesMapping {
+    String sourceCode;
+    CDAFHIRCommonCode targetCode;
+}
+
+class FHIRtoCDACodes {
+    List<CodeToCodeMappingElement> fhirCdaMappings = [];
+}

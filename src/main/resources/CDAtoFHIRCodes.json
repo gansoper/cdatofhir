@@ -1,46 +1,714 @@
 {
-  "cdaFhirMappings": [
-    {
-      "type": "ObservationStatus",
-      "mapping": [
+    "fhirCdaMappings": [
         {
-          "sourceCode": "completed",
-          "targetCode": {
-            "code": "final",
-            "system": "http://hl7.org/fhir/observation-status",
-            "display": "Final"
-          }
+            "type": "AddressUse",
+            "mapping": [
+                {
+                    "sourceCode": "BAD",
+                    "targetCode": {
+                        "display": "Old / Incorrect",
+                        "code": "old",
+                        "system": "http://hl7.org/fhir/address-use"
+                    }
+                },
+                {
+                    "sourceCode": "CONF",
+                    "targetCode": {
+                        "display": "Billing",
+                        "code": "billing",
+                        "system": "http://hl7.org/fhir/address-use"
+                    }
+                },
+                {
+                    "sourceCode": "DIR",
+                    "targetCode": {
+                        "display": "Work",
+                        "code": "work",
+                        "system": "http://hl7.org/fhir/address-use"
+                    }
+                },
+                {
+                    "sourceCode": "H",
+                    "targetCode": {
+                        "display": "Home",
+                        "code": "home",
+                        "system": "http://hl7.org/fhir/address-use"
+                    }
+                },
+                {
+                    "sourceCode": "HP",
+                    "targetCode": {
+                        "display": "Home",
+                        "code": "home",
+                        "system": "http://hl7.org/fhir/address-use"
+                    }
+                },
+                {
+                    "sourceCode": "HV",
+                    "targetCode": {
+                        "display": "Home",
+                        "code": "home",
+                        "system": "http://hl7.org/fhir/address-use"
+                    }
+                },
+                {
+                    "sourceCode": "PHYS",
+                    "targetCode": {
+                        "display": "Home",
+                        "code": "home",
+                        "system": "http://hl7.org/fhir/address-use"
+                    }
+                },
+                {
+                    "sourceCode": "PST",
+                    "targetCode": {
+                        "display": "Billing",
+                        "code": "billing",
+                        "system": "http://hl7.org/fhir/address-use"
+                    }
+                },
+                {
+                    "sourceCode": "PUB",
+                    "targetCode": {
+                        "display": "Work",
+                        "code": "work",
+                        "system": "http://hl7.org/fhir/address-use"
+                    }
+                },
+                {
+                    "sourceCode": "TMP",
+                    "targetCode": {
+                        "display": "Temporary",
+                        "code": "temp",
+                        "system": "http://hl7.org/fhir/address-use"
+                    }
+                },
+                {
+                    "sourceCode": "WP",
+                    "targetCode": {
+                        "display": "Work",
+                        "code": "work",
+                        "system": "http://hl7.org/fhir/address-use"
+                    }
+                }
+            ]
         },
         {
-          "sourceCode": "active",
-          "targetCode": {
-            "code": "registered",
-            "system": "http://hl7.org/fhir/observation-status",
-            "display": "Registered"
-          }
-        }
-      ]
-    },
-    {
-      "type": "AddressUse",
-      "mapping": [
-        {
-          "sourceCode": "BAD",
-          "targetCode": {
-            "code": "old",
-            "system": "http://hl7.org/fhir/address-use",
-            "display": "Old/Incorrect"
-          }
+            "type": "EncounterStatus",
+            "mapping": [
+                {
+                    "sourceCode": "completed",
+                    "targetCode": {
+                        "display": "Finished",
+                        "code": "finished",
+                        "system": "http://hl7.org/fhir/encounter-status"
+                    }
+                },
+                {
+                    "sourceCode": "unknown",
+                    "targetCode": {
+                        "display": "Unknown",
+                        "code": "unknown",
+                        "system": "http://hl7.org/fhir/encounter-status"
+                    }
+                }
+            ]
         },
         {
-          "sourceCode": "CONF",
-          "targetCode": {
-            "code": "billing",
-            "system": "http://hl7.org/fhir/address-use",
-            "display": "Billing"
-          }
+            "type": "EncounterType",
+            "mapping": [
+                {
+                    "sourceCode": "99231",
+                    "targetCode": {
+                        "display": "ambulatory",
+                        "code": "AMB",
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode"
+                    }
+                },
+                {
+                    "sourceCode": "99281",
+                    "targetCode": {
+                        "display": "emergency",
+                        "code": "EMER",
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode"
+                    }
+                },
+                {
+                    "sourceCode": "99241",
+                    "targetCode": {
+                        "display": "field",
+                        "code": "FLD",
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode"
+                    }
+                },
+                {
+                    "sourceCode": "99341",
+                    "targetCode": {
+                        "display": "home health",
+                        "code": "HH",
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode"
+                    }
+                },
+                {
+                    "sourceCode": "99221",
+                    "targetCode": {
+                        "display": "inpatient encounter",
+                        "code": "IMP",
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode"
+                    }
+                },
+                {
+                    "sourceCode": "99223",
+                    "targetCode": {
+                        "display": "inpatient acute",
+                        "code": "ACUTE",
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode"
+                    }
+                },
+                {
+                    "sourceCode": "99218",
+                    "targetCode": {
+                        "display": "inpatient non-acute",
+                        "code": "NONAC",
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode"
+                    }
+                },
+                {
+                    "sourceCode": "99499",
+                    "targetCode": {
+                        "display": "observation encounter",
+                        "code": "OBSENC",
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode"
+                    }
+                },
+                {
+                    "sourceCode": "99429",
+                    "targetCode": {
+                        "display": "pre-admission",
+                        "code": "PRENC",
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode"
+                    }
+                },
+                {
+                    "sourceCode": "99221",
+                    "targetCode": {
+                        "display": "short stay",
+                        "code": "SS",
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode"
+                    }
+                },
+                {
+                    "sourceCode": "99339",
+                    "targetCode": {
+                        "display": "virtual",
+                        "code": "VR",
+                        "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "FamilyHistoryMemberPersonRelatedSubjectGender",
+            "mapping": [
+                {
+                    "sourceCode": "F",
+                    "targetCode": {
+                        "display": "Female",
+                        "code": "female",
+                        "system": "http://hl7.org/fhir/administrative-gender"
+                    }
+                },
+                {
+                    "sourceCode": "M",
+                    "targetCode": {
+                        "display": "Male",
+                        "code": "male",
+                        "system": "http://hl7.org/fhir/administrative-gender"
+                    }
+                },
+                {
+                    "sourceCode": "UN",
+                    "targetCode": {
+                        "display": "Unknown",
+                        "code": "unknown",
+                        "system": "http://hl7.org/fhir/administrative-gender"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "FamilyHistoryStatus",
+            "mapping": [
+                {
+                    "sourceCode": "completed",
+                    "targetCode": {
+                        "display": "Completed",
+                        "code": "completed",
+                        "system": "http://hl7.org/fhir/history-status"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "ImmunizationIndicationStatus",
+            "mapping": [
+                {
+                    "sourceCode": "completed",
+                    "targetCode": {
+                        "display": "Final",
+                        "code": "final",
+                        "system": "http://hl7.org/fhir/observation-status"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "ImmunizationStatus",
+            "mapping": [
+                {
+                    "sourceCode": "normal",
+                    "targetCode": {
+                        "display": "Not Done",
+                        "code": "not-done",
+                        "system": "http://hl7.org/fhir/event-status"
+                    }
+                },
+                {
+                    "sourceCode": "active",
+                    "targetCode": {
+                        "display": "Not Done",
+                        "code": "not-done",
+                        "system": "http://hl7.org/fhir/event-status"
+                    }
+                },
+                {
+                    "sourceCode": "aborted",
+                    "targetCode": {
+                        "display": "Entered in Error",
+                        "code": "entered-in-error",
+                        "system": "http://hl7.org/fhir/event-status"
+                    }
+                },
+                {
+                    "sourceCode": "cancelled",
+                    "targetCode": {
+                        "display": "Entered in Error",
+                        "code": "entered-in-error",
+                        "system": "http://hl7.org/fhir/event-status"
+                    }
+                },
+                {
+                    "sourceCode": "held",
+                    "targetCode": {
+                        "display": "Not Done",
+                        "code": "not-done",
+                        "system": "http://hl7.org/fhir/event-status"
+                    }
+                },
+                {
+                    "sourceCode": "completed",
+                    "targetCode": {
+                        "display": "Completed",
+                        "code": "completed",
+                        "system": "http://hl7.org/fhir/event-status"
+                    }
+                },
+                {
+                    "sourceCode": "new",
+                    "targetCode": {
+                        "display": "Not Done",
+                        "code": "not-done",
+                        "system": "http://hl7.org/fhir/event-status"
+                    }
+                },
+                {
+                    "sourceCode": "suspended",
+                    "targetCode": {
+                        "display": "Not Done",
+                        "code": "not-done",
+                        "system": "http://hl7.org/fhir/event-status"
+                    }
+                },
+                {
+                    "sourceCode": "nullified",
+                    "targetCode": {
+                        "display": "Not Done",
+                        "code": "not-done",
+                        "system": "http://hl7.org/fhir/event-status"
+                    }
+                },
+                {
+                    "sourceCode": "obsolete",
+                    "targetCode": {
+                        "display": "Not Done",
+                        "code": "not-done",
+                        "system": "http://hl7.org/fhir/event-status"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "ObsercationCategory",
+            "mapping": [
+                {
+                    "sourceCode": "functionalStatus",
+                    "targetCode": {
+                        "display": "Exam",
+                        "code": "exam",
+                        "system": "http://terminology.hl7.org/CodeSystem/observation-category"
+                    }
+                },
+                {
+                    "sourceCode": "vitalSign",
+                    "targetCode": {
+                        "display": "Vital Signs",
+                        "code": "vital-signs",
+                        "system": "http://terminology.hl7.org/CodeSystem/observation-category"
+                    }
+                },
+                {
+                    "sourceCode": "advanceDirective",
+                    "targetCode": {
+                        "display": "Procedure",
+                        "code": "procedure",
+                        "system": "http://terminology.hl7.org/CodeSystem/observation-category"
+                    }
+                },
+                {
+                    "sourceCode": "socialHistory",
+                    "targetCode": {
+                        "display": "Social History ",
+                        "code": "social-history",
+                        "system": "http://terminology.hl7.org/CodeSystem/observation-category"
+                    }
+                },
+                {
+                    "sourceCode": "result",
+                    "targetCode": {
+                        "display": "Laboratory",
+                        "code": "laboratory",
+                        "system": "http://terminology.hl7.org/CodeSystem/observation-category"
+                    }
+                },
+                {
+                    "sourceCode": "pregnancy",
+                    "targetCode": {
+                        "display": "Exam",
+                        "code": "exam",
+                        "system": "http://terminology.hl7.org/CodeSystem/observation-category"
+                    }
+                },
+                {
+                    "sourceCode": "tobaccoUse",
+                    "targetCode": {
+                        "display": "Social History",
+                        "code": "social-history",
+                        "system": "http://terminology.hl7.org/CodeSystem/observation-category"
+                    }
+                },
+                {
+                    "sourceCode": "smokingStatus",
+                    "targetCode": {
+                        "display": "Social History",
+                        "code": "social-history",
+                        "system": "http://terminology.hl7.org/CodeSystem/observation-category"
+                    }
+                },
+                {
+                    "sourceCode": "familyHistory",
+                    "targetCode": {
+                        "display": "Social History",
+                        "code": "social-history",
+                        "system": "http://terminology.hl7.org/CodeSystem/observation-category"
+                    }
+                },
+                {
+                    "sourceCode": "activity",
+                    "targetCode": {
+                        "display": "Activity",
+                        "code": "activity",
+                        "system": "http://terminology.hl7.org/CodeSystem/observation-category"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "ObsercationStatus",
+            "mapping": [
+                {
+                    "sourceCode": "completed",
+                    "targetCode": {
+                        "display": "Final",
+                        "code": "final",
+                        "system": "http://hl7.org/fhir/observation-status"
+                    }
+                },
+                {
+                    "sourceCode": "active",
+                    "targetCode": {
+                        "display": "Registered",
+                        "code": "registered",
+                        "system": "http://hl7.org/fhir/observation-status"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "ProblemStatus",
+            "mapping": [
+                {
+                    "sourceCode": "completed",
+                    "targetCode": {
+                        "display": "Resolved",
+                        "code": "resolved",
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical"
+                    }
+                },
+                {
+                    "sourceCode": "aborted",
+                    "targetCode": {
+                        "display": "Inactive",
+                        "code": "inactive",
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical"
+                    }
+                },
+                {
+                    "sourceCode": "active",
+                    "targetCode": {
+                        "display": "Active",
+                        "code": "active",
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical"
+                    }
+                },
+                {
+                    "sourceCode": "suspended",
+                    "targetCode": {
+                        "display": "Remission",
+                        "code": "remission",
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-clinical"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "ProblemType",
+            "mapping": [
+                {
+                    "sourceCode": "404684003",
+                    "targetCode": {
+                        "display": "Problem List Item",
+                        "code": "problem-list-item",
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-category"
+                    }
+                },
+                {
+                    "sourceCode": "409586006",
+                    "targetCode": {
+                        "display": "Problem List Item",
+                        "code": "problem-list-item",
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-category"
+                    }
+                },
+                {
+                    "sourceCode": "418799008",
+                    "targetCode": {
+                        "display": "Problem List Item",
+                        "code": "problem-list-item",
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-category"
+                    }
+                },
+                {
+                    "sourceCode": "282291009",
+                    "targetCode": {
+                        "display": "Encounter Diagnosis",
+                        "code": "encounter-diagnosis",
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-category"
+                    }
+                },
+                {
+                    "sourceCode": "64572001",
+                    "targetCode": {
+                        "display": "Problem List Item",
+                        "code": "problem-list-item",
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-category"
+                    }
+                },
+                {
+                    "sourceCode": "248536006",
+                    "targetCode": {
+                        "display": "Problem List Item",
+                        "code": "problem-list-item",
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-category"
+                    }
+                },
+                {
+                    "sourceCode": "55607006",
+                    "targetCode": {
+                        "display": "Problem List Item",
+                        "code": "problem-list-item",
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-category"
+                    }
+                },
+                {
+                    "sourceCode": "373930000",
+                    "targetCode": {
+                        "display": "Problem List Item",
+                        "code": "problem-list-item",
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-category"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "ProcedureStatus",
+            "mapping": [
+                {
+                    "sourceCode": "completed",
+                    "targetCode": {
+                        "display": "Completed",
+                        "code": "completed",
+                        "system": "http://hl7.org/fhir/event-status"
+                    }
+                },
+                {
+                    "sourceCode": "active",
+                    "targetCode": {
+                        "display": "In Progress",
+                        "code": "in-progress",
+                        "system": "http://hl7.org/fhir/event-status"
+                    }
+                },
+                {
+                    "sourceCode": "aborted",
+                    "targetCode": {
+                        "display": "Stopped",
+                        "code": "stopped",
+                        "system": "http://hl7.org/fhir/event-status"
+                    }
+                },
+                {
+                    "sourceCode": "cancelled",
+                    "targetCode": {
+                        "display": "Entered in Error",
+                        "code": "entered-in-error",
+                        "system": "http://hl7.org/fhir/event-status"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "ResultStatus",
+            "mapping": [
+                {
+                    "sourceCode": "aborted",
+                    "targetCode": {
+                        "display": "Cancelled",
+                        "code": "cancelled",
+                        "system": "http://hl7.org/fhir/diagnostic-report-status"
+                    }
+                },
+                {
+                    "sourceCode": "active",
+                    "targetCode": {
+                        "display": "Registered",
+                        "code": "registered",
+                        "system": "http://hl7.org/fhir/diagnostic-report-status"
+                    }
+                },
+                {
+                    "sourceCode": "cancelled",
+                    "targetCode": {
+                        "display": "Cancelled",
+                        "code": "cancelled",
+                        "system": "http://hl7.org/fhir/diagnostic-report-status"
+                    }
+                },
+                {
+                    "sourceCode": "completed",
+                    "targetCode": {
+                        "display": "Final",
+                        "code": "final",
+                        "system": "http://hl7.org/fhir/diagnostic-report-status"
+                    }
+                },
+                {
+                    "sourceCode": "held",
+                    "targetCode": {
+                        "display": "Registered",
+                        "code": "registered",
+                        "system": "http://hl7.org/fhir/diagnostic-report-status"
+                    }
+                },
+                {
+                    "sourceCode": "suspended",
+                    "targetCode": {
+                        "display": "Registered",
+                        "code": "registered",
+                        "system": "http://hl7.org/fhir/diagnostic-report-status"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "TelecomUse",
+            "mapping": [
+                {
+                    "sourceCode": "HP",
+                    "targetCode": {
+                        "display": "Home",
+                        "code": "home",
+                        "system": "http://hl7.org/fhir/contact-point-use"
+                    }
+                },
+                {
+                    "sourceCode": "MC",
+                    "targetCode": {
+                        "display": "Mobile",
+                        "code": "mobile",
+                        "system": "http://hl7.org/fhir/contact-point-use"
+                    }
+                },
+                {
+                    "sourceCode": "WP",
+                    "targetCode": {
+                        "display": "Work",
+                        "code": "work",
+                        "system": "http://hl7.org/fhir/contact-point-use"
+                    }
+                },
+                {
+                    "sourceCode": "EC",
+                    "targetCode": {
+                        "display": "Temp",
+                        "code": "temp",
+                        "system": "http://hl7.org/fhir/contact-point-use"
+                    }
+                },
+                {
+                    "sourceCode": "AS",
+                    "targetCode": {
+                        "display": "Work",
+                        "code": "work",
+                        "system": "http://hl7.org/fhir/contact-point-use"
+                    }
+                },
+                {
+                    "sourceCode": "HV",
+                    "targetCode": {
+                        "display": "Temp",
+                        "code": "temp",
+                        "system": "http://hl7.org/fhir/contact-point-use"
+                    }
+                },
+                {
+                    "sourceCode": "PG",
+                    "targetCode": {
+                        "display": "Old",
+                        "code": "old",
+                        "system": "http://hl7.org/fhir/contact-point-use"
+                    }
+                }
+            ]
         }
-      ]
-    }
-  ]
+    ]
 }

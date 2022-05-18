@@ -1,13 +1,14 @@
 package org.noria.cdafhirlib.fhirconverter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.eclipse.mdht.uml.hl7.datatypes.CD;
+import org.eclipse.mdht.uml.hl7.vocab.NullFlavor;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.junit.jupiter.api.Test;
 import org.noria.cdafhirlib.enumerations.FHIRtoCDACodeConversionType;
 import org.noria.cdafhirlib.model.FHIRtoCDACodes;
-import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
-import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
+
 
 import java.io.File;
 

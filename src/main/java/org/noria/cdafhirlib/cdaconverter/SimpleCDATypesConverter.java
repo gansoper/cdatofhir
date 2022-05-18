@@ -3,13 +3,12 @@ package org.noria.cdafhirlib.cdaconverter;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.mdht.uml.hl7.datatypes.AD;
 import org.eclipse.mdht.uml.hl7.datatypes.CD;
-import org.hl7.fhir.r4.model.Address;
-import org.hl7.fhir.r4.model.CodeableConcept;
-import org.hl7.fhir.r4.model.Coding;
-import org.hl7.fhir.r4.model.StringType;
+import org.eclipse.mdht.uml.hl7.datatypes.ED;
+import org.eclipse.mdht.uml.hl7.datatypes.TEL;
+import org.hl7.fhir.r4.model.*;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
-import org.noria.cdafhirlib.model.CodeToCodeMappingElement;
 import org.noria.cdafhirlib.model.CDAtoFHIRCodes;
+import org.noria.cdafhirlib.model.CodeToCodeMappingElement;
 import org.noria.cdafhirlib.model.CodesMapping;
 
 import java.util.stream.Collectors;
@@ -19,13 +18,13 @@ public class SimpleCDATypesConverter {
 
     private final CDAtoFHIRCodes codeMappings;
 
-    public SimpleCDATypesConverter(CDAtoFHIRCodes codeMappings){
+    public SimpleCDATypesConverter(CDAtoFHIRCodes codeMappings) {
         this.codeMappings = codeMappings;
     }
 
     public Coding createFHIRCoding(CD code, String conversionType) {
-        if (code !=null) {
-           Coding coding = this.getCodeFromMapping(code.getCode(), conversionType);
+        if (code != null) {
+            Coding coding = this.getCodeFromMapping(code.getCode(), conversionType);
             if (!StringUtils.isAllBlank(coding.getCode())) {
                 coding.setCode(code.getCode());
                 coding.setSystem(code.getCodeSystem());
@@ -45,24 +44,31 @@ public class SimpleCDATypesConverter {
         if (code != null && code.getTranslations() != null) {
             code.getTranslations().forEach(e -> codeableConcept.addCoding(this.createFHIRCoding(e, conversionType)));
         }
+
         return codeableConcept;
     }
 
-    public Address createFHIRAddress(AD cdaAddress){
+    public Address createFHIRAddress(AD cdaAddress) {
         Address address = new Address();
-        if (cdaAddress.getUses() != null && cdaAddress.getUses().size() != 0){
+        if (cdaAddress.getUses() != null && cdaAddress.getUses().size() != 0) {
             address.setUse(Address.AddressUse.fromCode(this.getStringCodeFromMapping(cdaAddress.getUses().get(0).toString(), CDAtoFHIRCodeConversionType.ADDRESS_USE.toValue())));
         }
-        address.setLine(cdaAddress.getStreetAddressLines().stream().map(e->new StringType(e.getText())).collect(Collectors.toList()));
-        address.setCity(cdaAddress.getCities().stream().map(e -> e.getText()).collect(Collectors.joining(",")));
-        address.setCountry(cdaAddress.getCounties().stream().map(e -> e.getText()).collect(Collectors.joining(",")));
-        address.setPostalCode(cdaAddress.getPostalCodes().stream().map(e->e.getText()).collect(Collectors.joining(",")));
-        address.setState(cdaAddress.getStates().stream().map(e->e.getText()).collect(Collectors.joining(",")));
+
+        address.setLine(cdaAddress.getStreetAddressLines().stream().map(e -> new StringType(e.getText())).collect(Collectors.toList()));
+        address.setCity(cdaAddress.getCities().stream().map(ED::getText).collect(Collectors.joining(",")));
+        address.setCountry(cdaAddress.getCounties().stream().map(ED::getText).collect(Collectors.joining(",")));
+        address.setPostalCode(cdaAddress.getPostalCodes().stream().map(ED::getText).collect(Collectors.joining(",")));
+        address.setState(cdaAddress.getStates().stream().map(ED::getText).collect(Collectors.joining(",")));
         return address;
     }
 
+    public ContactPoint createContactPoint(TEL telecom) {
+        ContactPoint contactPoint = new ContactPoint();
+        return contactPoint;
+    }
 
-    private String getStringCodeFromMapping(String sourceCode, String conversionType){
+
+    private String getStringCodeFromMapping(String sourceCode, String conversionType) {
         if (StringUtils.isNoneBlank(conversionType) && this.codeMappings != null) {
             CodeToCodeMappingElement cdAtoFHIRCodeElement = this.codeMappings.getCdaFhirMappings().stream()
                     .filter(e -> e.getType().equalsIgnoreCase(conversionType))
@@ -82,7 +88,7 @@ public class SimpleCDATypesConverter {
         return sourceCode;
     }
 
-    private Coding getCodeFromMapping(String sourceCode, String conversionType){
+    private Coding getCodeFromMapping(String sourceCode, String conversionType) {
 
         Coding coding = new Coding();
         if (StringUtils.isNoneBlank(conversionType) && this.codeMappings != null) {

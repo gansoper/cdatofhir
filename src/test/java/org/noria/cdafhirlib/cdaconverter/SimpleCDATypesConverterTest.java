@@ -2,10 +2,14 @@ package org.noria.cdafhirlib.cdaconverter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.mdht.uml.hl7.datatypes.AD;
+import org.eclipse.mdht.uml.hl7.datatypes.ADXP;
 import org.eclipse.mdht.uml.hl7.datatypes.CD;
 import org.eclipse.mdht.uml.hl7.datatypes.DatatypesFactory;
+import org.eclipse.mdht.uml.hl7.vocab.PostalAddressUse;
+import org.hl7.fhir.r4.model.Address;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
+import org.hl7.fhir.r4.model.ContactPoint;
 import org.junit.jupiter.api.Test;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
 import org.noria.cdafhirlib.model.CDAtoFHIRCodes;
@@ -93,10 +97,53 @@ class SimpleCDATypesConverterTest {
 
 
     @Test
-    void addressConversionTest(){
+    void addressEmptyConversionTest(){
         SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(this.getTestCodes());
         AD ad = DatatypesFactory.eINSTANCE.createAD();
-        //TODO: complete test
+        Address address = simpleCDATypesConverter.createFHIRAddress(ad);
+        assertNotNull(address);
+        assertNull(address.getCity());
+    }
+
+    @Test
+    void addressConversionTestLinesAndUses(){
+        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(this.getTestCodes());
+        AD ad = DatatypesFactory.eINSTANCE.createAD();
+        ad.getUses().add(PostalAddressUse.BAD);
+        ADXP adxp = DatatypesFactory.eINSTANCE.createADXP();
+        adxp.addText("test1");
+        ADXP adxp2 = DatatypesFactory.eINSTANCE.createADXP();
+        adxp2.addText("test2");
+        ad.getStreetAddressLines().add(adxp);
+        ad.getStreetAddressLines().add(adxp2);
+        Address address = simpleCDATypesConverter.createFHIRAddress(ad);
+        assertEquals(address.getUse(), Address.AddressUse.OLD);
+        assertEquals(address.getLine().get(0).toString(), "test1");
+        assertEquals(address.getLine().get(1).toString(), "test2");
+
+    }
+
+    @Test
+    void addressConversionTestCities(){
+        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(this.getTestCodes());
+        AD ad = DatatypesFactory.eINSTANCE.createAD();
+        ADXP adxp = DatatypesFactory.eINSTANCE.createADXP();
+        adxp.addText("test1");
+        ADXP adxp2 = DatatypesFactory.eINSTANCE.createADXP();
+        adxp2.addText("test2");
+        ad.getCities().add(adxp);
+        ad.getCities().add(adxp2);
+        Address address = simpleCDATypesConverter.createFHIRAddress(ad);
+        assertEquals(address.getCity(), "test1,test2");
+
+    }
+
+    @Test
+    void createContactPoint() {
+        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(this.getTestCodes());
+        ContactPoint contactPoint  = simpleCDATypesConverter.createContactPoint(null);
+        assertNotNull(contactPoint);
+        assertNull(contactPoint.getUse());
     }
 
 
@@ -109,5 +156,6 @@ class SimpleCDATypesConverterTest {
             return null;
         }
     }
+
 
 }

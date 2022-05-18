@@ -1,14 +1,15 @@
 package org.noria.cdafhirlib.fhirconverter;
 
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.mdht.uml.hl7.datatypes.CD;
+import org.eclipse.mdht.uml.hl7.datatypes.DatatypesFactory;
+import org.eclipse.mdht.uml.hl7.vocab.NullFlavor;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.noria.cdafhirlib.model.CodeToCodeMappingElement;
 import org.noria.cdafhirlib.model.CodesMapping;
 import org.noria.cdafhirlib.model.FHIRtoCDACodes;
-import org.openhealthtools.mdht.uml.hl7.datatypes.CD;
-import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
-import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
+
 
 public class SimpleFHIRTypesConverter {
 
