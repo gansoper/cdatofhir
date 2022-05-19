@@ -7,8 +7,6 @@ import org.noria.cdafhirlib.codemapping.CodeMappingProcessor;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
 import org.noria.cdafhirlib.model.CDAtoFHIRCodes;
 
-import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -72,12 +70,12 @@ public class SimpleCDATypesConverter {
 
     public HumanName createFHIRHumanName(PN cdaName) {
         HumanName fhirName = new HumanName();
-        cdaName.getGivens().stream().forEach(e -> fhirName.addGiven(e.getText()));
+        cdaName.getGivens().forEach(e -> fhirName.addGiven(e.getText()));
         fhirName.setFamily(cdaName.getFamilies().stream().map(ENXP::getText).collect(Collectors.joining(",")));
         return fhirName;
     }
 
-    public Identifier createFHIRIdentifier(II cdaId){
+    public Identifier createFHIRIdentifier(II cdaId) {
         Identifier identifier = new Identifier();
         identifier.setValue(cdaId.getExtension());
         identifier.setSystem(cdaId.getRoot());

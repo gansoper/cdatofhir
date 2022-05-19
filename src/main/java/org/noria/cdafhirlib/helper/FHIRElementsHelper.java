@@ -10,7 +10,7 @@ import java.util.UUID;
 public class FHIRElementsHelper {
 
     public static String createFHIRID(Enumerations.FHIRAllTypes fhirAllTypes, List<Identifier> identifiers){
-        String fhirID = identifiers== null? identifiers.get(0).getValue(): UUID.randomUUID().toString();
+        String fhirID = identifiers != null && identifiers.size() !=0? identifiers.get(0).getValue(): UUID.randomUUID().toString();
         return  fhirAllTypes.toCode() + "_" + fhirID;
     }
 

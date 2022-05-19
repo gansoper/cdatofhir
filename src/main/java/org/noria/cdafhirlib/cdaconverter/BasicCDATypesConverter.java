@@ -31,26 +31,27 @@ public class BasicCDATypesConverter {
         Map<String, IBaseResource> resources = new HashMap<>();
         Practitioner practitioner = new Practitioner();
         PractitionerRole practitionerRole = new PractitionerRole();
-        if (author.getTypeId() != null) {
-            practitioner.getIdentifier().add(this.simpleCDATypesConverter.createFHIRIdentifier(author.getTypeId()));
-            practitionerRole.getIdentifier().add(this.simpleCDATypesConverter.createFHIRIdentifier(author.getTypeId()));
-        }
 
         if (author.getAssignedAuthor() != null) {
 
-            if(author.getAssignedAuthor().getAddrs() != null){
-                practitioner.setAddress(author.getAssignedAuthor().getAddrs().stream().map(e -> this.simpleCDATypesConverter.createFHIRAddress(e)).collect(Collectors.toList()));
+            if (author.getAssignedAuthor().getIds() != null) {
+                author.getAssignedAuthor().getIds().forEach(e-> practitioner.getIdentifier().add(this.simpleCDATypesConverter.createFHIRIdentifier(e)));
+                practitionerRole.getIdentifier().addAll(practitioner.getIdentifier());
             }
 
-            if(author.getAssignedAuthor().getTelecoms() != null){
-                practitioner.setTelecom(author.getAssignedAuthor().getTelecoms().stream().map(e -> this.simpleCDATypesConverter.createContactPoint(e)).collect(Collectors.toList()));
+            if (author.getAssignedAuthor().getAddrs() != null) {
+                practitioner.setAddress(author.getAssignedAuthor().getAddrs().stream().map(this.simpleCDATypesConverter::createFHIRAddress).collect(Collectors.toList()));
+            }
+
+            if (author.getAssignedAuthor().getTelecoms() != null) {
+                practitioner.setTelecom(author.getAssignedAuthor().getTelecoms().stream().map(this.simpleCDATypesConverter::createContactPoint).collect(Collectors.toList()));
             }
 
 
-            if (author.getAssignedAuthor().getAssignedPerson() != null){
+            if (author.getAssignedAuthor().getAssignedPerson() != null) {
 
                 if (author.getAssignedAuthor().getAssignedPerson() != null && author.getAssignedAuthor().getAssignedPerson().getNames() != null) {
-                    practitioner.setName(author.getAssignedAuthor().getAssignedPerson().getNames().stream().map(e -> this.simpleCDATypesConverter.createFHIRHumanName(e)).collect(Collectors.toList()));
+                    practitioner.setName(author.getAssignedAuthor().getAssignedPerson().getNames().stream().map(this.simpleCDATypesConverter::createFHIRHumanName).collect(Collectors.toList()));
                     practitioner.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getIdentifier()));
                     resources.put(practitioner.getId(), practitioner);
                 }
@@ -86,8 +87,8 @@ public class BasicCDATypesConverter {
             organization.setName(cdaOrganization.getNames().stream().map(ON::getText).collect(Collectors.joining(",")));
         }
 
-        organization.setAddress(cdaOrganization.getAddrs().stream().map(e -> this.simpleCDATypesConverter.createFHIRAddress(e)).collect(Collectors.toList()));
-        organization.setTelecom(cdaOrganization.getTelecoms().stream().map(e -> this.simpleCDATypesConverter.createContactPoint(e)).collect(Collectors.toList()));
+        organization.setAddress(cdaOrganization.getAddrs().stream().map(this.simpleCDATypesConverter::createFHIRAddress).collect(Collectors.toList()));
+        organization.setTelecom(cdaOrganization.getTelecoms().stream().map(this.simpleCDATypesConverter::createContactPoint).collect(Collectors.toList()));
 
         return organization;
     }

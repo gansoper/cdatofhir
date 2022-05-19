@@ -20,7 +20,7 @@ public enum CDAtoFHIRCodeConversionType {
     TELECOM_USE("TelecomUse");
 
 
-    private String type;
+    private final String type;
 
     CDAtoFHIRCodeConversionType(String type){
         this.type = type;

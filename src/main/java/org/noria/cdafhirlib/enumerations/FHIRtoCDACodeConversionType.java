@@ -5,7 +5,7 @@ public enum FHIRtoCDACodeConversionType {
 
     REACTION_STATUS_CODING_VERIFICATION("ReactionStatusCodingVerification");
 
-    private String type;
+    private final String type;
 
     FHIRtoCDACodeConversionType(String type){
         this.type = type;
