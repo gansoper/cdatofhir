@@ -661,6 +661,22 @@
                     }
                 },
                 {
+                    "sourceCode": "H",
+                    "targetCode": {
+                        "display": "Home",
+                        "code": "home",
+                        "system": "http://hl7.org/fhir/contact-point-use"
+                    }
+                },
+                {
+                    "sourceCode": "BAD",
+                    "targetCode": {
+                        "display": "Old",
+                        "code": "old",
+                        "system": "http://hl7.org/fhir/contact-point-use"
+                    }
+                },
+                {
                     "sourceCode": "MC",
                     "targetCode": {
                         "display": "Mobile",
@@ -705,6 +721,30 @@
                     "targetCode": {
                         "display": "Old",
                         "code": "old",
+                        "system": "http://hl7.org/fhir/contact-point-use"
+                    }
+                },
+                {
+                    "sourceCode": "TMP",
+                    "targetCode": {
+                        "display": "Temp",
+                        "code": "temp",
+                        "system": "http://hl7.org/fhir/contact-point-use"
+                    }
+                },
+                {
+                    "sourceCode": "DIR",
+                    "targetCode": {
+                        "display": "Work",
+                        "code": "work",
+                        "system": "http://hl7.org/fhir/contact-point-use"
+                    }
+                },
+                {
+                    "sourceCode": "PUB",
+                    "targetCode": {
+                        "display": "Work",
+                        "code": "work",
                         "system": "http://hl7.org/fhir/contact-point-use"
                     }
                 }
