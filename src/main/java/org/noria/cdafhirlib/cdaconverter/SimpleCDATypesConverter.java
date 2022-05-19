@@ -1,30 +1,28 @@
 package org.noria.cdafhirlib.cdaconverter;
 
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.mdht.uml.hl7.datatypes.AD;
-import org.eclipse.mdht.uml.hl7.datatypes.CD;
-import org.eclipse.mdht.uml.hl7.datatypes.ED;
-import org.eclipse.mdht.uml.hl7.datatypes.TEL;
+import org.eclipse.mdht.uml.hl7.datatypes.*;
 import org.hl7.fhir.r4.model.*;
+import org.noria.cdafhirlib.codemapping.CodeMappingProcessor;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
 import org.noria.cdafhirlib.model.CDAtoFHIRCodes;
-import org.noria.cdafhirlib.model.CodeToCodeMappingElement;
-import org.noria.cdafhirlib.model.CodesMapping;
 
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
 public class SimpleCDATypesConverter {
 
-    private final CDAtoFHIRCodes codeMappings;
+    private final CodeMappingProcessor codeMappingProcessor;
 
     public SimpleCDATypesConverter(CDAtoFHIRCodes codeMappings) {
-        this.codeMappings = codeMappings;
+        codeMappingProcessor = CodeMappingProcessor.getInstance(codeMappings);
     }
 
     public Coding createFHIRCoding(CD code, String conversionType) {
         if (code != null) {
-            Coding coding = this.getCodeFromMapping(code.getCode(), conversionType);
+            Coding coding = this.codeMappingProcessor.getCodeFromMapping(code.getCode(), conversionType);
             if (!StringUtils.isAllBlank(coding.getCode())) {
                 coding.setCode(code.getCode());
                 coding.setSystem(code.getCodeSystem());
@@ -51,7 +49,7 @@ public class SimpleCDATypesConverter {
     public Address createFHIRAddress(AD cdaAddress) {
         Address address = new Address();
         if (cdaAddress.getUses() != null && cdaAddress.getUses().size() != 0) {
-            address.setUse(Address.AddressUse.fromCode(this.getStringCodeFromMapping(cdaAddress.getUses().get(0).toString(), CDAtoFHIRCodeConversionType.ADDRESS_USE.toValue())));
+            address.setUse(Address.AddressUse.fromCode(this.codeMappingProcessor.getStringCodeFromMapping(cdaAddress.getUses().get(0).toString(), CDAtoFHIRCodeConversionType.ADDRESS_USE.toValue())));
         }
 
         address.setLine(cdaAddress.getStreetAddressLines().stream().map(e -> new StringType(e.getText())).collect(Collectors.toList()));
@@ -64,59 +62,28 @@ public class SimpleCDATypesConverter {
 
     public ContactPoint createContactPoint(TEL telecom) {
         ContactPoint contactPoint = new ContactPoint();
-        if (telecom.getUses() != null && telecom.getUses().size() != 0){
-            contactPoint.setUse(ContactPoint.ContactPointUse.fromCode(this.getStringCodeFromMapping(telecom.getUses().get(0).toString(), CDAtoFHIRCodeConversionType.TELECOM_USE.toValue())));
+        if (telecom.getUses() != null && telecom.getUses().size() != 0) {
+            contactPoint.setUse(ContactPoint.ContactPointUse.fromCode(this.codeMappingProcessor.getStringCodeFromMapping(telecom.getUses().get(0).toString(), CDAtoFHIRCodeConversionType.TELECOM_USE.toValue())));
         }
 
         contactPoint.setValue(telecom.getValue());
         return contactPoint;
     }
 
-
-    private String getStringCodeFromMapping(String sourceCode, String conversionType) {
-        if (StringUtils.isNoneBlank(conversionType) && this.codeMappings != null) {
-            CodeToCodeMappingElement cdAtoFHIRCodeElement = this.codeMappings.getCdaFhirMappings().stream()
-                    .filter(e -> e.getType().equalsIgnoreCase(conversionType))
-                    .findFirst().orElse(null);
-
-            if (cdAtoFHIRCodeElement != null) {
-                CodesMapping codesMapping = cdAtoFHIRCodeElement.getMapping().stream()
-                        .filter(e -> e.getSourceCode().equalsIgnoreCase(sourceCode))
-                        .findFirst().orElse(null);
-
-                if (codesMapping != null) {
-                    return codesMapping.getTargetCode().getCode();
-                }
-            }
-        }
-
-        return sourceCode;
+    public HumanName createFHIRHumanName(PN cdaName) {
+        HumanName fhirName = new HumanName();
+        cdaName.getGivens().stream().forEach(e -> fhirName.addGiven(e.getText()));
+        fhirName.setFamily(cdaName.getFamilies().stream().map(ENXP::getText).collect(Collectors.joining(",")));
+        return fhirName;
     }
 
-    private Coding getCodeFromMapping(String sourceCode, String conversionType) {
-
-        Coding coding = new Coding();
-        if (StringUtils.isNoneBlank(conversionType) && this.codeMappings != null) {
-            CodeToCodeMappingElement cdAtoFHIRCodeElement = this.codeMappings.getCdaFhirMappings().stream()
-                    .filter(e -> e.getType().equalsIgnoreCase(conversionType))
-                    .findFirst().orElse(null);
-
-            if (cdAtoFHIRCodeElement != null) {
-                CodesMapping codesMapping = cdAtoFHIRCodeElement.getMapping().stream()
-                        .filter(e -> e.getSourceCode().equalsIgnoreCase(sourceCode))
-                        .findFirst().orElse(null);
-
-                if (codesMapping != null) {
-                    coding.setCode(codesMapping.getTargetCode().getCode());
-                    coding.setSystem(codesMapping.getTargetCode().getSystem());
-                    coding.setDisplay(codesMapping.getTargetCode().getDisplay());
-                }
-
-            }
-        }
-
-        return coding;
+    public Identifier createFHIRIdentifier(II cdaId){
+        Identifier identifier = new Identifier();
+        identifier.setValue(cdaId.getExtension());
+        identifier.setSystem(cdaId.getRoot());
+        return identifier;
     }
+
 
 /*
     public void testJSON() throws Exception {

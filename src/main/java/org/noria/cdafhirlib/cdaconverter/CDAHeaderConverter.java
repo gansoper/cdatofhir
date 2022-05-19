@@ -1,7 +1,8 @@
 package org.noria.cdafhirlib.cdaconverter;
 
-public class CDAHeaderConverter {
+import org.noria.cdafhirlib.model.CDAtoFHIRCodes;
 
+public class CDAHeaderConverter {
 
 
 }
