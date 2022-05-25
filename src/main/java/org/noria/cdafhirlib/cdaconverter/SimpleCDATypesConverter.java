@@ -1,29 +1,31 @@
 package org.noria.cdafhirlib.cdaconverter;
 
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.mdht.uml.hl7.datatypes.*;
 import org.hl7.fhir.r4.model.*;
 import org.noria.cdafhirlib.codemapping.CodeMappingProcessor;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
 import org.noria.cdafhirlib.model.CDAtoFHIRCodes;
+import org.noria.cdafhirlib.model.SystemNamesMapping;
 
 import java.util.stream.Collectors;
 
-
+@Getter
 public class SimpleCDATypesConverter {
 
-    private final CodeMappingProcessor codeMappingProcessor;
+    private CodeMappingProcessor codeMappingProcessor;
 
-    public SimpleCDATypesConverter(CDAtoFHIRCodes codeMappings) {
-        codeMappingProcessor = CodeMappingProcessor.getInstance(codeMappings);
+    public SimpleCDATypesConverter(CodeMappingProcessor codeMappingProcessor) {
+        this.codeMappingProcessor = codeMappingProcessor;
     }
 
     public Coding createFHIRCoding(CD code, String conversionType) {
         if (code != null) {
             Coding coding = this.codeMappingProcessor.getCodeFromMapping(code.getCode(), conversionType);
-            if (!StringUtils.isAllBlank(coding.getCode())) {
+            if (StringUtils.isAllBlank(coding.getCode())) {
                 coding.setCode(code.getCode());
-                coding.setSystem(code.getCodeSystem());
+                coding.setSystem(codeMappingProcessor.getFHIRCodeSystem(code.getCodeSystem()));
                 coding.setDisplay(code.getDisplayName());
             }
 
@@ -60,11 +62,13 @@ public class SimpleCDATypesConverter {
 
     public ContactPoint createContactPoint(TEL telecom) {
         ContactPoint contactPoint = new ContactPoint();
-        if (telecom.getUses() != null && telecom.getUses().size() != 0) {
-            contactPoint.setUse(ContactPoint.ContactPointUse.fromCode(this.codeMappingProcessor.getStringCodeFromMapping(telecom.getUses().get(0).toString(), CDAtoFHIRCodeConversionType.TELECOM_USE.toValue())));
-        }
+        if (telecom != null) {
+            if (telecom.getUses() != null && telecom.getUses().size() != 0) {
+                contactPoint.setUse(ContactPoint.ContactPointUse.fromCode(this.codeMappingProcessor.getStringCodeFromMapping(telecom.getUses().get(0).toString(), CDAtoFHIRCodeConversionType.TELECOM_USE.toValue())));
+            }
 
-        contactPoint.setValue(telecom.getValue());
+            contactPoint.setValue(telecom.getValue());
+        }
         return contactPoint;
     }
 

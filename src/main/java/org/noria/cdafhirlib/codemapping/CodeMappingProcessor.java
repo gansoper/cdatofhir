@@ -1,23 +1,26 @@
 package org.noria.cdafhirlib.codemapping;
 
+import lombok.Data;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.Coding;
-import org.noria.cdafhirlib.model.CDAtoFHIRCodes;
-import org.noria.cdafhirlib.model.CodeToCodeMappingElement;
-import org.noria.cdafhirlib.model.CodesMapping;
+import org.noria.cdafhirlib.constants.BaseConstants;
+import org.noria.cdafhirlib.model.*;
 
 public class CodeMappingProcessor {
 
     private static CodeMappingProcessor instance;
     private final CDAtoFHIRCodes codeMappings;
+    private final SystemNamesMapping systemNamesMapping;
 
-    private CodeMappingProcessor(CDAtoFHIRCodes codeMappings){
+    private CodeMappingProcessor(CDAtoFHIRCodes codeMappings, SystemNamesMapping systemNamesMapping) {
         this.codeMappings = codeMappings;
+        this.systemNamesMapping = systemNamesMapping;
     }
 
-    public static CodeMappingProcessor getInstance(CDAtoFHIRCodes codeMappings){
-        if (instance == null){
-            instance = new CodeMappingProcessor(codeMappings);
+    public static CodeMappingProcessor getInstance(CDAtoFHIRCodes codeMappings, SystemNamesMapping systemNamesMapping) {
+        if (instance == null) {
+            instance = new CodeMappingProcessor(codeMappings, systemNamesMapping);
         }
 
         return instance;
@@ -59,7 +62,7 @@ public class CodeMappingProcessor {
 
                 if (codesMapping != null) {
                     coding.setCode(codesMapping.getTargetCode().getCode());
-                    coding.setSystem(codesMapping.getTargetCode().getSystem());
+                    coding.setSystem(this.getFHIRCodeSystem(codesMapping.getTargetCode().getSystem()));
                     coding.setDisplay(codesMapping.getTargetCode().getDisplay());
                 }
 
@@ -68,5 +71,16 @@ public class CodeMappingProcessor {
 
         return coding;
     }
+
+    public String getFHIRCodeSystem(String cdaCodeSystem){
+        SystemMapping fhirSystem = this.systemNamesMapping.getSystems().stream().filter(e-> e.getOid().equals(cdaCodeSystem)).findFirst().orElse(null);
+        if (fhirSystem != null){
+            return fhirSystem.getUrl();
+        }
+        else{
+            return BaseConstants.URN_OID + cdaCodeSystem;
+        }
+    }
+
 
 }

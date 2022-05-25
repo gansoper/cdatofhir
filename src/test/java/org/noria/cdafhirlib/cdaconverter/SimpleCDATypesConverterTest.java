@@ -9,10 +9,13 @@ import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.ContactPoint;
 import org.junit.jupiter.api.Test;
+import org.noria.cdafhirlib.codemapping.CodeMappingProcessor;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
 import org.noria.cdafhirlib.model.CDAtoFHIRCodes;
+import org.noria.cdafhirlib.model.SystemNamesMapping;
 
 import java.io.File;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,7 +23,7 @@ class SimpleCDATypesConverterTest {
 
     @Test
     void createFHIRCodingNull() {
-        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(null);
+        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(null, getSystems()));
         Coding coding = simpleCDATypesConverter.createFHIRCoding(null, null);
         assertNotEquals(coding, null);
         assertNull(coding.getCode());
@@ -28,7 +31,7 @@ class SimpleCDATypesConverterTest {
 
     @Test
     void createFHIRCodingNotInJSONEmptyCD() {
-        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(null);
+        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(null, getSystems()));
         CD cd = DatatypesFactory.eINSTANCE.createCD();
         Coding coding = simpleCDATypesConverter.createFHIRCoding(cd, "test");
         assertNotEquals(coding, null);
@@ -37,7 +40,7 @@ class SimpleCDATypesConverterTest {
 
     @Test
     void createFHIRCodingNotInJSONCDValue() {
-        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(null);
+        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(null, getSystems()));
         CD cd = DatatypesFactory.eINSTANCE.createCD();
         cd.setCode("test");
         Coding coding = simpleCDATypesConverter.createFHIRCoding(cd, "test");
@@ -47,7 +50,7 @@ class SimpleCDATypesConverterTest {
 
     @Test
     void createFHIRCodingNotInJSONCDValueFilled() {
-        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(this.getTestCodes());
+        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
         CD cd = DatatypesFactory.eINSTANCE.createCD();
         cd.setCode("completed");
         Coding coding = simpleCDATypesConverter.createFHIRCoding(cd, CDAtoFHIRCodeConversionType.OBSERVATION_STATUS.toValue());
@@ -58,7 +61,7 @@ class SimpleCDATypesConverterTest {
 
     @Test
     void codeabelConceptNull() {
-        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(null);
+        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(null, getSystems()));
         CD cd = DatatypesFactory.eINSTANCE.createCD();
         cd.setCode("test");
         CodeableConcept codeableConcept = simpleCDATypesConverter.createFHIRCodeableConcept(null, null);
@@ -69,7 +72,7 @@ class SimpleCDATypesConverterTest {
 
     @Test
     void codeabelConceptNotNull() {
-        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(null);
+        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(null, getSystems()));
         CD cd = DatatypesFactory.eINSTANCE.createCD();
         cd.setCode("test");
         CodeableConcept codeableConcept = simpleCDATypesConverter.createFHIRCodeableConcept(cd, null);
@@ -80,7 +83,7 @@ class SimpleCDATypesConverterTest {
 
     @Test
     void codeabelConceptNotNullFromJson() {
-        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(this.getTestCodes());
+        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
         CD cd = DatatypesFactory.eINSTANCE.createCD();
         cd.setCode("completed");
         CD translation = DatatypesFactory.eINSTANCE.createCD();
@@ -96,7 +99,7 @@ class SimpleCDATypesConverterTest {
 
     @Test
     void addressEmptyConversionTest(){
-        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(this.getTestCodes());
+        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
         AD ad = DatatypesFactory.eINSTANCE.createAD();
         Address address = simpleCDATypesConverter.createFHIRAddress(ad);
         assertNotNull(address);
@@ -105,7 +108,7 @@ class SimpleCDATypesConverterTest {
 
     @Test
     void addressConversionTestLinesAndUses(){
-        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(this.getTestCodes());
+        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
         AD ad = DatatypesFactory.eINSTANCE.createAD();
         ad.getUses().add(PostalAddressUse.BAD);
         ADXP adxp = DatatypesFactory.eINSTANCE.createADXP();
@@ -123,7 +126,7 @@ class SimpleCDATypesConverterTest {
 
     @Test
     void addressConversionTestCities(){
-        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(this.getTestCodes());
+        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
         AD ad = DatatypesFactory.eINSTANCE.createAD();
         ADXP adxp = DatatypesFactory.eINSTANCE.createADXP();
         adxp.addText("test1");
@@ -138,7 +141,7 @@ class SimpleCDATypesConverterTest {
 
     @Test
     void createContactPoint() {
-        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(this.getTestCodes());
+        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
         ContactPoint contactPoint  = simpleCDATypesConverter.createContactPoint(null);
         assertNotNull(contactPoint);
         assertNull(contactPoint.getUse());
@@ -146,7 +149,7 @@ class SimpleCDATypesConverterTest {
 
     @Test
     void createContactPointFilled() {
-        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(this.getTestCodes());
+        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
         TEL telecom = DatatypesFactory.eINSTANCE.createTEL();
         telecom.getUses().add(TelecommunicationAddressUse.HP);
         telecom.setValue("test");
@@ -163,6 +166,16 @@ class SimpleCDATypesConverterTest {
             File file = new File(this.getClass().getClassLoader().getResource("CDAtoFHIRCodes.json").getFile());
             ObjectMapper om = new ObjectMapper();
             return om.readValue(file, CDAtoFHIRCodes.class);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private SystemNamesMapping getSystems() {
+        try {
+            File file = new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("OIDtoURL.json")).getFile());
+            ObjectMapper om = new ObjectMapper();
+            return om.readValue(file, SystemNamesMapping.class);
         } catch (Exception e) {
             return null;
         }

@@ -10,6 +10,7 @@ import org.hl7.fhir.r4.model.*;
 import org.noria.cdafhirlib.codemapping.CodeMappingProcessor;
 import org.noria.cdafhirlib.helper.FHIRElementsHelper;
 import org.noria.cdafhirlib.model.CDAtoFHIRCodes;
+import org.noria.cdafhirlib.model.SystemNamesMapping;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,14 +20,12 @@ import java.util.stream.Collectors;
 
 public class BasicCDATypesConverter {
 
-    private final CodeMappingProcessor codeMappingProcessor;
-
     private final SimpleCDATypesConverter simpleCDATypesConverter;
 
-    public BasicCDATypesConverter(CDAtoFHIRCodes codeMappings, SimpleCDATypesConverter simpleCDATypesConverter) {
-        this.codeMappingProcessor = CodeMappingProcessor.getInstance(codeMappings);
+    public BasicCDATypesConverter(SimpleCDATypesConverter simpleCDATypesConverter) {
         this.simpleCDATypesConverter = simpleCDATypesConverter;
     }
+
 
     public Map<String, IBaseResource> convertAuthor(Author author) {
         Map<String, IBaseResource> resources = new HashMap<>();
@@ -81,7 +80,7 @@ public class BasicCDATypesConverter {
         Map<String, IBaseResource> resources = new HashMap<>();
         Practitioner practitioner = new Practitioner();
         List<PractitionerRole> practitionerRoles = new ArrayList<>();
-        Location location = new Location();
+        List<Location> locations = new ArrayList<>();
         List<Organization> organizations = new ArrayList<>();
 
 
@@ -111,24 +110,29 @@ public class BasicCDATypesConverter {
 
         }
 
-        if (CollectionUtils.isNotEmpty(practitioner.getIdentifier()) || CollectionUtils.isNotEmpty(practitioner.getAddress()) || CollectionUtils.isNotEmpty(practitioner.getTelecom()) || CollectionUtils.isNotEmpty(practitioner.getName())) {
-            practitioner.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getIdentifier()));
-            resources.put(practitioner.getId(), practitioner);
-        }
+        practitioner.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getIdentifier()));
+        resources.put(practitioner.getId(), practitioner);
 
         if (performer.getFunctionCode() != null) {
             CodeableConcept codeableConcept = this.simpleCDATypesConverter.createFHIRCodeableConcept(performer.getFunctionCode(), null);
-            location.setAddress(practitioner.getAddressFirstRep());
-            location.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.LOCATION, location.getIdentifier()));
+            if (CollectionUtils.isNotEmpty(practitioner.getAddress())) {
+                practitioner.getAddress().forEach(address -> {
+                    Location location = new Location();
+                    location.setAddress(practitioner.getAddressFirstRep());
+                    location.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.LOCATION, location.getIdentifier()));
+                    locations.add(location);
+                    resources.put(location.getId(), location);
+                });
+
+            }
             if (CollectionUtils.isNotEmpty(organizations)) {
-                practitionerRoles.addAll(organizations.stream().map(org -> this.createPractitionerRole(codeableConcept, practitioner, location, org)).collect(Collectors.toList()));
+                practitionerRoles.addAll(organizations.stream().map(org -> this.createPractitionerRole(codeableConcept, practitioner, locations, org)).collect(Collectors.toList()));
             } else {
-                practitionerRoles.add(this.createPractitionerRole(codeableConcept, practitioner, location, null));
+                practitionerRoles.add(this.createPractitionerRole(codeableConcept, practitioner, locations, null));
             }
 
         }
 
-        resources.put(location.getId(), location);
         practitionerRoles.forEach(pr -> resources.put(pr.getId(), pr));
         organizations.forEach(org -> resources.put(org.getId(), org));
 
@@ -138,8 +142,8 @@ public class BasicCDATypesConverter {
 
     public Organization createFHIROrganization(org.eclipse.mdht.uml.cda.Organization cdaOrganization) {
         Organization organization = new Organization();
-        if (cdaOrganization.getTypeId() != null) {
-            organization.addIdentifier(this.simpleCDATypesConverter.createFHIRIdentifier(cdaOrganization.getTypeId()));
+        if (CollectionUtils.isNotEmpty(cdaOrganization.getIds())) {
+            cdaOrganization.getIds().forEach(e-> organization.addIdentifier(this.simpleCDATypesConverter.createFHIRIdentifier(e)));
         }
 
         if (cdaOrganization.getNames() != null) {
@@ -152,13 +156,13 @@ public class BasicCDATypesConverter {
         return organization;
     }
 
-    private PractitionerRole createPractitionerRole(CodeableConcept codeableConcept, Practitioner practitioner, Location location, Organization organization) {
+    private PractitionerRole createPractitionerRole(CodeableConcept codeableConcept, Practitioner practitioner, List<Location> locations, Organization organization) {
         PractitionerRole practitionerRole = new PractitionerRole();
         practitionerRole.getSpecialty().add(codeableConcept);
         practitionerRole.getTelecom().addAll(practitioner.getTelecom());
         practitionerRole.getIdentifier().addAll(practitioner.getIdentifier());
         practitionerRole.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.PRACTITIONERROLE, null));
-        practitionerRole.getLocation().add(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.LOCATION, location.getId()));
+        locations.forEach(loc-> practitionerRole.getLocation().add(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.LOCATION, loc.getId())));
         if (organization != null) {
             practitionerRole.setOrganization(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.ORGANIZATION, organization.getId()));
         }
