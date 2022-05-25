@@ -3,36 +3,36 @@ package org.noria.cdafhirlib.cdaconverter;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.mdht.uml.hl7.datatypes.*;
+import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.model.*;
 import org.noria.cdafhirlib.codemapping.CodeMappingProcessor;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
-import org.noria.cdafhirlib.model.CDAtoFHIRCodes;
-import org.noria.cdafhirlib.model.SystemNamesMapping;
 
 import java.util.stream.Collectors;
 
 @Getter
 public class SimpleCDATypesConverter {
 
-    private CodeMappingProcessor codeMappingProcessor;
+    private final CodeMappingProcessor codeMappingProcessor;
 
     public SimpleCDATypesConverter(CodeMappingProcessor codeMappingProcessor) {
         this.codeMappingProcessor = codeMappingProcessor;
     }
 
     public Coding createFHIRCoding(CD code, String conversionType) {
+        Coding coding = new Coding();
         if (code != null) {
-            Coding coding = this.codeMappingProcessor.getCodeFromMapping(code.getCode(), conversionType);
+            if (conversionType != null) {
+                coding = this.codeMappingProcessor.getCodeFromMapping(code.getCode(), conversionType);
+            }
             if (StringUtils.isAllBlank(coding.getCode())) {
                 coding.setCode(code.getCode());
                 coding.setSystem(codeMappingProcessor.getFHIRCodeSystem(code.getCodeSystem()));
                 coding.setDisplay(code.getDisplayName());
             }
-
-            return coding;
         }
 
-        return new Coding();
+        return coding;
     }
 
     public CodeableConcept createFHIRCodeableConcept(CD code, String conversionType) {
@@ -86,6 +86,25 @@ public class SimpleCDATypesConverter {
         return identifier;
     }
 
+    public Enumerations.AdministrativeGender getGender(CD genderCode) throws FHIRException {
+        String fhirCode = this.codeMappingProcessor.getStringCodeFromMapping(genderCode.getCode(), CDAtoFHIRCodeConversionType.FAMILY_HISTORY_MEMBER_PERSON_RLT_SUBJ_GENDER.toValue());
+        return Enumerations.AdministrativeGender.fromCode(fhirCode);
+    }
+
+
+    public Extension createExtension(CD coding, String url) {
+        Extension extension = new Extension();
+        extension.setUrl(url);
+        extension.setValue(this.createFHIRCoding(coding, null));
+        return extension;
+    }
+
+    public Extension createExtension(AD address, String url) {
+        Extension extension = new Extension();
+        extension.setUrl(url);
+        extension.setValue(this.createFHIRAddress(address));
+        return extension;
+    }
 
 /*
     public void testJSON() throws Exception {
