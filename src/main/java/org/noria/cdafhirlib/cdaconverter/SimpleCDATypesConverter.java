@@ -1,6 +1,8 @@
 package org.noria.cdafhirlib.cdaconverter;
 
+import ca.uhn.fhir.model.api.IElement;
 import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.mdht.uml.hl7.datatypes.*;
 import org.hl7.fhir.exceptions.FHIRException;
@@ -8,16 +10,37 @@ import org.hl7.fhir.r4.model.*;
 import org.noria.cdafhirlib.codemapping.CodeMappingProcessor;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-@Getter
+@Log4j2
 public class SimpleCDATypesConverter {
 
+    private static final Pattern CDA_DATE_PATTERN = Pattern.compile("(?<year>[0-9]{4})((?<month>[0-9]{2})((?<day>[0-9]{2})((?<hour>[0-9]{2})((?<minute>[0-9]{2})((?<second>[0-9]{2})(?<fractional>\\.[0-9]{1,4})?)?)?)?)?)?(?<timezone>(?<tzsign>[+\\-])(?<tzhour>[0-9]{2})(?<tzminute>[0-9]{2}))?");
+
     private final CodeMappingProcessor codeMappingProcessor;
+
+    private static final DatatypeFactory XML_DATATYPE_FACTORY = createDataTypeFactory();
+
+    public static DatatypeFactory createDataTypeFactory() {
+        try {
+            return DatatypeFactory.newInstance();
+        } catch (DatatypeConfigurationException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public SimpleCDATypesConverter(CodeMappingProcessor codeMappingProcessor) {
         this.codeMappingProcessor = codeMappingProcessor;
     }
+
 
     public Coding createFHIRCoding(CD code, String conversionType) {
         Coding coding = new Coding();
@@ -105,6 +128,94 @@ public class SimpleCDATypesConverter {
         extension.setValue(this.createFHIRAddress(address));
         return extension;
     }
+
+    //TODO: create this extension
+    /*
+    public Extension createDateExtension(IVL_TS date){
+        IElement iElementDate = this.convertIVLTSDate(date);
+        if (iElementDate != null) {
+            Extension extension = new Extension();
+            if (iElementDate instanceof Period) {
+                extension.setUrl(url);
+            }
+            Extension extension = new Extension();
+            extension.setUrl(url);
+            extension.setValue(this.convertIVLTSDate(date));
+            return extension;
+        }
+    }
+*/
+
+
+    public String convertCDAToFHIRDate(String value) {
+        try {
+            if (value == null)
+                return null;
+
+            XMLGregorianCalendar calendar = XML_DATATYPE_FACTORY.newXMLGregorianCalendar();
+            Matcher m = CDA_DATE_PATTERN.matcher(value);
+            if (!m.matches()) {
+                return null;
+            }
+
+            if (m.group("year") != null) {
+                calendar.setYear(Integer.parseInt(m.group("year")));
+                if (m.group("month") != null) {
+                    calendar.setMonth(Integer.parseInt(m.group("month")));
+                    if (m.group("day") != null) {
+                        calendar.setDay(Integer.parseInt(m.group("day")));
+                        if (m.group("hour") != null) {
+                            calendar.setHour(Integer.parseInt(m.group("hour")));
+                            if (m.group("minute") != null) {
+                                calendar.setMinute(Integer.parseInt(m.group("minute")));
+                                if (m.group("second") != null) {
+                                    calendar.setSecond(Integer.parseInt(m.group("second")));
+                                    if (m.group("fractional") != null) {
+                                        calendar.setFractionalSecond(new BigDecimal(m.group("fractional")));
+                                    }
+                                } else {
+                                    calendar.setSecond(0);
+                                }
+                            } else {
+                                calendar.setMinute(0);
+                                calendar.setSecond(0);
+                            }
+                        }
+                    }
+                }
+                if (m.group("timezone") != null) {
+                    int timeZoneOffsetInMinutes = (int) TimeUnit.MINUTES.convert(Integer.parseInt(m.group("tzhour")), TimeUnit.HOURS) + Integer.parseInt(m.group("tzminute"));
+                    if (m.group("tzsign").equals("-")) {
+                        timeZoneOffsetInMinutes = -timeZoneOffsetInMinutes;
+                    }
+                    calendar.setTimezone(timeZoneOffsetInMinutes);
+                }
+            }
+            return calendar.toXMLFormat();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+
+        return  null;
+    }
+
+
+
+    IElement convertIVLTSDate(IVL_TS cdaDateTime){
+        if ((cdaDateTime.getLow() != null && !cdaDateTime.getLow().isSetNullFlavor())  || (cdaDateTime.getHigh() != null && !cdaDateTime.getHigh().isSetNullFlavor()) ){
+            Period period = new Period();
+            period.setStartElement( new DateTimeType(this.convertCDAToFHIRDate(cdaDateTime.getLow().getValue())));
+            period.setEndElement( new DateTimeType(this.convertCDAToFHIRDate(cdaDateTime.getHigh().getValue())));
+            return period;
+        }
+        else if (!cdaDateTime.isSetNullFlavor()){
+            DateTimeType dateTimeType = new DateTimeType(this.convertCDAToFHIRDate(cdaDateTime.getValue()));
+            return dateTimeType;
+        }
+
+        return  null;
+    }
+
 
 /*
     public void testJSON() throws Exception {

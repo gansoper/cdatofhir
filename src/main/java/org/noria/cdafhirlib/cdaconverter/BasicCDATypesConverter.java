@@ -1,5 +1,6 @@
 package org.noria.cdafhirlib.cdaconverter;
 
+import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +21,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Log4j2
+@Getter
 public class BasicCDATypesConverter {
 
     private final SimpleCDATypesConverter simpleCDATypesConverter;
@@ -142,70 +144,6 @@ public class BasicCDATypesConverter {
 
         practitionerRoles.forEach(pr -> resources.put(pr.getId(), pr));
         organizations.forEach(org -> resources.put(org.getId(), org));
-
-        return resources;
-    }
-
-    Map<String, IBaseResource> convertPatient(PatientRole cdaPatientRole) {
-        Map<String, IBaseResource> resources = new HashMap<>();
-        Patient patient = new Patient();
-        if (CollectionUtils.isNotEmpty(cdaPatientRole.getIds())) {
-            cdaPatientRole.getIds().forEach(id -> patient.getIdentifier().add(this.simpleCDATypesConverter.createFHIRIdentifier(id)));
-        }
-
-        patient.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.PATIENT, patient.getIdentifier()));
-
-        if (CollectionUtils.isNotEmpty(cdaPatientRole.getAddrs())) {
-            cdaPatientRole.getAddrs().forEach(address -> patient.getAddress().add(this.simpleCDATypesConverter.createFHIRAddress(address)));
-        }
-
-        if (CollectionUtils.isNotEmpty(cdaPatientRole.getTelecoms())) {
-            cdaPatientRole.getTelecoms().forEach(tel -> patient.getTelecom().add(this.simpleCDATypesConverter.createContactPoint(tel)));
-        }
-
-        if (cdaPatientRole.getPatient() != null) {
-            org.eclipse.mdht.uml.cda.Patient cdaPatient = cdaPatientRole.getPatient();
-            if (CollectionUtils.isNotEmpty(cdaPatient.getNames())) {
-                cdaPatient.getNames().forEach(name -> patient.getName().add(this.simpleCDATypesConverter.createFHIRHumanName(name)));
-            }
-
-            try {
-                patient.setGender(this.simpleCDATypesConverter.getGender(cdaPatient.getAdministrativeGenderCode()));
-            } catch (FHIRException e) {
-                log.error("Unknown Gender Code", e);
-            }
-
-            patient.setMaritalStatus(this.simpleCDATypesConverter.createFHIRCodeableConcept(cdaPatient.getMaritalStatusCode(), null));
-
-            if (cdaPatient.getReligiousAffiliationCode() != null) {
-                patient.getExtension().add(this.simpleCDATypesConverter.createExtension(cdaPatient.getReligiousAffiliationCode(), BaseConstants.USCORE_EXTENSION_URL));
-            }
-
-            if (cdaPatient.getRaceCode() != null) {
-                patient.getExtension().add(this.simpleCDATypesConverter.createExtension(cdaPatient.getRaceCode(), BaseConstants.USCORE_EXTENSION_URL));
-            }
-
-            if (cdaPatient.getBirthplace() != null && cdaPatient.getBirthplace().getPlace() != null) {
-                if (CollectionUtils.isNotEmpty(cdaPatient.getBirthplace().getPlace().getAddrs())) {
-                    cdaPatient.getBirthplace().getPlace().getAddrs().forEach(ad -> patient.getExtension().add(this.simpleCDATypesConverter.createExtension(ad, BaseConstants.BIRTHPLACE_EXTENSION_URL)));
-                }
-            }
-
-            if (CollectionUtils.isNotEmpty(cdaPatient.getLanguageCommunications())) {
-                List<Patient.PatientCommunicationComponent> patientCommunicationComponents = cdaPatient.getLanguageCommunications().stream()
-                        .map(languageCommunication -> new Patient.PatientCommunicationComponent(this.simpleCDATypesConverter.createFHIRCodeableConcept(languageCommunication.getLanguageCode(), null)))
-                        .collect(Collectors.toList());
-                patient.setCommunication(patientCommunicationComponents);
-            }
-
-        }
-
-        resources.put(patient.getId(), patient);
-
-        if (cdaPatientRole.getProviderOrganization() != null) {
-            Organization organization = this.createFHIROrganization(cdaPatientRole.getProviderOrganization());
-            resources.put(organization.getId(), organization);
-        }
 
         return resources;
     }

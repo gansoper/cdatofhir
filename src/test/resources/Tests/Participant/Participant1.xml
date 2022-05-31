@@ -33,52 +33,28 @@
 	<setId extension="sTT988" root="2.16.840.1.113883.19.5.99999.19"/>
 	<!-- Version of this document -->
 	<versionNumber value="1"/>
-	<recordTarget>
-		<patientRole>
-			<id extension="444222222" root="2.16.840.1.113883.4.1"/>
-			<!-- Example Social Security Number using the actual SSN OID. -->
+
+	<participant typeCode="IND">
+		<!-- typeCode "IND" represents an individual -->
+		<associatedEntity classCode="NOK">
+			<!-- classCode "NOK" represents the patient's next of kin-->
 			<addr use="HP">
-				<!-- HP is "primary home" from codeSystem 2.16.840.1.113883.5.1119 -->
 				<streetAddressLine>2222 Home Street</streetAddressLine>
 				<city>Beaverton</city>
 				<state>OR</state>
 				<postalCode>97867</postalCode>
 				<country>US</country>
-				<!-- US is "United States" from ISO 3166-1 Country Codes: 1.0.3166.1 -->
 			</addr>
-			<telecom value="tel:+1(555)555-2003" use="HP"/>
-			<!-- HP is "primary home" from HL7 AddressUse 2.16.840.1.113883.5.1119 -->
-			<patient>
-				<name use="L">
-					<given>Eve</given>
-					<!-- The "SP" is "Spouse" from HL7 Code System EntityNamePartQualifier 2.16.840.1.113883.5.43 -->
-					<family qualifier="SP">Betterhalf</family>
+			<telecom value="tel:+1(555)555-2008" use="MC"/>
+			<associatedPerson>
+				<name>
+					<given>Boris</given>
+					<given qualifier="CL">Bo</given>
+					<family>Betterhalf</family>
 				</name>
-				<administrativeGenderCode code="UNK" displayName="Female" codeSystem="2.16.840.1.113883.5.1" codeSystemName="AdministrativeGender"/>
-				<maritalStatusCode code="M" displayName="Married" codeSystem="2.16.840.1.113883.5.2" codeSystemName="MaritalStatusCode"/>
-				<religiousAffiliationCode code="1013" displayName="Christian (non-Catholic, non-specific)" codeSystem="2.16.840.1.113883.5.1076" codeSystemName="HL7 Religious Affiliation"/>
-				<!-- CDC Race and Ethnicity code set contains the five minimum race and ethnicity 
-					categories defined by OMB Standards -->
-				<raceCode code="2106-3" displayName="White" codeSystem="2.16.840.1.113883.6.238" codeSystemName="Race &amp; Ethnicity - CDC"/>
-				<!-- The raceCode extension is only used if raceCode is valued -->
-				<sdtc:raceCode code="2076-8" displayName="Hawaiian or Other Pacific Islander" codeSystem="2.16.840.1.113883.6.238" codeSystemName="Race &amp; Ethnicity - CDC"/>
-				<birthplace>
-					<place>
-						<addr>
-							<streetAddressLine>4444 Home Street</streetAddressLine>
-							<city>Beaverton</city>
-							<state>OR</state>
-							<postalCode>97867</postalCode>
-							<country>US</country>
-						</addr>
-					</place>
-				</birthplace>
-				<languageCommunication>
-					<languageCode code="en"/>
-				</languageCommunication>
-			</patient>
-		</patientRole>
-	</recordTarget>
-	<!-- The author represents the person who provides the content in the document -->
+			</associatedPerson>
+		</associatedEntity>
+	</participant>
+	<!-- Entities playing multiple roles are recorded in multiple participants -->
 
 </ClinicalDocument>

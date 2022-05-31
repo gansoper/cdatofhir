@@ -5,11 +5,13 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.eclipse.mdht.uml.cda.Author;
 import org.eclipse.mdht.uml.cda.ClinicalDocument;
-import org.eclipse.mdht.uml.cda.PatientRole;
 import org.eclipse.mdht.uml.cda.Performer1;
 import org.eclipse.mdht.uml.cda.util.CDAUtil;
 import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.Location;
+import org.hl7.fhir.r4.model.Organization;
+import org.hl7.fhir.r4.model.Practitioner;
+import org.hl7.fhir.r4.model.PractitionerRole;
 import org.junit.jupiter.api.Test;
 import org.noria.cdafhirlib.codemapping.CodeMappingProcessor;
 import org.noria.cdafhirlib.model.CDAtoFHIRCodes;
@@ -133,6 +135,7 @@ class BasicCDATypesConverterTest {
         });
     }
 
+
     @Test
     public void testPerformerAllItems() throws Exception {
         File file = new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("Tests/Performer/Performer2.xml")).getFile());
@@ -161,53 +164,6 @@ class BasicCDATypesConverterTest {
             }
 
         });
-    }
-
-    @Test
-    public void testPatientBaseConversion() throws Exception {
-        File file = new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("Tests/Patient/Patient1.xml")).getFile());
-        FileInputStream fis = new FileInputStream(file);
-        ClinicalDocument cda = CDAUtil.load(fis);
-        PatientRole patientRole = cda.getPatientRoles().get(0);
-        BasicCDATypesConverter basicCDATypesConverter = new BasicCDATypesConverter(new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems())));
-        Map<String, IBaseResource> resources = basicCDATypesConverter.convertPatient(patientRole);
-        assertEquals(resources.size(), 2);
-        assertNotEquals(resources.entrySet().stream().filter(k -> k.getValue() instanceof Patient).findAny().orElse(null), null);
-        assertNotEquals(resources.entrySet().stream().filter(k -> k.getValue() instanceof Organization).findAny().orElse(null), null);
-
-        resources.forEach((key, value) -> {
-            if (value instanceof Patient) {
-                Patient patient = (Patient) value;
-                assertEquals(patient.getExtension().size(), 3);
-                assertTrue(CollectionUtils.isNotEmpty(patient.getIdentifier()));
-                assertEquals(patient.getId(), "Patient_444222222");
-                assertTrue(CollectionUtils.isNotEmpty(patient.getIdentifier()));
-                assertEquals(patient.getIdentifierFirstRep().getValue(), "444222222");
-                assertEquals(patient.getTelecomFirstRep().getValue(), "tel:+1(555)555-2003");
-                assertEquals(patient.getAddressFirstRep().getCity(), "Beaverton");
-                assertEquals(patient.getNameFirstRep().getFamily(), "Betterhalf");
-                assertEquals(patient.getNameFirstRep().getGivenAsSingleString(), "Eve");
-                assertEquals(patient.getCommunicationFirstRep().getLanguage().getCodingFirstRep().getCode(), "en");
-                assertEquals(patient.getGender(), Enumerations.AdministrativeGender.FEMALE);
-                assertEquals(patient.getMaritalStatus().getCodingFirstRep().getCode(), "M");
-
-            }
-
-            if (value instanceof Organization) {
-                Organization organization = (Organization) value;
-                assertTrue(CollectionUtils.isNotEmpty(organization.getIdentifier()));
-                assertTrue(CollectionUtils.isNotEmpty(organization.getTelecom()));
-                assertTrue(CollectionUtils.isNotEmpty(organization.getAddress()));
-                assertEquals(organization.getId(), "Organization_219BX");
-                assertEquals(organization.getIdentifierFirstRep().getValue(), "219BX");
-                assertEquals(organization.getTelecomFirstRep().getValue(), "tel: +1(555)555-5000");
-                assertEquals(organization.getAddressFirstRep().getCity(), "Portland");
-                assertEquals(organization.getName(), "The DoctorsTogether Physician Group");
-            }
-
-        });
-
-
     }
 
 
