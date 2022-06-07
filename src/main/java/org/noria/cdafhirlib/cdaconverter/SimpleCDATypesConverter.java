@@ -201,18 +201,18 @@ public class SimpleCDATypesConverter {
 
 
 
-    IElement convertIVLTSDate(IVL_TS cdaDateTime){
-        if ((cdaDateTime.getLow() != null && !cdaDateTime.getLow().isSetNullFlavor())  || (cdaDateTime.getHigh() != null && !cdaDateTime.getHigh().isSetNullFlavor()) ){
-            Period period = new Period();
-            period.setStartElement( new DateTimeType(this.convertCDAToFHIRDate(cdaDateTime.getLow().getValue())));
-            period.setEndElement( new DateTimeType(this.convertCDAToFHIRDate(cdaDateTime.getHigh().getValue())));
-            return period;
+    Type convertIVLTSDate(IVL_TS cdaDateTime){
+        if (cdaDateTime != null) {
+            if ((cdaDateTime.getLow() != null && !cdaDateTime.getLow().isSetNullFlavor()) || (cdaDateTime.getHigh() != null && !cdaDateTime.getHigh().isSetNullFlavor())) {
+                Period period = new Period();
+                period.setStartElement(new DateTimeType(this.convertCDAToFHIRDate(cdaDateTime.getLow().getValue())));
+                period.setEndElement(new DateTimeType(this.convertCDAToFHIRDate(cdaDateTime.getHigh().getValue())));
+                return period;
+            } else if (!cdaDateTime.isSetNullFlavor()) {
+                DateTimeType dateTimeType = new DateTimeType(this.convertCDAToFHIRDate(cdaDateTime.getValue()));
+                return dateTimeType;
+            }
         }
-        else if (!cdaDateTime.isSetNullFlavor()){
-            DateTimeType dateTimeType = new DateTimeType(this.convertCDAToFHIRDate(cdaDateTime.getValue()));
-            return dateTimeType;
-        }
-
         return  null;
     }
 

@@ -43,6 +43,7 @@ public class BasicCDAElementsConverter {
 
             if (CollectionUtils.isNotEmpty(author.getAssignedAuthor().getIds())) {
                 author.getAssignedAuthor().getIds().forEach(e -> practitioner.getIdentifier().add(this.simpleCDATypesConverter.createFHIRIdentifier(e)));
+                practitioner.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getIdentifier()));
                 practitionerRole.getIdentifier().addAll(practitioner.getIdentifier());
             }
 
@@ -59,9 +60,6 @@ public class BasicCDAElementsConverter {
 
                 if (author.getAssignedAuthor().getAssignedPerson() != null && author.getAssignedAuthor().getAssignedPerson().getNames() != null) {
                     practitioner.setName(author.getAssignedAuthor().getAssignedPerson().getNames().stream().map(this.simpleCDATypesConverter::createFHIRHumanName).collect(Collectors.toList()));
-                    practitioner.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getIdentifier()));
-                    resources.put(practitioner.getId(), practitioner);
-                    log.info("FHIR Practitioner created from CDA Author");
                 }
 
                 if (author.getAssignedAuthor().getRepresentedOrganization() != null) {
@@ -79,6 +77,11 @@ public class BasicCDAElementsConverter {
                     }
                 }
 
+            }
+
+            if (StringUtils.isNoneBlank(practitioner.getId())) {
+                resources.put(practitioner.getId(), practitioner);
+                log.info("FHIR Practitioner created from CDA Author");
             }
         }
 
