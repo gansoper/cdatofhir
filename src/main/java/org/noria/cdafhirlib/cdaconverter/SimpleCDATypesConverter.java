@@ -71,7 +71,7 @@ public class SimpleCDATypesConverter {
 
     public Address createFHIRAddress(AD cdaAddress) {
         Address address = new Address();
-        if (cdaAddress.getUses() != null && cdaAddress.getUses().size() != 0) {
+        if (cdaAddress.getUses() != null && cdaAddress.getUses().size() != 0 ) {
             address.setUse(Address.AddressUse.fromCode(this.codeMappingProcessor.getStringCodeFromMapping(cdaAddress.getUses().get(0).toString(), CDAtoFHIRCodeConversionType.ADDRESS_USE.toValue())));
         }
 
@@ -129,7 +129,7 @@ public class SimpleCDATypesConverter {
         return extension;
     }
 
-    //TODO: create this extension
+
     /*
     public Extension createDateExtension(IVL_TS date){
         IElement iElementDate = this.convertIVLTSDate(date);

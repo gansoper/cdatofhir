@@ -4,12 +4,15 @@ import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.mdht.uml.cda.Author;
-import org.eclipse.mdht.uml.cda.PatientRole;
-import org.eclipse.mdht.uml.cda.Performer1;
+import org.eclipse.mdht.uml.cda.Person;
+import org.eclipse.mdht.uml.cda.*;
+import org.eclipse.mdht.uml.hl7.datatypes.EN;
 import org.eclipse.mdht.uml.hl7.datatypes.ON;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.hl7.fhir.r4.model.Location;
+import org.hl7.fhir.r4.model.Organization;
+import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.*;
 import org.noria.cdafhirlib.constants.BaseConstants;
 import org.noria.cdafhirlib.helper.FHIRElementsHelper;
@@ -22,11 +25,11 @@ import java.util.stream.Collectors;
 
 @Log4j2
 @Getter
-public class BasicCDATypesConverter {
+public class BasicCDAElementsConverter {
 
     private final SimpleCDATypesConverter simpleCDATypesConverter;
 
-    public BasicCDATypesConverter(SimpleCDATypesConverter simpleCDATypesConverter) {
+    public BasicCDAElementsConverter(SimpleCDATypesConverter simpleCDATypesConverter) {
         this.simpleCDATypesConverter = simpleCDATypesConverter;
     }
 
@@ -144,6 +147,126 @@ public class BasicCDATypesConverter {
 
         practitionerRoles.forEach(pr -> resources.put(pr.getId(), pr));
         organizations.forEach(org -> resources.put(org.getId(), org));
+
+        return resources;
+    }
+
+    Map<String, IBaseResource> convertPatient(PatientRole cdaPatientRole) {
+        Map<String, IBaseResource> resources = new HashMap<>();
+        Patient patient = new Patient();
+        if (CollectionUtils.isNotEmpty(cdaPatientRole.getIds())) {
+            cdaPatientRole.getIds().forEach(id -> patient.getIdentifier().add(this.simpleCDATypesConverter.createFHIRIdentifier(id)));
+        }
+
+        patient.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.PATIENT, patient.getIdentifier()));
+
+        if (CollectionUtils.isNotEmpty(cdaPatientRole.getAddrs())) {
+            cdaPatientRole.getAddrs().forEach(address -> patient.getAddress().add(this.simpleCDATypesConverter.createFHIRAddress(address)));
+        }
+
+        if (CollectionUtils.isNotEmpty(cdaPatientRole.getTelecoms())) {
+            cdaPatientRole.getTelecoms().forEach(tel -> patient.getTelecom().add(this.simpleCDATypesConverter.createContactPoint(tel)));
+        }
+
+        if (cdaPatientRole.getPatient() != null) {
+            org.eclipse.mdht.uml.cda.Patient cdaPatient = cdaPatientRole.getPatient();
+            if (CollectionUtils.isNotEmpty(cdaPatient.getNames())) {
+                cdaPatient.getNames().forEach(name -> patient.getName().add(this.simpleCDATypesConverter.createFHIRHumanName(name)));
+            }
+
+            try {
+                patient.setGender(this.simpleCDATypesConverter.getGender(cdaPatient.getAdministrativeGenderCode()));
+            } catch (FHIRException e) {
+                log.error("Unknown Gender Code", e);
+            }
+
+            patient.setMaritalStatus(this.simpleCDATypesConverter.createFHIRCodeableConcept(cdaPatient.getMaritalStatusCode(), null));
+
+            if (cdaPatient.getReligiousAffiliationCode() != null) {
+                patient.getExtension().add(this.simpleCDATypesConverter.createExtension(cdaPatient.getReligiousAffiliationCode(), BaseConstants.USCORE_EXTENSION_URL));
+            }
+
+            if (cdaPatient.getRaceCode() != null) {
+                patient.getExtension().add(this.simpleCDATypesConverter.createExtension(cdaPatient.getRaceCode(), BaseConstants.USCORE_EXTENSION_URL));
+            }
+
+            if (cdaPatient.getBirthplace() != null && cdaPatient.getBirthplace().getPlace() != null) {
+                if (CollectionUtils.isNotEmpty(cdaPatient.getBirthplace().getPlace().getAddrs())) {
+                    cdaPatient.getBirthplace().getPlace().getAddrs().forEach(ad -> patient.getExtension().add(this.simpleCDATypesConverter.createExtension(ad, BaseConstants.BIRTHPLACE_EXTENSION_URL)));
+                }
+            }
+
+            if (CollectionUtils.isNotEmpty(cdaPatient.getLanguageCommunications())) {
+                List<Patient.PatientCommunicationComponent> patientCommunicationComponents = cdaPatient.getLanguageCommunications().stream()
+                        .map(languageCommunication -> new Patient.PatientCommunicationComponent(this.simpleCDATypesConverter.createFHIRCodeableConcept(languageCommunication.getLanguageCode(), null)))
+                        .collect(Collectors.toList());
+                patient.setCommunication(patientCommunicationComponents);
+            }
+
+        }
+
+        resources.put(patient.getId(), patient);
+
+        if (cdaPatientRole.getProviderOrganization() != null) {
+            Organization organization = this.createFHIROrganization(cdaPatientRole.getProviderOrganization());
+            resources.put(organization.getId(), organization);
+        }
+
+        return resources;
+    }
+
+    Map<String, IBaseResource> convertCustodian(Custodian custodian) {
+        Map<String, IBaseResource> resources = new HashMap<>();
+        if (custodian.getAssignedCustodian() != null && custodian.getAssignedCustodian().getRepresentedCustodianOrganization() != null) {
+            CustodianOrganization custodianOrganization = custodian.getAssignedCustodian().getRepresentedCustodianOrganization();
+            Organization organization = new Organization();
+            if (CollectionUtils.isNotEmpty(custodianOrganization.getIds())) {
+                custodianOrganization.getIds().forEach(e -> organization.addIdentifier(this.simpleCDATypesConverter.createFHIRIdentifier(e)));
+            }
+
+            if (custodianOrganization.getNames() != null) {
+                organization.setName(custodianOrganization.getNames().stream().map(EN::getText).collect(Collectors.joining(",")));
+            }
+
+            if (CollectionUtils.isNotEmpty(custodianOrganization.getAddrs())) {
+                organization.setAddress(custodianOrganization.getAddrs().stream().map(this.simpleCDATypesConverter::createFHIRAddress).collect(Collectors.toList()));
+            }
+            if (CollectionUtils.isNotEmpty(custodianOrganization.getTelecoms())) {
+                organization.setTelecom(custodianOrganization.getTelecoms().stream().map(this.simpleCDATypesConverter::createContactPoint).collect(Collectors.toList()));
+            }
+            organization.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.ORGANIZATION, organization.getIdentifier()));
+            resources.put(organization.getId(), organization);
+        }
+
+        return resources;
+    }
+
+    Map<String, IBaseResource> convertParticipant(Participant1 participant) {
+        Map<String, IBaseResource> resources = new HashMap<>();
+        if (participant.getAssociatedEntity() != null && !participant.getAssociatedEntity().isSetNullFlavor()) {
+            Practitioner practitioner = new Practitioner();
+            if (CollectionUtils.isNotEmpty(participant.getAssociatedEntity().getIds())) {
+                participant.getAssociatedEntity().getIds().forEach(id -> practitioner.addIdentifier(this.simpleCDATypesConverter.createFHIRIdentifier(id)));
+            }
+
+            if (CollectionUtils.isNotEmpty(participant.getAssociatedEntity().getAddrs())) {
+                practitioner.setAddress(participant.getAssociatedEntity().getAddrs().stream().map(this.simpleCDATypesConverter::createFHIRAddress).collect(Collectors.toList()));
+            }
+
+            if (CollectionUtils.isNotEmpty(participant.getAssociatedEntity().getTelecoms())) {
+                practitioner.setTelecom(participant.getAssociatedEntity().getTelecoms().stream().map(this.simpleCDATypesConverter::createContactPoint).collect(Collectors.toList()));
+            }
+
+            if (participant.getAssociatedEntity().getAssociatedPerson() != null && !participant.getAssociatedEntity().getAssociatedPerson().isSetNullFlavor()) {
+                Person person = participant.getAssociatedEntity().getAssociatedPerson();
+                if (CollectionUtils.isNotEmpty(person.getNames())) {
+                    person.getNames().forEach(name -> practitioner.getName().add(this.simpleCDATypesConverter.createFHIRHumanName(name)));
+                }
+            }
+
+            practitioner.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.ORGANIZATION, practitioner.getIdentifier()));
+            resources.put(practitioner.getId(), practitioner);
+        }
 
         return resources;
     }
