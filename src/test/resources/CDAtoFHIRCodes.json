@@ -749,6 +749,77 @@
                     }
                 }
             ]
+        },
+        {
+            "type": "AllergyVerificationStatus",
+            "mapping": [
+                {
+                    "sourceCode": "completed",
+                    "targetCode": {
+                        "display": "Confirmed",
+                        "code": "confirmed",
+                        "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "AllergyClinicalStatus",
+            "mapping": [
+                {
+                    "sourceCode": "413322009",
+                    "targetCode": {
+                        "display": "Resolved",
+                        "code": "resolved",
+                        "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical"
+                    }
+                },
+                {
+                    "sourceCode": "55561003",
+                    "targetCode": {
+                        "display": "Active",
+                        "code": "active",
+                        "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical"
+                    }
+                },
+                {
+                    "sourceCode": "73425007",
+                    "targetCode": {
+                        "display": "Inactive",
+                        "code": "inactive",
+                        "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "AllergySeverity",
+            "mapping": [
+                {
+                    "sourceCode": "24484000",
+                    "targetCode": {
+                        "display": "Severe",
+                        "code": "severe",
+                        "system": "http://hl7.org/fhir/reaction-event-severity"
+                    }
+                },
+                {
+                    "sourceCode": "255604002",
+                    "targetCode": {
+                        "display": "Mild",
+                        "code": "mild",
+                        "system": "http://hl7.org/fhir/reaction-event-severity"
+                    }
+                },
+                {
+                    "sourceCode": "6736007",
+                    "targetCode": {
+                        "display": "Moderate",
+                        "code": "moderate",
+                        "system": "http://hl7.org/fhir/reaction-event-severity"
+                    }
+                }
+            ]
         }
     ]
 }

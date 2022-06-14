@@ -1,7 +1,5 @@
 package org.noria.cdafhirlib.cdaconverter;
 
-import ca.uhn.fhir.model.api.IElement;
-import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.mdht.uml.hl7.datatypes.*;
@@ -14,7 +12,6 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -71,7 +68,7 @@ public class SimpleCDATypesConverter {
 
     public Address createFHIRAddress(AD cdaAddress) {
         Address address = new Address();
-        if (cdaAddress.getUses() != null && cdaAddress.getUses().size() != 0 ) {
+        if (cdaAddress.getUses() != null && cdaAddress.getUses().size() != 0) {
             address.setUse(Address.AddressUse.fromCode(this.codeMappingProcessor.getStringCodeFromMapping(cdaAddress.getUses().get(0).toString(), CDAtoFHIRCodeConversionType.ADDRESS_USE.toValue())));
         }
 
@@ -196,24 +193,31 @@ public class SimpleCDATypesConverter {
             log.error(e.getMessage(), e);
         }
 
-        return  null;
+        return null;
     }
 
 
-
-    Type convertIVLTSDate(IVL_TS cdaDateTime){
+    Type convertIVLTSDate(IVL_TS cdaDateTime) {
         if (cdaDateTime != null) {
-            if ((cdaDateTime.getLow() != null && !cdaDateTime.getLow().isSetNullFlavor()) || (cdaDateTime.getHigh() != null && !cdaDateTime.getHigh().isSetNullFlavor())) {
-                Period period = new Period();
+            Period period = new Period();
+            if (cdaDateTime.getLow() != null && !cdaDateTime.getLow().isSetNullFlavor()) {
                 period.setStartElement(new DateTimeType(this.convertCDAToFHIRDate(cdaDateTime.getLow().getValue())));
+            }
+
+            if (cdaDateTime.getHigh() != null && !cdaDateTime.getHigh().isSetNullFlavor()) {
                 period.setEndElement(new DateTimeType(this.convertCDAToFHIRDate(cdaDateTime.getHigh().getValue())));
+            }
+
+            if (period.getStartElement() != null || period.getEndElement() != null) {
                 return period;
-            } else if (!cdaDateTime.isSetNullFlavor()) {
+            }
+            else if (!cdaDateTime.isSetNullFlavor()) {
                 DateTimeType dateTimeType = new DateTimeType(this.convertCDAToFHIRDate(cdaDateTime.getValue()));
                 return dateTimeType;
             }
         }
-        return  null;
+
+        return null;
     }
 
 

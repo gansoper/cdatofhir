@@ -17,7 +17,10 @@ public enum CDAtoFHIRCodeConversionType {
     PROBLEM_TYPE("ProblemType.csv"),
     PROCEDURE_STATUS("ProcedureStatus"),
     RESULT_STATUS("ResultStatus"),
-    TELECOM_USE("TelecomUse");
+    TELECOM_USE("TelecomUse"),
+    ALLERGY_VERIFICATION_STATUS("AllergyVerificationStatus"),
+    ALLERGY_CLINICAL_STATUS("AllergyClinicalStatus"),
+    ALLERGY_SEVERITY("AllergySeverity");
 
 
     private final String type;
