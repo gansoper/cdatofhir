@@ -10,9 +10,7 @@ import org.hl7.fhir.r4.model.*;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
 import org.noria.cdafhirlib.helper.ConvertedElementsHelper;
 import org.noria.cdafhirlib.helper.FHIRElementsHelper;
-import org.openhealthtools.mdht.uml.cda.consol.AllergiesSection2;
-import org.openhealthtools.mdht.uml.cda.consol.AllergyObservation;
-import org.openhealthtools.mdht.uml.cda.consol.ReactionObservation;
+import org.openhealthtools.mdht.uml.cda.consol.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,17 +25,15 @@ public class CDAAllergySectionConverter {
 
     public Map<String, IBaseResource> convertAllergies(AllergiesSection2 allergiesSection, Map<String, IBaseResource> headerResources) {
         Map<String, IBaseResource> resources = new HashMap<>();
-        List<AllergyObservation> allergyObservationList = new ArrayList<>();
-        allergiesSection.getAllergyProblemActs().forEach(act -> {
-            allergyObservationList.addAll(act.getAllergyObservations());
+        allergiesSection.getConsolAllergyConcernAct2s().forEach(act -> {
             act.getAuthors().forEach(author -> resources.putAll(this.basicCDAElementsConverter.convertAuthor(author)));
-            act.getAllergyObservations().forEach(allergyObservation -> resources.putAll(this.convertCDAAllergyObservation(allergyObservation, act.getEffectiveTime(), headerResources)));
+            act.getConsolAllergyObservation2s().forEach(allergyObservation -> resources.putAll(this.convertCDAAllergyObservation(allergyObservation, act.getEffectiveTime(), headerResources)));
         });
 
         return resources;
     }
 
-    private Map<String, IBaseResource> convertCDAAllergyObservation(AllergyObservation allergyObservation, IVL_TS recordedTime, Map<String, IBaseResource> headerResources) {
+    private Map<String, IBaseResource> convertCDAAllergyObservation(AllergyObservation2 allergyObservation, IVL_TS recordedTime, Map<String, IBaseResource> headerResources) {
         Map<String, IBaseResource> resources = new HashMap<>();
         AllergyIntolerance allergy = new AllergyIntolerance();
         Type recordedDate = this.basicCDAElementsConverter.getSimpleCDATypesConverter().convertIVLTSDate(recordedTime);
@@ -74,7 +70,10 @@ public class CDAAllergySectionConverter {
         allergy.getVerificationStatus().setCoding(Collections.singletonList(basicCDAElementsConverter.getSimpleCDATypesConverter().createFHIRCoding(allergyObservation.getStatusCode(), CDAtoFHIRCodeConversionType.ALLERGY_VERIFICATION_STATUS.toValue())));
         allergy.setReaction(allergyObservation.getReactionObservations().stream().map(this::convertAllergyReaction).collect(Collectors.toList()));
 
-        //TODO: Add Criticality Processing
+        if (allergyObservation.getCriticalityObservation() != null && CollectionUtils.isNotEmpty(allergyObservation.getCriticalityObservation().getValues())){
+            Coding coding = this.basicCDAElementsConverter.getSimpleCDATypesConverter().createFHIRCoding((CD)allergyObservation.getCriticalityObservation().getValues().get(0), CDAtoFHIRCodeConversionType.ALLERGY_CRITICALITY.toValue());
+            allergy.setCriticality(AllergyIntolerance.AllergyIntoleranceCriticality.fromCode(coding.getCode()));
+        }
 
         return resources;
     }

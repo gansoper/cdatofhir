@@ -20,7 +20,8 @@ public enum CDAtoFHIRCodeConversionType {
     TELECOM_USE("TelecomUse"),
     ALLERGY_VERIFICATION_STATUS("AllergyVerificationStatus"),
     ALLERGY_CLINICAL_STATUS("AllergyClinicalStatus"),
-    ALLERGY_SEVERITY("AllergySeverity");
+    ALLERGY_SEVERITY("AllergySeverity"),
+    ALLERGY_CRITICALITY("AllergyCriticality");
 
 
     private final String type;

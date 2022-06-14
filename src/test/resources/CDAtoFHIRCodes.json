@@ -820,6 +820,35 @@
                     }
                 }
             ]
+        },
+        {
+            "type": "AllergyCriticality",
+            "mapping": [
+                {
+                    "sourceCode": "CRITH",
+                    "targetCode": {
+                        "display": "High",
+                        "code": "high",
+                        "system": "http://hl7.org/fhir/allergy-intolerance-criticality"
+                    }
+                },
+                {
+                    "sourceCode": "CRITL",
+                    "targetCode": {
+                        "display": "Low",
+                        "code": "low",
+                        "system": "http://hl7.org/fhir/allergy-intolerance-criticality"
+                    }
+                },
+                {
+                    "sourceCode": "CRITU",
+                    "targetCode": {
+                        "display": "Unable to Assess Risk",
+                        "code": "unable-to-assess",
+                        "system": "http://hl7.org/fhir/allergy-intolerance-criticality"
+                    }
+                }
+            ]
         }
     ]
 }
