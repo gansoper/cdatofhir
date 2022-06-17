@@ -56,7 +56,8 @@ public class CDAAllergySectionConverter {
         }
 
         allergy.getCode().setCoding(allergyObservation.getParticipants().stream()
-                .map(p -> basicCDAElementsConverter.getSimpleCDATypesConverter().createFHIRCoding(p.getParticipantRole().getCode(), null))
+                .filter(p->p.getParticipantRole()!=null && p.getParticipantRole().getPlayingEntity() !=null)
+                .map(p -> basicCDAElementsConverter.getSimpleCDATypesConverter().createFHIRCoding(p.getParticipantRole().getPlayingEntity().getCode(), null))
                 .collect(Collectors.toList()));
 
         if (allergyObservation.getAllergyStatusObservation() != null && CollectionUtils.isNotEmpty(allergyObservation.getAllergyStatusObservation().getValues())) {
@@ -75,6 +76,8 @@ public class CDAAllergySectionConverter {
             allergy.setCriticality(AllergyIntolerance.AllergyIntoleranceCriticality.fromCode(coding.getCode()));
         }
 
+        allergy.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.ALLERGYINTOLERANCE, allergy.getIdentifier()));
+        resources.put(allergy.getId(), allergy);
         return resources;
     }
 

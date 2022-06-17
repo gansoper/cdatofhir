@@ -1,11 +1,11 @@
 package org.noria.cdafhirlib.codemapping;
 
-import lombok.Data;
-import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.hl7.fhir.r4.model.Coding;
 import org.noria.cdafhirlib.constants.BaseConstants;
 import org.noria.cdafhirlib.model.*;
+
+import java.util.regex.Pattern;
 
 public class CodeMappingProcessor {
 
@@ -72,14 +72,21 @@ public class CodeMappingProcessor {
         return coding;
     }
 
-    public String getFHIRCodeSystem(String cdaCodeSystem){
-        SystemMapping fhirSystem = this.systemNamesMapping.getSystems().stream().filter(e-> e.getOid().equals(cdaCodeSystem)).findFirst().orElse(null);
-        if (fhirSystem != null){
-            return fhirSystem.getUrl();
+    public String getFHIRCodeSystem(String cdaCodeSystem) {
+
+        String fhirCodeSystem = null;
+        if (StringUtils.isNoneBlank(cdaCodeSystem)) {
+            SystemMapping fhirSystem = this.systemNamesMapping.getSystems().stream().filter(e -> e.getOid().equals(cdaCodeSystem)).findFirst().orElse(null);
+            if (fhirSystem != null) {
+                fhirCodeSystem = fhirSystem.getUrl();
+            } else {
+                Pattern p = Pattern.compile(BaseConstants.OID_REGEX_PATTERN);
+                if (p.matcher(cdaCodeSystem).matches()) {
+                    fhirCodeSystem = BaseConstants.URN_OID + cdaCodeSystem;
+                }
+            }
         }
-        else{
-            return BaseConstants.URN_OID + cdaCodeSystem;
-        }
+        return fhirCodeSystem;
     }
 
 

@@ -20,5 +20,4 @@ public class FHIRElementsHelper {
         reference.setReference(fhirAllTypes.toCode() + "/" + id);
         return reference;
     }
-
 }

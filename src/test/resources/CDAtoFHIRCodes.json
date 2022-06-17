@@ -804,6 +804,14 @@
                     }
                 },
                 {
+                    "sourceCode": "371924009",
+                    "targetCode": {
+                        "display": "Severe",
+                        "code": "severe",
+                        "system": "http://hl7.org/fhir/reaction-event-severity"
+                    }
+                },
+                {
                     "sourceCode": "255604002",
                     "targetCode": {
                         "display": "Mild",

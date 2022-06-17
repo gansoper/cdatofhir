@@ -6,12 +6,14 @@ import org.eclipse.mdht.uml.hl7.datatypes.*;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.model.*;
 import org.noria.cdafhirlib.codemapping.CodeMappingProcessor;
+import org.noria.cdafhirlib.constants.BaseConstants;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -101,8 +103,11 @@ public class SimpleCDATypesConverter {
 
     public Identifier createFHIRIdentifier(II cdaId) {
         Identifier identifier = new Identifier();
-        identifier.setValue(cdaId.getExtension());
-        identifier.setSystem(cdaId.getRoot());
+        identifier.setValue(cdaId.getExtension()==null? UUID.randomUUID().toString(): cdaId.getExtension());
+        Pattern p = Pattern.compile(BaseConstants.OID_REGEX_PATTERN);
+        if (cdaId.getRoot() != null && p.matcher(cdaId.getRoot()).matches()){
+            identifier.setSystem(BaseConstants.URN_OID + cdaId.getRoot());
+        }
         return identifier;
     }
 

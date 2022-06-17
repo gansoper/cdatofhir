@@ -118,139 +118,6 @@
 		</patientRole>
 	</recordTarget>
 	<!-- The author represents the person who provides the content in the document -->
-	<author>
-		<time value="201308151030-0800"/>
-		<assignedAuthor>
-			<id extension="5555555555" root="2.16.840.1.113883.4.6"/>
-			<code code="207QA0505X" displayName="Adult Medicine" codeSystem="2.16.840.1.113883.6.101" codeSystemName="Healthcare Provider Taxonomy (HIPAA)"/>
-			<addr>
-				<streetAddressLine>1004 Healthcare Drive </streetAddressLine>
-				<city>Portland</city>
-				<state>OR</state>
-				<postalCode>99123</postalCode>
-				<country>US</country>
-			</addr>
-			<telecom use="WP" value="tel:+1(555)555-1004"/>
-			<assignedPerson>
-				<name>
-					<given>Patricia</given>
-					<given qualifier="CL">Patty</given>
-					<family>Primary</family>
-					<suffix qualifier="AC">M.D.</suffix>
-				</name>
-			</assignedPerson>
-		</assignedAuthor>
-	</author>
-	<!-- The dataEnterer transferred the content created by the author into the document -->
-	<custodian>
-		<assignedCustodian>
-			<representedCustodianOrganization>
-				<id extension="321CX" root="2.16.840.1.113883.4.6"/>
-				<name>Good Health HIE</name>
-				<telecom use="WP" value="tel:+1(555)555-1009"/>
-				<addr use="WP">
-					<streetAddressLine>1009 Healthcare Drive </streetAddressLine>
-					<city>Portland</city>
-					<state>OR</state>
-					<postalCode>99123</postalCode>
-					<country>US</country>
-				</addr>
-			</representedCustodianOrganization>
-		</assignedCustodian>
-	</custodian>
-	<participant typeCode="IND">
-		<!-- typeCode "IND" represents an individual -->
-		<associatedEntity classCode="NOK">
-			<!-- classCode "NOK" represents the patient's next of kin-->
-			<addr use="HP">
-				<streetAddressLine>2222 Home Street</streetAddressLine>
-				<city>Beaverton</city>
-				<state>OR</state>
-				<postalCode>97867</postalCode>
-				<country>US</country>
-			</addr>
-			<telecom value="tel:+1(555)555-2008" use="MC"/>
-			<associatedPerson>
-				<name>
-					<given>Boris</given>
-					<given qualifier="CL">Bo</given>
-					<family>Betterhalf</family>
-				</name>
-			</associatedPerson>
-		</associatedEntity>
-	</participant>
-	<!-- Entities playing multiple roles are recorded in multiple participants -->
-	<participant typeCode="IND">
-		<associatedEntity classCode="ECON">
-			<!-- classCode "ECON" represents an emergency contact -->
-			<addr use="HP">
-				<streetAddressLine>2222 Home Street</streetAddressLine>
-				<city>Beaverton</city>
-				<state>OR</state>
-				<postalCode>97867</postalCode>
-				<country>US</country>
-			</addr>
-			<telecom value="tel:+1(555)555-2008" use="MC"/>
-			<associatedPerson>
-				<name>
-					<given>Boris</given>
-					<given qualifier="CL">Bo</given>
-					<family>Betterhalf</family>
-				</name>
-			</associatedPerson>
-		</associatedEntity>
-	</participant>
-	<documentationOf>
-		<serviceEvent classCode="PCPR">
-			<!-- The effectiveTime reflects the provision of care summarized in the document. 
-				In this scenario, the provision of care summarized is the lifetime for the patient -->
-			<effectiveTime>
-				<low value="19750501"/>
-				<!-- The low value represents when the summarized provision of care began. 
-					In this scenario, the patient's date of birth -->
-				<high value="20130815"/>
-				<!-- The high value represents when the summarized provision of care being ended. 
-					In this scenario, when chart summary was created -->
-			</effectiveTime>
-			<performer typeCode="PRF">
-				<functionCode code="PCP" codeSystem="2.16.840.1.113883.5.88" codeSystemName="ParticipationFunction" displayName="Primary Care Provider">
-					<originalText>Primary Care Provider</originalText>
-				</functionCode>
-				<assignedEntity>
-					<id extension="5555555555" root="2.16.840.1.113883.4.6"/>
-					<code code="207QA0505X" displayName="Adult Medicine" codeSystem="2.16.840.1.113883.6.101" codeSystemName="Healthcare Provider Taxonomy (HIPAA)"/>
-					<addr>
-						<streetAddressLine>1004 Healthcare Drive </streetAddressLine>
-						<city>Portland</city>
-						<state>OR</state>
-						<postalCode>99123</postalCode>
-						<country>US</country>
-					</addr>
-					<telecom use="WP" value="tel:+1(555)555-1004"/>
-					<assignedPerson>
-						<name>
-							<given>Patricia</given>
-							<given qualifier="CL">Patty</given>
-							<family>Primary</family>
-							<suffix qualifier="AC">M.D.</suffix>
-						</name>
-					</assignedPerson>
-					<representedOrganization>
-						<id extension="219BX" root="1.2.16.840.1.113883.4.6"/>
-						<name>The DoctorsTogether Physician Group</name>
-						<telecom use="WP" value="tel: +1(555)555-5000"/>
-						<addr>
-							<streetAddressLine>1004 Health Drive</streetAddressLine>
-							<city>Portland</city>
-							<state>OR</state>
-							<postalCode>99123</postalCode>
-							<country>US</country>
-						</addr>
-					</representedOrganization>
-				</assignedEntity>
-			</performer>
-		</serviceEvent>
-	</documentationOf>
 	<!-- ******************************************************** CDA Body ******************************************************** -->
 	<component>
 		<structuredBody>
@@ -324,17 +191,11 @@
 									</participant>
 									<entryRelationship typeCode="SUBJ" inversionInd="true">
 										<observation classCode="OBS" moodCode="EVN">
-											<!-- ** Severity Observation  (V2)** -->
-											<!-- When the Severity Observation is associated directly with an allergy it characterizes the allergy. 
-                        When the Severity Observation is associated with a Reaction Observation it characterizes a Reaction. -->
-											<templateId root="2.16.840.1.113883.10.20.22.4.8" extension="2014-06-09"/>
-											<templateId root="2.16.840.1.113883.10.20.22.4.8"/>
-											<code code="SEV" displayName="Severity Observation" codeSystem="2.16.840.1.113883.5.4" codeSystemName="ActCode"/>
-											<text>
-												<reference value="#allergyseverity1"/>
-											</text>
+											<templateId root="2.16.840.1.113883.10.20.22.4.28" extension="2014-06-09"/>
+											<templateId root="2.16.840.1.113883.10.20.22.4.28"/>
+											<code code="33999-4" displayName="Status Observation" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
 											<statusCode code="completed"/>
-											<value xsi:type="CD" code="371924009" displayName="Moderate to severe" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
+											<value xsi:type="CE" code="55561003" displayName="Active" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
 										</observation>
 									</entryRelationship>
 									<entryRelationship typeCode="MFST" inversionInd="true">
