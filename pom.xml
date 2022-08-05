@@ -6,7 +6,8 @@
 
     <groupId>org.noria</groupId>
     <artifactId>cdafhirlib</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.${v}-SNAPSHOT</version>
+
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -15,12 +16,85 @@
     </properties>
 
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/org.openehealth.ipf.modules/ipf-modules-cda-mdht -->
-        <!--<dependency>
-            <groupId>org.openehealth.ipf.modules</groupId>
-            <artifactId>ipf-modules-cda-mdht</artifactId>
-            <version>4.2.0</version>
-        </dependency>-->
+
+        <!-- Obtained from https://github.com/mdht/mdht-models/releases/tag/v20220126 -->
+        <!-- MDHT 3rd Party Dependencies that have been added to local mvn repo -->
+        <dependency>
+            <groupId>lpg.runtime</groupId>
+            <artifactId>java</artifactId>
+            <version>2.0.17</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.emf.ecore</groupId>
+            <artifactId>xmi</artifactId>
+            <version>2.13.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.emf</groupId>
+            <artifactId>ecore</artifactId>
+            <version>2.13.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.emf</groupId>
+            <artifactId>common</artifactId>
+            <version>2.13.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse</groupId>
+            <artifactId>ocl</artifactId>
+            <version>3.6.200</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.ocl</groupId>
+            <artifactId>common</artifactId>
+            <version>1.4.200</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.ocl</groupId>
+            <artifactId>ecore</artifactId>
+            <version>3.6.200</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.uml2</groupId>
+            <artifactId>types</artifactId>
+            <version>2.0.0</version>
+        </dependency>
+        <!-- MDHT Core Dependencies -->
+        <dependency>
+            <groupId>org.eclipse.mdht.emf</groupId>
+            <artifactId>runtime</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <!-- MDHT CDA Dependencies -->
+        <dependency>
+            <groupId>org.eclipse.mdht.uml.hl7</groupId>
+            <artifactId>vocab</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.mdht.uml.hl7</groupId>
+            <artifactId>datatypes</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.mdht.uml.hl7</groupId>
+            <artifactId>rim</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.mdht.uml</groupId>
+            <artifactId>cda</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <!-- MDHT CDA Implementation Guide Dependencies -->
+        <dependency>
+            <groupId>org.openhealthtools.mdht.uml.cda</groupId>
+            <artifactId>consol2</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+
+        <!-- Other Dependencies-->
+
 
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
@@ -62,7 +136,6 @@
             <scope>test</scope>
         </dependency>
 
-
     </dependencies>
     <build>
         <plugins>
@@ -75,20 +148,19 @@
                     <target>11</target>
                 </configuration>
             </plugin>
-            <plugin>
+           <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.3.0</version>
-
                 <configuration>
+                    <finalName>${artifactId}-${version}</finalName>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
+                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
 
                 <executions>
                     <execution>
-                        <id>make-assembly</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
@@ -97,6 +169,7 @@
                 </executions>
 
             </plugin>
+
         </plugins>
     </build>
     <packaging>jar</packaging>
