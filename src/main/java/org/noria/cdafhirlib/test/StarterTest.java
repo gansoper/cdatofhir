@@ -7,9 +7,7 @@ import org.eclipse.mdht.uml.cda.util.CDAUtil;
 import org.eclipse.mdht.uml.hl7.datatypes.AD;
 import org.eclipse.mdht.uml.hl7.datatypes.ADXP;
 import org.noria.cdafhirlib.cdaconverter.SimpleCDATypesConverter;
-import org.openhealthtools.mdht.uml.cda.consol.ConsolFactory;
-import org.openhealthtools.mdht.uml.cda.consol.ConsultationNote;
-import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument;
+import org.openhealthtools.mdht.uml.cda.consol.*;
 
 
 import java.io.FileInputStream;
@@ -27,13 +25,15 @@ public class StarterTest {
         log.info("Start application");
         FileInputStream fis = new FileInputStream("src/test/resources/C-CDA_R2-1_CCD.xml");
         ClinicalDocument cda = CDAUtil.load(fis);
+        ContinuityOfCareDocument2 ccd = (ContinuityOfCareDocument2) cda;
+        MedicationsSection2 ms = ccd.getMedicationsSection2();
         EList<AD> addresses = cda.getPatientRoles().get(0).getAddrs();
         EList<ADXP> cities = addresses.get(0).getCities();
         cities.forEach(e -> System.out.println(e.getText()));
-
+/*
         ContinuityOfCareDocument ccd = ConsolFactory.eINSTANCE.createContinuityOfCareDocument();//CCDFactory.eINSTANCE.createContinuityOfCareDocument().init();
         ConsultationNote cn = ConsolFactory.eINSTANCE.createConsultationNote();
-        log.error("End");
+        log.error("End");*/
 
     }
 }

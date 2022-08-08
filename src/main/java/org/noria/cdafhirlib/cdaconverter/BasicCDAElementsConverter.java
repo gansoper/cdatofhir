@@ -9,12 +9,12 @@ import org.eclipse.mdht.uml.cda.*;
 import org.eclipse.mdht.uml.hl7.datatypes.EN;
 import org.eclipse.mdht.uml.hl7.datatypes.ON;
 import org.hl7.fhir.exceptions.FHIRException;
-import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Location;
 import org.hl7.fhir.r4.model.Organization;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.*;
 import org.noria.cdafhirlib.constants.BaseConstants;
+import org.noria.cdafhirlib.helper.ConvertedElementsHelper;
 import org.noria.cdafhirlib.helper.FHIRElementsHelper;
 
 import java.util.ArrayList;
@@ -34,8 +34,8 @@ public class BasicCDAElementsConverter {
     }
 
 
-    public Map<String, IBaseResource> convertAuthor(Author author) {
-        Map<String, IBaseResource> resources = new HashMap<>();
+    public Map<String, Resource> convertAuthor(Author author) {
+        Map<String, Resource> resources = new HashMap<>();
         Practitioner practitioner = new Practitioner();
         PractitionerRole practitionerRole = new PractitionerRole();
 
@@ -89,8 +89,8 @@ public class BasicCDAElementsConverter {
     }
 
 
-    public Map<String, IBaseResource> convertPerformer(Performer1 performer) {
-        Map<String, IBaseResource> resources = new HashMap<>();
+    public Map<String, Resource> convertPerformer(Performer1 performer) {
+        Map<String, Resource> resources = new HashMap<>();
         Practitioner practitioner = new Practitioner();
         List<PractitionerRole> practitionerRoles = new ArrayList<>();
         List<Location> locations = new ArrayList<>();
@@ -154,8 +154,8 @@ public class BasicCDAElementsConverter {
         return resources;
     }
 
-    Map<String, IBaseResource> convertPatient(PatientRole cdaPatientRole) {
-        Map<String, IBaseResource> resources = new HashMap<>();
+    Map<String, Resource> convertPatient(PatientRole cdaPatientRole) {
+        Map<String, Resource> resources = new HashMap<>();
         Patient patient = new Patient();
         if (CollectionUtils.isNotEmpty(cdaPatientRole.getIds())) {
             cdaPatientRole.getIds().forEach(id -> patient.getIdentifier().add(this.simpleCDATypesConverter.createFHIRIdentifier(id)));
@@ -218,8 +218,8 @@ public class BasicCDAElementsConverter {
         return resources;
     }
 
-    Map<String, IBaseResource> convertCustodian(Custodian custodian) {
-        Map<String, IBaseResource> resources = new HashMap<>();
+    Map<String, Resource> convertCustodian(Custodian custodian) {
+        Map<String, Resource> resources = new HashMap<>();
         if (custodian.getAssignedCustodian() != null && custodian.getAssignedCustodian().getRepresentedCustodianOrganization() != null) {
             CustodianOrganization custodianOrganization = custodian.getAssignedCustodian().getRepresentedCustodianOrganization();
             Organization organization = new Organization();
@@ -244,8 +244,8 @@ public class BasicCDAElementsConverter {
         return resources;
     }
 
-    Map<String, IBaseResource> convertParticipant(Participant1 participant) {
-        Map<String, IBaseResource> resources = new HashMap<>();
+    Map<String, Resource> convertParticipant(Participant1 participant) {
+        Map<String, Resource> resources = new HashMap<>();
         if (participant.getAssociatedEntity() != null && !participant.getAssociatedEntity().isSetNullFlavor()) {
             Practitioner practitioner = new Practitioner();
             if (CollectionUtils.isNotEmpty(participant.getAssociatedEntity().getIds())) {
@@ -267,11 +267,26 @@ public class BasicCDAElementsConverter {
                 }
             }
 
-            practitioner.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.ORGANIZATION, practitioner.getIdentifier()));
+            practitioner.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getIdentifier()));
             resources.put(practitioner.getId(), practitioner);
         }
 
         return resources;
+    }
+
+    public Map<String, Resource> convertSectionAuthor(Author cdaAuthor, Map<String, Resource> headerResources) {
+        if (cdaAuthor.getAssignedAuthor() != null && !cdaAuthor.getAssignedAuthor().isSetNullFlavor() && CollectionUtils.isNotEmpty(cdaAuthor.getAssignedAuthor().getIds())) {
+            List<Identifier> identifiers = cdaAuthor.getAssignedAuthor().getIds().stream().map(this.getSimpleCDATypesConverter()::createFHIRIdentifier).collect(Collectors.toList());
+            Practitioner existingPractitoner = ConvertedElementsHelper.findPractitionerByAuthor(identifiers, headerResources);
+            if (existingPractitoner != null) {
+                Map<String, Resource> resources = new HashMap<>();
+                resources.put(existingPractitoner.getId(), existingPractitoner);
+                return resources;
+            }
+        }
+
+        return this.convertAuthor(cdaAuthor);
+
     }
 
 

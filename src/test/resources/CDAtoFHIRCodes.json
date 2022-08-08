@@ -804,14 +804,6 @@
                     }
                 },
                 {
-                    "sourceCode": "371924009",
-                    "targetCode": {
-                        "display": "Severe",
-                        "code": "severe",
-                        "system": "http://hl7.org/fhir/reaction-event-severity"
-                    }
-                },
-                {
                     "sourceCode": "255604002",
                     "targetCode": {
                         "display": "Mild",
@@ -854,6 +846,160 @@
                         "display": "Unable to Assess Risk",
                         "code": "unable-to-assess",
                         "system": "http://hl7.org/fhir/allergy-intolerance-criticality"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "MedicationActivityStatus",
+            "mapping": [
+                {
+                    "sourceCode": "active",
+                    "targetCode": {
+                        "display": "Active",
+                        "code": "active",
+                        "system": "http://hl7.org/fhir/CodeSystem/medicationrequest-status"
+                    }
+                },
+                {
+                    "sourceCode": "suspended",
+                    "targetCode": {
+                        "display": "on-hold",
+                        "code": "On Hold",
+                        "system": "http://hl7.org/fhir/CodeSystem/medicationrequest-status"
+                    }
+                },
+                {
+                    "sourceCode": "completed",
+                    "targetCode": {
+                        "display": "completed",
+                        "code": "Completed",
+                        "system": "http://hl7.org/fhir/CodeSystem/medicationrequest-status"
+                    }
+                },
+                {
+                    "sourceCode": "aborted",
+                    "targetCode": {
+                        "display": "stopped",
+                        "code": "Stopped",
+                        "system": "http://hl7.org/fhir/CodeSystem/medicationrequest-status"
+                    }
+                },
+                {
+                    "sourceCode": "nullified",
+                    "targetCode": {
+                        "display": "cancelled",
+                        "code": "Cancelled",
+                        "system": "http://hl7.org/fhir/CodeSystem/medicationrequest-status"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "MedicationDispenseStatus",
+            "mapping": [
+
+                {
+                    "sourceCode": "completed",
+                    "targetCode": {
+                        "display": "completed",
+                        "code": "Completed",
+                        "system": "http://terminology.hl7.org/CodeSystem/medicationdispense-status"
+                    }
+                },
+                {
+                    "sourceCode": "aborted",
+                    "targetCode": {
+                        "display": "stopped",
+                        "code": "Stopped",
+                        "system": "http://terminology.hl7.org/CodeSystem/medicationdispense-status"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "MedicationSupplyOrderStatus",
+            "mapping": [
+
+                {
+                    "sourceCode": "normal",
+                    "targetCode": {
+                        "display": "active",
+                        "code": "Active",
+                        "system": "http://hl7.org/fhir/CodeSystem/medicationrequest-status"
+                    }
+                },
+                {
+                    "sourceCode": "aborted",
+                    "targetCode": {
+                        "display": "stopped",
+                        "code": "Stopped",
+                        "system": "http://hl7.org/fhir/CodeSystem/medicationrequest-status"
+                    }
+                },
+                {
+                    "sourceCode": "active",
+                    "targetCode": {
+                        "display": "active",
+                        "code": "Active",
+                        "system": "http://hl7.org/fhir/CodeSystem/medicationrequest-status"
+                    }
+                },
+                {
+                    "sourceCode": "cancelled",
+                    "targetCode": {
+                        "display": "cancelled",
+                        "code": "Cancelled",
+                        "system": "http://hl7.org/fhir/CodeSystem/medicationrequest-status"
+                    }
+                },
+
+                {
+                    "sourceCode": "completed",
+                    "targetCode": {
+                        "display": "completed",
+                        "code": "Completed",
+                        "system": "http://hl7.org/fhir/CodeSystem/medicationrequest-status"
+                    }
+                },
+                {
+                    "sourceCode": "held",
+                    "targetCode": {
+                        "display": "on-hold",
+                        "code": "On Hold",
+                        "system": "http://hl7.org/fhir/CodeSystem/medicationrequest-status"
+                    }
+                },
+                {
+                    "sourceCode": "new",
+                    "targetCode": {
+                        "display": "draft",
+                        "code": "Draft",
+                        "system": "http://hl7.org/fhir/CodeSystem/medicationrequest-status"
+                    }
+                },
+                {
+                    "sourceCode": "suspended",
+                    "targetCode": {
+                        "display": "on-hold",
+                        "code": "On Hold",
+                        "system": "http://hl7.org/fhir/CodeSystem/medicationrequest-status"
+                    }
+                },
+                {
+                    "sourceCode": "nullified",
+                    "targetCode": {
+                        "display": "stopped",
+                        "code": "Stopped",
+                        "system": "http://hl7.org/fhir/CodeSystem/medicationrequest-status"
+                    }
+                },
+                {
+                    "sourceCode": "obsolete",
+                    "targetCode": {
+                        "display": "unknown",
+                        "code": "Unknown",
+                        "system": "http://hl7.org/fhir/CodeSystem/medicationrequest-status"
                     }
                 }
             ]

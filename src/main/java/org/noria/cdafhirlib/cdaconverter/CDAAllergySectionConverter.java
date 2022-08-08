@@ -5,7 +5,6 @@ import org.eclipse.mdht.uml.cda.Author;
 import org.eclipse.mdht.uml.hl7.datatypes.CD;
 import org.eclipse.mdht.uml.hl7.datatypes.CE;
 import org.eclipse.mdht.uml.hl7.datatypes.IVL_TS;
-import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.*;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
 import org.noria.cdafhirlib.helper.ConvertedElementsHelper;
@@ -23,18 +22,18 @@ public class CDAAllergySectionConverter {
         this.basicCDAElementsConverter = basicCDAElementsConverter;
     }
 
-    public Map<String, IBaseResource> convertAllergies(AllergiesSection2 allergiesSection, Map<String, IBaseResource> headerResources) {
-        Map<String, IBaseResource> resources = new HashMap<>();
+    public Map<String, Resource> convertAllergies(AllergiesSection2 allergiesSection, Map<String, Resource> headerResources) {
+        Map<String, Resource> resources = new HashMap<>();
         allergiesSection.getConsolAllergyConcernAct2s().forEach(act -> {
-            act.getAuthors().forEach(author -> resources.putAll(this.basicCDAElementsConverter.convertAuthor(author)));
+            act.getAuthors().forEach(author -> resources.putAll(this.basicCDAElementsConverter.convertSectionAuthor(author, headerResources)));
             act.getConsolAllergyObservation2s().forEach(allergyObservation -> resources.putAll(this.convertCDAAllergyObservation(allergyObservation, act.getEffectiveTime(), headerResources)));
         });
 
         return resources;
     }
 
-    private Map<String, IBaseResource> convertCDAAllergyObservation(AllergyObservation2 allergyObservation, IVL_TS recordedTime, Map<String, IBaseResource> headerResources) {
-        Map<String, IBaseResource> resources = new HashMap<>();
+    private Map<String, Resource> convertCDAAllergyObservation(AllergyObservation2 allergyObservation, IVL_TS recordedTime, Map<String, Resource> headerResources) {
+        Map<String, Resource> resources = new HashMap<>();
         AllergyIntolerance allergy = new AllergyIntolerance();
         Type recordedDate = this.basicCDAElementsConverter.getSimpleCDATypesConverter().convertIVLTSDate(recordedTime);
         if (recordedDate instanceof DateTimeType) {
@@ -48,8 +47,8 @@ public class CDAAllergySectionConverter {
         }
 
         allergy.setOnset(this.basicCDAElementsConverter.getSimpleCDATypesConverter().convertIVLTSDate(allergyObservation.getEffectiveTime()));
-        Map<String, IBaseResource> allergyAuthors = new HashMap<>();
-        allergyObservation.getAuthors().forEach(author -> allergyAuthors.putAll(this.convertAllergyAuthor(author, headerResources)));
+        Map<String, Resource> allergyAuthors = new HashMap<>();
+        allergyObservation.getAuthors().forEach(author -> allergyAuthors.putAll(this.basicCDAElementsConverter.convertSectionAuthor(author, headerResources)));
         if (!allergyAuthors.isEmpty()) {
             allergy.setRecorder(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, allergyAuthors.keySet().stream().findFirst().orElse(null)));
             resources.putAll(allergyAuthors);
@@ -81,20 +80,6 @@ public class CDAAllergySectionConverter {
         return resources;
     }
 
-    private Map<String, IBaseResource> convertAllergyAuthor(Author cdaAuthor, Map<String, IBaseResource> headerResources) {
-        if (cdaAuthor.getAssignedAuthor() != null && !cdaAuthor.getAssignedAuthor().isSetNullFlavor() && CollectionUtils.isNotEmpty(cdaAuthor.getAssignedAuthor().getIds())) {
-            List<Identifier> identifiers = cdaAuthor.getAssignedAuthor().getIds().stream().map(this.basicCDAElementsConverter.getSimpleCDATypesConverter()::createFHIRIdentifier).collect(Collectors.toList());
-            Practitioner existingPractitoner = ConvertedElementsHelper.findPractitionerByAuthor(identifiers, headerResources);
-            if (existingPractitoner != null) {
-                Map<String, IBaseResource> resources = new HashMap<>();
-                resources.put(existingPractitoner.getId(), existingPractitoner);
-                return resources;
-            }
-        }
-
-        return this.basicCDAElementsConverter.convertAuthor(cdaAuthor);
-
-    }
 
     private AllergyIntolerance.AllergyIntoleranceReactionComponent convertAllergyReaction(ReactionObservation reactionObservation) {
         if (CollectionUtils.isNotEmpty(reactionObservation.getValues())) {

@@ -225,6 +225,46 @@ public class SimpleCDATypesConverter {
         return null;
     }
 
+    //TODO: add test for this method
+
+    Timing convertEIVL_TStoFHIRTiming(EIVL_TS eventInterval){
+        Timing timing = new Timing();
+        Timing.TimingRepeatComponent repeatComponent = new Timing.TimingRepeatComponent();
+        timing.setRepeat(repeatComponent);
+        timing.setCode(this.createFHIRCodeableConcept(eventInterval.getEvent(),null));
+        repeatComponent.setOffset(eventInterval.getOffset().getValue().intValue());
+        return timing;
+    }
+
+
+    //TODO: add test for this method
+    Timing convertPIVL_TStoFHIRTiming(PIVL_TS periodicInterval){
+        Timing timing = new Timing();
+        Timing.TimingRepeatComponent repeatComponent = new Timing.TimingRepeatComponent();
+        timing.setRepeat(repeatComponent);
+        timing.getEvent().add(new DateTimeType(this.convertCDAToFHIRDate(periodicInterval.getValue())));
+        if (periodicInterval.getPhase() != null){
+            Type phase = this.convertIVLTSDate(periodicInterval.getPhase());
+            if (phase instanceof Period){
+                repeatComponent.setBounds(phase);
+            }
+        }
+
+        if (periodicInterval.getPeriod() != null){
+            try {
+                repeatComponent.setPeriod(periodicInterval.getPeriod().getValue().longValue());
+                repeatComponent.setPeriodUnit(Timing.UnitsOfTime.fromCode(periodicInterval.getPeriod().getUnit()));
+            }
+            catch (FHIRException e){
+                log.warn(e.getMessage(), e);
+                log.warn("Unit can not be cast to FHIR unit set");
+            }
+        }
+
+        return timing;
+    }
+
+
 
 /*
     public void testJSON() throws Exception {

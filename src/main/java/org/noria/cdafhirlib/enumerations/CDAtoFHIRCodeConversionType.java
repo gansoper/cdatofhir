@@ -14,14 +14,20 @@ public enum CDAtoFHIRCodeConversionType {
     IMMUNIZATION_STATUS("ImmunizationStatus"),
     OBSERVATION_CATEGORY("ObservationCategory"),
     PROBLEM_STATUS("ProblemStatus"),
-    PROBLEM_TYPE("ProblemType.csv"),
+    PROBLEM_TYPE("ProblemType"),
     PROCEDURE_STATUS("ProcedureStatus"),
     RESULT_STATUS("ResultStatus"),
     TELECOM_USE("TelecomUse"),
     ALLERGY_VERIFICATION_STATUS("AllergyVerificationStatus"),
     ALLERGY_CLINICAL_STATUS("AllergyClinicalStatus"),
     ALLERGY_SEVERITY("AllergySeverity"),
-    ALLERGY_CRITICALITY("AllergyCriticality");
+    ALLERGY_CRITICALITY("AllergyCriticality"),
+
+    MEDICATION_ACTIVITY_STATUS("MedicationActivityStatus"),
+
+    MEDICATION_DISPENSE_STATUS("MedicationDispenseStatus"),
+
+    MEDICATION_SUPPLY_ORDER_STATUS("MedicationSupplyOrderStatus");
 
 
     private final String type;
