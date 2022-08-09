@@ -4,17 +4,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.mdht.uml.hl7.datatypes.*;
 import org.eclipse.mdht.uml.hl7.vocab.PostalAddressUse;
 import org.eclipse.mdht.uml.hl7.vocab.TelecommunicationAddressUse;
-import org.hl7.fhir.r4.model.Address;
-import org.hl7.fhir.r4.model.CodeableConcept;
-import org.hl7.fhir.r4.model.Coding;
-import org.hl7.fhir.r4.model.ContactPoint;
+import org.hl7.fhir.r4.model.*;
 import org.junit.jupiter.api.Test;
 import org.noria.cdafhirlib.codemapping.CodeMappingProcessor;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
 import org.noria.cdafhirlib.model.CDAtoFHIRCodes;
 import org.noria.cdafhirlib.model.SystemNamesMapping;
 
+import javax.xml.crypto.Data;
 import java.io.File;
+import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -27,8 +26,7 @@ class SimpleCDATypesConverterTest {
     void createFHIRCodingNull() {
         SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(null, getSystems()));
         Coding coding = simpleCDATypesConverter.createFHIRCoding(null, null);
-        assertNotEquals(coding, null);
-        assertNull(coding.getCode());
+        assertEquals(coding, null);
     }
 
     @Test
@@ -67,8 +65,7 @@ class SimpleCDATypesConverterTest {
         CD cd = DatatypesFactory.eINSTANCE.createCD();
         cd.setCode("test");
         CodeableConcept codeableConcept = simpleCDATypesConverter.createFHIRCodeableConcept(null, null);
-        assertNotEquals(codeableConcept, null);
-        assertEquals(codeableConcept.getCoding().size(), 1);
+        assertEquals(codeableConcept, null);
 
     }
 
@@ -162,6 +159,89 @@ class SimpleCDATypesConverterTest {
         assertEquals(contactPoint.getValue(), "test");
     }
 
+    @Test
+    void convertEIVL_TStoFHIRTimingNull() {
+        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
+        EIVL_TS eventInterval = null;
+        Timing timing = simpleCDATypesConverter.convertEIVL_TStoFHIRTiming(eventInterval);
+        assertNotNull(timing);
+        assertNotNull(timing.getRepeat());
+        assertTrue(timing.getCode().getCoding().isEmpty());
+
+    }
+
+    @Test
+    void convertEIVL_TStoFHIRTimingNotNull() {
+        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
+        EIVL_TS eventInterval = DatatypesFactory.eINSTANCE.createEIVL_TS();
+        IVL_PQ offsetValue = DatatypesFactory.eINSTANCE.createIVL_PQ();
+        offsetValue.setValue(new BigDecimal(22));
+        eventInterval.setOffset(offsetValue);
+        EIVL_event eventCode = DatatypesFactory.eINSTANCE.createEIVL_event();
+        eventCode.setCode("test");
+        eventCode.setCodeSystem("2.16.840.1.113883.5.139");
+        eventCode.setDisplayName("TEST");
+        eventInterval.setEvent(eventCode);
+        Timing timing = simpleCDATypesConverter.convertEIVL_TStoFHIRTiming(eventInterval);
+
+        assertNotNull(timing);
+        assertNotNull(timing.getRepeat());
+        assertEquals(timing.getRepeat().getOffset(), 22);
+        assertTrue(timing.getCode().getCoding().size() == 1);
+        assertEquals(timing.getCode().getCoding().get(0).getSystem(), "urn:oid:2.16.840.1.113883.5.139");
+        assertEquals(timing.getCode().getCoding().get(0).getCode(), "test");
+    }
+
+    @Test
+    void convertPIVL_TStoFHIRTimingNull() {
+        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
+        PIVL_TS periodicInterval = null;
+        Timing timing = simpleCDATypesConverter.convertPIVL_TStoFHIRTiming(periodicInterval);
+        assertNotNull(timing);
+        assertNotNull(timing.getRepeat());
+        assertTrue(timing.getCode().getCoding().isEmpty());
+    }
+
+
+    @Test
+    void convertPIVL_TStoFHIRTimingNotNullPeriod() {
+        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
+        PIVL_TS periodicInterval = DatatypesFactory.eINSTANCE.createPIVL_TS();
+        periodicInterval.setValue("20130311");
+        PQ period = DatatypesFactory.eINSTANCE.createIVL_PQ();
+        period.setUnit("h");
+        period.setValue(new BigDecimal(6));
+        periodicInterval.setPeriod(period);
+        Timing timing = simpleCDATypesConverter.convertPIVL_TStoFHIRTiming(periodicInterval);
+        assertNotNull(timing);
+        assertNotNull(timing.getRepeat());
+        assertEquals(timing.getRepeat().getPeriod().intValue(), 6);
+        assertEquals(timing.getRepeat().getPeriodUnit(), Timing.UnitsOfTime.H);
+        assertFalse(timing.getEvent().isEmpty());
+        assertEquals(timing.getEvent().get(0).getValueAsString(), "2013-03-11");
+    }
+
+    @Test
+    void convertPIVL_TStoFHIRTimingNotNullPhase() {
+        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
+        PIVL_TS periodicInterval = DatatypesFactory.eINSTANCE.createPIVL_TS();
+        periodicInterval.setValue("200130311");
+        IVL_TS phase = DatatypesFactory.eINSTANCE.createIVL_TS();
+        IVXB_TS highTime = DatatypesFactory.eINSTANCE.createIVXB_TS();
+        highTime.setValue("200130311");
+        IVXB_TS lowTime = DatatypesFactory.eINSTANCE.createIVXB_TS();
+        lowTime.setValue("200120311");
+        phase.setHigh(highTime);
+        phase.setLow(lowTime);
+        periodicInterval.setPhase(phase);
+        Timing timing = simpleCDATypesConverter.convertPIVL_TStoFHIRTiming(periodicInterval);
+        assertNotNull(timing);
+        assertNotNull(timing.getRepeat());
+        assertNotNull(timing.getRepeat().getBounds());
+        assertTrue(timing.getRepeat().getBounds() instanceof Period);
+    }
+
+
 
     private CDAtoFHIRCodes getTestCodes() {
         try {
@@ -186,6 +266,7 @@ class SimpleCDATypesConverterTest {
             return null;
         }
     }
+
 
 
 }

@@ -92,6 +92,7 @@ class BasicCDAElementsConverterTest {
             if (value instanceof PractitionerRole) {
                 assertTrue(key.contains("PractitionerRole"));
                 PractitionerRole practitionerRole = (PractitionerRole) value;
+                assertNotNull(practitionerRole.getPractitioner().getReference());
                 assertTrue(CollectionUtils.isNotEmpty(practitionerRole.getSpecialty()));
                 assertTrue(CollectionUtils.isNotEmpty(practitionerRole.getSpecialtyFirstRep().getCoding()));
                 assertEquals(practitionerRole.getSpecialtyFirstRep().getCodingFirstRep().getCode(), "PCP");
@@ -109,10 +110,10 @@ class BasicCDAElementsConverterTest {
         Performer1 performer = cda.getDocumentationOfs().get(0).getServiceEvent().getPerformers().get(0);
         BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems())));
         Map<String, Resource> resources = basicCDAElementsConverter.convertPerformer(performer);
-        assertEquals(resources.size(), 2);
+        assertEquals(resources.size(), 4);
         assertNotEquals(resources.entrySet().stream().filter(k -> k.getValue() instanceof Practitioner).findAny().orElse(null), null);
-        assertNull(resources.entrySet().stream().filter(k -> k.getValue() instanceof PractitionerRole).findAny().orElse(null));
-        assertNull(resources.entrySet().stream().filter(k -> k.getValue() instanceof Location).findAny().orElse(null));
+        assertNotNull(resources.entrySet().stream().filter(k -> k.getValue() instanceof PractitionerRole).findAny().orElse(null));
+        assertNotNull(resources.entrySet().stream().filter(k -> k.getValue() instanceof Location).findAny().orElse(null));
         assertNotEquals(resources.entrySet().stream().filter(k -> k.getValue() instanceof Organization).findAny().orElse(null), null);
         resources.forEach((key, value) -> {
             if (value instanceof Practitioner) {
@@ -138,6 +139,13 @@ class BasicCDAElementsConverterTest {
                 assertEquals(organization.getTelecomFirstRep().getValue(), "tel: +1(555)555-5000");
                 assertEquals(organization.getAddressFirstRep().getCity(), "Portland");
                 assertEquals(organization.getName(), "The DoctorsTogether Physician Group");
+            }
+
+            if (value instanceof PractitionerRole) {
+                assertTrue(key.contains("PractitionerRole"));
+                PractitionerRole practitionerRole = (PractitionerRole) value;
+                assertNotNull(practitionerRole.getPractitioner().getReference());
+                assertTrue(CollectionUtils.isEmpty(practitionerRole.getSpecialty()));
             }
 
         });

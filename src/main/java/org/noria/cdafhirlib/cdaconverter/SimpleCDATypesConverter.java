@@ -13,6 +13,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -42,8 +43,9 @@ public class SimpleCDATypesConverter {
 
 
     public Coding createFHIRCoding(CD code, String conversionType) {
-        Coding coding = new Coding();
+        Coding coding = null;
         if (code != null) {
+            coding = new Coding();
             if (conversionType != null) {
                 coding = this.codeMappingProcessor.getCodeFromMapping(code.getCode(), conversionType);
             }
@@ -58,13 +60,28 @@ public class SimpleCDATypesConverter {
     }
 
     public CodeableConcept createFHIRCodeableConcept(CD code, String conversionType) {
-        Coding coding = this.createFHIRCoding(code, conversionType);
-        CodeableConcept codeableConcept = new CodeableConcept();
-        codeableConcept.addCoding(coding);
-        if (code != null && code.getTranslations() != null) {
-            code.getTranslations().forEach(e -> codeableConcept.addCoding(this.createFHIRCoding(e, conversionType)));
+        CodeableConcept codeableConcept = null;
+        if (code != null) {
+            CodeableConcept codeableConceptInner = new CodeableConcept();
+            Coding coding = this.createFHIRCoding(code, conversionType);
+            codeableConceptInner.addCoding(coding);
+            if (code != null && code.getTranslations() != null) {
+                code.getTranslations().forEach(e -> codeableConceptInner.addCoding(this.createFHIRCoding(e, conversionType)));
+            }
+
+            codeableConcept = codeableConceptInner;
         }
 
+        return codeableConcept;
+    }
+
+    public CodeableConcept createFHIRCodeableConceptFromList(List<CD> codes, String conversionType) {
+        CodeableConcept codeableConcept = null;
+        List<Coding> codings = codes.stream().filter(code-> code != null).map (code-> this.createFHIRCoding(code, conversionType)).collect(Collectors.toList());
+        if (!codings.isEmpty()) {
+            codeableConcept = new CodeableConcept();
+            codeableConcept.setCoding(codings);
+        }
         return codeableConcept;
     }
 
@@ -103,9 +120,9 @@ public class SimpleCDATypesConverter {
 
     public Identifier createFHIRIdentifier(II cdaId) {
         Identifier identifier = new Identifier();
-        identifier.setValue(cdaId.getExtension()==null? UUID.randomUUID().toString(): cdaId.getExtension());
+        identifier.setValue(cdaId.getExtension() == null ? UUID.randomUUID().toString() : cdaId.getExtension());
         Pattern p = Pattern.compile(BaseConstants.OID_REGEX_PATTERN);
-        if (cdaId.getRoot() != null && p.matcher(cdaId.getRoot()).matches()){
+        if (cdaId.getRoot() != null && p.matcher(cdaId.getRoot()).matches()) {
             identifier.setSystem(BaseConstants.URN_OID + cdaId.getRoot());
         }
         return identifier;
@@ -117,18 +134,48 @@ public class SimpleCDATypesConverter {
     }
 
 
-    public Extension createExtension(CD coding, String url) {
-        Extension extension = new Extension();
-        extension.setUrl(url);
-        extension.setValue(this.createFHIRCoding(coding, null));
+    public Extension createExtension(CD code, String url) {
+        Extension extension = null;
+        if (code != null) {
+            extension = new Extension();
+            extension.setUrl(url);
+            extension.setValue(this.createFHIRCoding(code, null));
+        }
         return extension;
     }
 
     public Extension createExtension(AD address, String url) {
-        Extension extension = new Extension();
-        extension.setUrl(url);
-        extension.setValue(this.createFHIRAddress(address));
+        Extension extension = null;
+        if (address != null) {
+            extension = new Extension();
+            extension.setUrl(url);
+            extension.setValue(this.createFHIRAddress(address));
+        }
+
         return extension;
+    }
+
+    //TODO: Tests for these methods
+    public Range createRange(IVL_PQ interval){
+        Range range = new Range();
+        range.setHigh(this.createSimpleQuantity(interval.getHigh()));
+        range.setLow(this.createSimpleQuantity(interval.getLow()));
+        return range;
+    }
+
+    public SimpleQuantity createSimpleQuantity(PQ interval){
+        SimpleQuantity simpleQuantity = new SimpleQuantity();
+        simpleQuantity.setValue(interval.getValue());
+        simpleQuantity.setUnit(interval.getUnit());
+        return simpleQuantity;
+    }
+
+
+    public Ratio createRatio(RTO_PQ_PQ cdaRatio){
+        Ratio fhirRatio = new Ratio();
+        fhirRatio.setNumerator(this.createSimpleQuantity(cdaRatio.getNumerator()));
+        fhirRatio.setDenominator(this.createSimpleQuantity(cdaRatio.getDenominator()));
+        return fhirRatio;
     }
 
 
@@ -215,10 +262,8 @@ public class SimpleCDATypesConverter {
 
             if (period.getStartElement() != null || period.getEndElement() != null) {
                 return period;
-            }
-            else if (!cdaDateTime.isSetNullFlavor()) {
-                DateTimeType dateTimeType = new DateTimeType(this.convertCDAToFHIRDate(cdaDateTime.getValue()));
-                return dateTimeType;
+            } else if (!cdaDateTime.isSetNullFlavor()) {
+                return new DateTimeType(this.convertCDAToFHIRDate(cdaDateTime.getValue()));
             }
         }
 
@@ -227,37 +272,42 @@ public class SimpleCDATypesConverter {
 
     //TODO: add test for this method
 
-    Timing convertEIVL_TStoFHIRTiming(EIVL_TS eventInterval){
+    Timing convertEIVL_TStoFHIRTiming(EIVL_TS eventInterval) {
         Timing timing = new Timing();
-        Timing.TimingRepeatComponent repeatComponent = new Timing.TimingRepeatComponent();
-        timing.setRepeat(repeatComponent);
-        timing.setCode(this.createFHIRCodeableConcept(eventInterval.getEvent(),null));
-        repeatComponent.setOffset(eventInterval.getOffset().getValue().intValue());
+        if (eventInterval != null) {
+            Timing.TimingRepeatComponent repeatComponent = new Timing.TimingRepeatComponent();
+            timing.setRepeat(repeatComponent);
+            timing.setCode(this.createFHIRCodeableConcept(eventInterval.getEvent(), null));
+            repeatComponent.setOffset(eventInterval.getOffset().getValue().intValue());
+
+        }
+
         return timing;
     }
 
 
     //TODO: add test for this method
-    Timing convertPIVL_TStoFHIRTiming(PIVL_TS periodicInterval){
+    Timing convertPIVL_TStoFHIRTiming(PIVL_TS periodicInterval) {
         Timing timing = new Timing();
-        Timing.TimingRepeatComponent repeatComponent = new Timing.TimingRepeatComponent();
-        timing.setRepeat(repeatComponent);
-        timing.getEvent().add(new DateTimeType(this.convertCDAToFHIRDate(periodicInterval.getValue())));
-        if (periodicInterval.getPhase() != null){
-            Type phase = this.convertIVLTSDate(periodicInterval.getPhase());
-            if (phase instanceof Period){
-                repeatComponent.setBounds(phase);
+        if (periodicInterval != null) {
+            Timing.TimingRepeatComponent repeatComponent = new Timing.TimingRepeatComponent();
+            timing.setRepeat(repeatComponent);
+            timing.getEvent().add(new DateTimeType(this.convertCDAToFHIRDate(periodicInterval.getValue())));
+            if (periodicInterval.getPhase() != null) {
+                Type phase = this.convertIVLTSDate(periodicInterval.getPhase());
+                if (phase instanceof Period) {
+                    repeatComponent.setBounds(phase);
+                }
             }
-        }
 
-        if (periodicInterval.getPeriod() != null){
-            try {
-                repeatComponent.setPeriod(periodicInterval.getPeriod().getValue().longValue());
-                repeatComponent.setPeriodUnit(Timing.UnitsOfTime.fromCode(periodicInterval.getPeriod().getUnit()));
-            }
-            catch (FHIRException e){
-                log.warn(e.getMessage(), e);
-                log.warn("Unit can not be cast to FHIR unit set");
+            if (periodicInterval.getPeriod() != null) {
+                try {
+                    repeatComponent.setPeriod(periodicInterval.getPeriod().getValue().longValue());
+                    repeatComponent.setPeriodUnit(Timing.UnitsOfTime.fromCode(periodicInterval.getPeriod().getUnit()));
+                } catch (FHIRException e) {
+                    log.warn(e.getMessage(), e);
+                    log.warn("Unit can not be cast to FHIR unit set");
+                }
             }
         }
 
