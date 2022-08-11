@@ -6,10 +6,7 @@ import org.eclipse.mdht.uml.cda.ClinicalDocument;
 import org.eclipse.mdht.uml.cda.util.CDAUtil;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Resource;
-import org.noria.cdafhirlib.cdaconverter.BasicCDAElementsConverter;
-import org.noria.cdafhirlib.cdaconverter.CDAAllergySectionConverter;
-import org.noria.cdafhirlib.cdaconverter.CDAHeaderConverter;
-import org.noria.cdafhirlib.cdaconverter.SimpleCDATypesConverter;
+import org.noria.cdafhirlib.cdaconverter.*;
 import org.noria.cdafhirlib.codemapping.CodeMappingProcessor;
 import org.noria.cdafhirlib.constants.BaseConstants;
 import org.noria.cdafhirlib.model.CDAtoFHIRCodes;
@@ -54,10 +51,15 @@ public class FHIRProducer {
         BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(this.cdAtoFHIRCodes, this.systemNamesMapping)));
         CDAHeaderConverter headerConverter = new CDAHeaderConverter(basicCDAElementsConverter);
         CDAAllergySectionConverter allergySectionConverter = new CDAAllergySectionConverter(basicCDAElementsConverter);
-        Map<String, Resource> resources = headerConverter.convertHeaderResources(cda);
+        CDAMedicationsSectionConverter medicationsSectionConverter = new CDAMedicationsSectionConverter(basicCDAElementsConverter);
+
+        Map<String, Resource> resources = new HashMap<>();
+        Map<String, Resource> headerResources = headerConverter.convertHeaderResources(cda);
+        resources.putAll(headerResources);
         if (cda instanceof ContinuityOfCareDocument2){
             ContinuityOfCareDocument2 ccd = (ContinuityOfCareDocument2) cda;
-            resources.putAll(allergySectionConverter.convertAllergies(ccd.getAllergiesSection2(), new HashMap<>()));
+            resources.putAll(allergySectionConverter.convertAllergies(ccd.getAllergiesSection2(), headerResources));
+            resources.putAll(medicationsSectionConverter.convertMedications(ccd.getMedicationsSection2(), headerResources));
         }
 
         Bundle bundle = new Bundle();

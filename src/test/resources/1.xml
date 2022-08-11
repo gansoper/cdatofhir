@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3">
+    <realmCode code="US"/>
+    <typeId extension="POCD_HD000040" root="2.16.840.1.113883.1.3"/>
+    <templateId extension="IMPL_CDAR2_LEVEL1" root="2.16.840.1.113883.10"/>
+    <templateId root="2.16.840.1.113883.10.20.22.1.1"/>
+    <templateId root="2.16.840.1.113883.10.20.22.1.2"/>
+    <id extension="66670992" root="1.3.6.1.4.1.22812.3.99930.3.1"/>
+    <code code="34133-9" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"
+          displayName="SUMMARIZATION OF EPISODE NOTE"/>
+    <title>Continuity of Care Document</title>
+    <effectiveTime value="20200714090051-0400"/>
+    <confidentialityCode codeSystem="2.16.840.1.113883.5.25" code="V" codeSystemName="HL7 ConfidentialityCode"/>
+    <languageCode code="en-US"/>
+    <recordTarget>
+        <patientRole>
+            <id extension="110107073916280" root="1.3.6.1.4.1.22812.3.99930.3"/>
+            <addr use="H">
+                <streetAddressLine>1234 Six Forks</streetAddressLine>
+                <city>Cary</city>
+                <state>NC</state>
+                <postalCode>27513</postalCode>
+                <country>US</country>
+            </addr>
+            <telecom value="tel:+1-(919)854-3333" use="HP"/>
+            <patient>
+                <name>
+                    <family>Mirren</family>
+                    <given>Lara</given>
+                </name>
+                <administrativeGenderCode code="F" codeSystem="2.16.840.1.113883.5.1"/>
+                <birthTime value="19550301"/>
+                <raceCode codeSystem="2.16.840.1.113883.6.238" code="2106-3" displayName="White"/>
+                <ethnicGroupCode codeSystem="2.16.840.1.113883.6.238" code="2186-5"
+                                 displayName="Not Hispanic or Latino"/>
+                <languageCommunication>
+                    <templateId root="2.16.840.1.113883.3.88.11.32.2"/>
+                    <templateId root="2.16.840.1.113883.3.88.11.83.2"/>
+                    <templateId root="1.3.6.1.4.1.19376.1.5.3.1.2.1"/>
+                    <languageCode code="eng"/>
+                    <preferenceInd value="true"/>
+                </languageCommunication>
+            </patient>
+            <providerOrganization>
+                <id extension="3" root="1.3.6.1.4.1.22812.3.99930.3"/>
+                <name>Community General Hospital</name>
+                <telecom value="tel:+1-(555)555-1009"/>
+                <addr>
+                    <streetAddressLine>Community General Hospital</streetAddressLine>
+                    <streetAddressLine>1009 Healthcare Dr.</streetAddressLine>
+                    <city>Portland</city>
+                    <state>OR</state>
+                    <postalCode>97005</postalCode>
+                    <country>US</country>
+                </addr>
+            </providerOrganization>
+        </patientRole>
+    </recordTarget>
+    <author>
+        <time value="20200714090051-0400"/>
+        <assignedAuthor>
+            <id root="2.16.840.1.113883.4.6" extension="1111111111"/>
+            <id extension="91138" root="1.3.6.1.4.1.22812.3.99930.3"/>
+            <addr>
+                <streetAddressLine>Community General Hospital</streetAddressLine>
+                <streetAddressLine>1009 Healthcare Dr.</streetAddressLine>
+                <city>Portland</city>
+                <state>OR</state>
+                <postalCode>97005</postalCode>
+                <country>US</country>
+            </addr>
+            <telecom value="tel:+1-(555)555-1009"/>
+            <assignedPerson>
+                <name>
+                    <family>Healthy</family>
+                    <given>Bruce</given>
+                    <prefix>Dr</prefix>
+                </name>
+            </assignedPerson>
+        </assignedAuthor>
+    </author>
+    <custodian>
+        <assignedCustodian>
+            <representedCustodianOrganization>
+                <id extension="3" root="2.16.840.1.113883.4.6"/>
+                <name>Community General Hospital</name>
+                <telecom value="tel:+1-(555)555-1009"/>
+                <addr>
+                    <streetAddressLine>Community General Hospital</streetAddressLine>
+                    <streetAddressLine>1009 Healthcare Dr.</streetAddressLine>
+                    <city>Portland</city>
+                    <state>OR</state>
+                    <postalCode>97005</postalCode>
+                    <country>US</country>
+                </addr>
+            </representedCustodianOrganization>
+        </assignedCustodian>
+    </custodian>
+    <informationRecipient>
+        <intendedRecipient>
+            <id extension="3" root="1.3.6.1.4.1.22812.3.99930.3.3.1"/>
+            <addr>
+                <streetAddressLine>Community General Hospital</streetAddressLine>
+                <streetAddressLine>1009 Healthcare Dr.</streetAddressLine>
+                <city>Portland</city>
+                <state>OR</state>
+                <postalCode>97005</postalCode>
+                <country>US</country>
+            </addr>
+            <telecom value="tel:+1-(555)555-1009"/>
+            <receivedOrganization>
+                <name>Community General Hospital</name>
+                <telecom value="tel:+1-(555)555-1009"/>
+                <addr>
+                    <streetAddressLine>Community General Hospital</streetAddressLine>
+                    <streetAddressLine>1009 Healthcare Dr.</streetAddressLine>
+                    <city>Portland</city>
+                    <state>OR</state>
+                    <postalCode>97005</postalCode>
+                    <country>US</country>
+                </addr>
+            </receivedOrganization>
+        </intendedRecipient>
+    </informationRecipient>
+    <legalAuthenticator>
+        <time value="20200714090051-0400"/>
+        <signatureCode code="S"/>
+        <assignedEntity>
+            <id extension="1111111111" root="2.16.840.1.113883.4.6"/>
+            <addr>
+                <streetAddressLine>Community General Hospital</streetAddressLine>
+                <streetAddressLine>1009 Healthcare Dr.</streetAddressLine>
+                <city>Portland</city>
+                <state>OR</state>
+                <postalCode>97005</postalCode>
+                <country>US</country>
+            </addr>
+            <telecom value="tel:+1-(555)555-1009"/>
+            <assignedPerson>
+                <name>
+                    <family>Healthy</family>
+                    <given>Bruce</given>
+                    <prefix>Dr</prefix>
+                </name>
+            </assignedPerson>
+        </assignedEntity>
+    </legalAuthenticator>
+    <authenticator>
+        <time value="20200714090051-0400"/>
+        <signatureCode code="S"/>
+        <assignedEntity>
+            <id extension="1111111111" root="2.16.840.1.113883.4.6"/>
+            <addr>
+                <streetAddressLine>Community General Hospital</streetAddressLine>
+                <streetAddressLine>1009 Healthcare Dr.</streetAddressLine>
+                <city>Portland</city>
+                <state>OR</state>
+                <postalCode>97005</postalCode>
+                <country>US</country>
+            </addr>
+            <telecom value="tel:+1-(555)555-1009"/>
+            <assignedPerson>
+                <name>
+                    <family>Healthy</family>
+                    <given>Bruce</given>
+                    <prefix>Dr</prefix>
+                </name>
+            </assignedPerson>
+        </assignedEntity>
+    </authenticator>
+    <documentationOf>
+        <serviceEvent classCode="PCPR">
+            <id extension="5283815" root="1.3.6.1.4.1.22812.3.99930.3.3.8"/>
+            <code codeSystem="2.16.840.1.113883.6.12" codeSystemName="CPT-4" code="99231"/>
+            <effectiveTime>
+                <low value="20200624090051"/>
+                <high value="20200630100051"/>
+            </effectiveTime>
+            <performer typeCode="PRF">
+                <templateId root="1.3.6.1.4.1.19376.1.5.3.1.2.3"/>
+                <templateId root="2.16.840.1.113883.3.88.11.32.4"/>
+                <templateId root="2.16.840.1.113883.3.88.11.83.4"/>
+                <functionCode codeSystem="2.16.840.1.113883.12.443" code="AD" displayName="Admitting"/>
+                <time>
+                    <low/>
+                    <high/>
+                </time>
+                <assignedEntity>
+                    <id extension="1111111111" root="2.16.840.1.113883.4.6"/>
+                    <code codeSystem="2.16.840.1.113883.6.101" codeSystemName="ProviderCodes" code="280000000X"
+                          displayName="Hospitals"/>
+                    <addr>
+                        <streetAddressLine>Community General Hospital</streetAddressLine>
+                        <streetAddressLine>1009 Healthcare Dr.</streetAddressLine>
+                        <city>Portland</city>
+                        <state>OR</state>
+                        <postalCode>97005</postalCode>
+                        <country>US</country>
+                    </addr>
+                    <telecom value="tel:+1-(555)555-1009"/>
+                    <assignedPerson>
+                        <name>
+                            <family>Healthy</family>
+                            <given>Bruce</given>
+                            <prefix>Dr</prefix>
+                        </name>
+                    </assignedPerson>
+                </assignedEntity>
+            </performer>
+        </serviceEvent>
+    </documentationOf>
+    <componentOf>
+        <encompassingEncounter>
+            <id extension="5283815" root="1.3.6.1.4.1.22812.3.99930.3.3.4"/>
+            <effectiveTime>
+                <low value="20200624090051"/>
+                <high value="20200630100051"/>
+            </effectiveTime>
+        </encompassingEncounter>
+    </componentOf>
+    <component>
+        <structuredBody>
+            <templateId extension="IMPL_CDAR2_LEVEL1" root="2.16.840.1.113883.10"/>
+            <component>
+                <section>
+                    <templateId root="2.16.840.1.113883.10.20.22.2.18" extension="2015-08-01"/>
+                    <!-- ******** Payers section template ******** -->
+                    <code code="48768-6" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"
+                          displayName="Payers"/>
+                    <title>Insurance Providers</title>
+                    <text>
+                        . . .
+                    </text>
+                    <entry typeCode="DRIV">
+                        <act classCode="ACT" moodCode="EVN">
+                            <templateId root="2.16.840.1.113883.10.20.22.4.60" extension="2015-08-01"/>
+                            <id root="1fe2cdd0-7aad-11db-9fe1-0800200c9a66"/>
+                            <code code="48768-6" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"
+                                  displayName="Payment sources"/>
+                            <statusCode code="completed"/>
+                            <entryRelationship typeCode="COMP">
+                                <act classCode="ACT" moodCode="EVN">
+                                    <templateId root="2.16.840.1.113883.10.20.22.4.61" extension="2015-08-01"/>
+                                    <id root="3e676a50-7aac-11db-9fe1-0800200c9a66"/>
+                                    <code code="12" displayName="Medicare Secondary Working Aged Beneficiary or Spouse with
+Employer Group Health Plan"
+                                          codeSystemName="Insurance Type Code (x12N-1336)"
+                                          codeSystem="2.16.840.1.113883.6.255.1336">
+                                        <translation code="2" displayName="Medicare"
+                                                     codeSystem="2.16.840.1.113883.3.221.5"
+                                                     codeSystemName="Source of Payment Typology (PHDSC)"></translation>
+                                    </code>
+                                    <statusCode code="completed"/>
+                                    <!-- Insurance company information -->
+                                    <performer typeCode="PRF">
+                                        <templateId root="2.16.840.1.113883.10.20.22.4.87"/>
+                                        <time>
+                                            <low nullFlavor="UNK"/>
+                                            <high nullFlavor="UNK"/>
+                                        </time>
+                                        <assignedEntity>
+                                            <id root="2.16.840.1.113883.19"/>
+                                            <code code="PAYOR" codeSystem="2.16.840.1.113883.5.110" codeSystemName="HL7
+RoleCode"/>
+                                            <addr use="WP">
+                                                <streetAddressLine>123 Insurance Road</streetAddressLine>
+                                                <city>Blue Bell</city>
+                                                <state>MA</state>
+                                                <postalCode>02368</postalCode>
+                                                <country>US</country>
+                                                <!-- US is "United States" from ISO 3166-1 Country Codes: 1.0.3166.1 -->
+                                            </addr>
+                                            <telecom value="tel:+(555)555-1515" use="WP"/>
+                                            <representedOrganization>
+                                                <name>Good Health Insurance</name>
+                                                <telecom value="tel:+(555)555-1515" use="WP"/>
+                                                <addr use="WP">
+                                                    <streetAddressLine>123 Insurance Road</streetAddressLine>
+                                                    <city>Blue Bell</city>
+                                                    <state>MA</state>
+                                                    <postalCode>02368</postalCode>
+                                                    <country>US</country>
+                                                </addr>
+                                            </representedOrganization>
+                                        </assignedEntity>
+                                    </performer>
+                                    <!-- Guarantor information (the person responsible for the final bill) -->
+                                    <performer typeCode="PRF">
+                                        <templateId root="2.16.840.1.113883.10.20.22.4.88"/>
+                                        <time>
+                                            <low nullFlavor="UNK"/>
+                                            <high nullFlavor="UNK"/>
+                                        </time>
+                                        <assignedEntity>
+                                            <id root="329fcdf0-7ab3-11db-9fe1-0800200c9a66"/>
+                                            <code code="GUAR" codeSystem="2.16.840.1.113883.5.111" codeSystemName="HL7
+RoleCode"/>
+                                            <addr use="HP">
+                                                <streetAddressLine>17 Daws Rd.</streetAddressLine>
+                                                <city>Blue Bell</city>
+                                                <state>MA</state>
+                                                <postalCode>02368</postalCode>
+                                                <country>US</country>
+                                            </addr>
+                                            <telecom value="tel:+(781)555-1212" use="HP"/>
+                                            <assignedPerson>
+                                                <name>
+                                                    <prefix>Mr.</prefix>
+                                                    <given>Adam</given>
+                                                    <given>Frankie</given>
+                                                    <family>Everyman</family>
+                                                </name>
+                                            </assignedPerson>
+                                        </assignedEntity>
+                                    </performer>
+                                    <!-- Covered party -->
+                                    <participant typeCode="COV">
+                                        <templateId root="2.16.840.1.113883.10.20.22.4.89"/>
+                                        <time>
+                                            <low nullFlavor="UNK"/>
+                                            <high nullFlavor="UNK"/>
+                                        </time>
+                                        <participantRole classCode="PAT">
+                                            <!-- Health plan ID for patient. -->
+                                            <id root="1.1.1.1.1.1.1.1.14" extension="1138345"/>
+                                            <code code="SELF" codeSystem="2.16.840.1.113883.5.111"/>
+                                            <addr use="HP">
+                                                <streetAddressLine>17 Daws Rd.</streetAddressLine>
+                                                <city>Blue Bell</city>
+                                                <state>MA</state>
+                                                <postalCode>02368</postalCode>
+                                                <country>US</country>
+                                            </addr>
+                                            <playingEntity>
+                                                <name>
+                                                    <!-- Name is needed if different than name on health plan. -->
+                                                    <prefix>Mr.</prefix>
+                                                    <given>Frank</given>
+                                                    <given>A.</given>
+                                                    <family>Everyman</family>
+                                                </name>
+                                            </playingEntity>
+                                        </participantRole>
+                                    </participant>
+                                    <!-- Policy holder -->
+                                    <participant typeCode="HLD">
+                                        <templateId root="2.16.840.1.113883.10.20.22.4.90"/>
+                                        <participantRole>
+                                            <id extension="1138345" root="2.16.840.1.113883.19"/>
+                                            <addr use="HP">
+                                                <streetAddressLine>17 Daws Rd.</streetAddressLine>
+                                                <city>Blue Bell</city>
+                                                <state>MA</state>
+                                                <postalCode>02368</postalCode>
+                                                <country>US</country>
+                                            </addr>
+                                        </participantRole>
+                                    </participant>
+                                </act>
+                            </entryRelationship>
+                        </act>
+                    </entry>
+                </section>
+            </component>
+        </structuredBody>
+    </component>
+</ClinicalDocument>

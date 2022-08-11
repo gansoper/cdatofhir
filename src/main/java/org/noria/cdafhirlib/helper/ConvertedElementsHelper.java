@@ -10,12 +10,15 @@ import java.util.Map;
 
 public class ConvertedElementsHelper {
 
-    public static Practitioner findPractitionerByAuthor(List<Identifier> authorIdentifiers, Map<String, Resource> resources) {
+    public static Practitioner findPractitionerByIdentifier(List<Identifier> authorIdentifiers, Map<String, Resource> resources) {
+
         Practitioner foundPractitioner = null;
-        String fhirID = FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.PRACTITIONER, authorIdentifiers);
-        Resource resource = resources.get(fhirID);
-        if (resource instanceof Practitioner) {
-            foundPractitioner = (Practitioner) resource;
+        if (resources != null) {
+            String fhirID = FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.PRACTITIONER, authorIdentifiers);
+            Resource resource = resources.get(fhirID);
+            if (resource instanceof Practitioner) {
+                foundPractitioner = (Practitioner) resource;
+            }
         }
 
         return foundPractitioner;

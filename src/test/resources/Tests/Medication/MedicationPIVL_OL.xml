@@ -478,38 +478,6 @@
 					<templateId root="2.16.840.1.113883.10.20.22.2.1.1"/>
 					<code code="10160-0" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="HISTORY OF MEDICATION USE"/>
 					<title>MEDICATIONS</title>
-					<text>
-						<table border="1" width="100%">
-							<thead>
-								<tr>
-									<th>Medication</th>
-									<th>Directions</th>
-									<th>Start Date</th>
-									<th>Status</th>
-									<th>Indications</th>
-									<th>Fill Instructions</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td>Proventil 0.09 MG/ACTUAT inhalant solution</td>
-									<td>2 puffs q6 hours PRN wheezing</td>
-									<td>Jan 3, 2011</td>
-									<td>Active</td>
-									<td>Asthma</td>
-									<td>Generic Substitition Allowed</td>
-								</tr>
-								<tr>
-									<td>Atenolol 25 MG Oral Tablet</td>
-									<td>1 every 12 hours Orally</td>
-									<td>Mar 18, 2012</td>
-									<td>Active</td>
-									<td>Hypertension</td>
-									<td>-none-</td>
-								</tr>
-							</tbody>
-						</table>
-					</text>
 					<entry typeCode="DRIV">
 						<substanceAdministration classCode="SBADM" moodCode="EVN">
 							<!-- ** Medication Activity (V2) ** -->
@@ -711,75 +679,6 @@
 									<value xsi:type="CD" code="56018004" codeSystem="2.16.840.1.113883.6.96" displayName="Wheezing"/>
 								</criterion>
 							</precondition>
-						</substanceAdministration>
-					</entry>
-					<entry typeCode="DRIV">
-						<substanceAdministration classCode="SBADM" moodCode="EVN">
-							<!-- ** Medication activity ** -->
-							<templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
-							<templateId root="2.16.840.1.113883.10.20.22.4.16"/>
-							<id root="6c844c75-aa34-411c-b7bd-5e4a9f206e29"/>
-							<statusCode code="active"/>
-							<effectiveTime xsi:type="IVL_TS">
-								<low value="20120318"/>
-								<high nullFlavor="UNK"/>
-							</effectiveTime>
-							<effectiveTime xsi:type="EIVL_TS" operator="A">
-								<event code="AC" codeSystem="2.16.840.1.113883.5.139"></event>
-								<offset value="10" unit="1"></offset>
-							</effectiveTime>
-							<routeCode code="C38288" codeSystem="2.16.840.1.113883.3.26.1.1" codeSystemName="NCI Thesaurus" displayName="ORAL"/>
-							<doseQuantity value="1"/>
-							<consumable>
-								<manufacturedProduct classCode="MANU">
-									<!-- ** Medication information ** -->
-									<templateId root="2.16.840.1.113883.10.20.22.4.23" extension="2014-06-09"/>
-									<templateId root="2.16.840.1.113883.10.20.22.4.23"/>
-									<id root="2a620155-9d11-439e-92b3-5d9815ff4ee8"/>
-									<manufacturedMaterial>
-										<code code="197380" displayName="Atenolol 25 MG Oral Tablet" codeSystem="2.16.840.1.113883.6.88" codeSystemName="RxNorm"/>
-									</manufacturedMaterial>
-								</manufacturedProduct>
-							</consumable>
-							<author typeCode="AUT">
-								<templateId root="2.16.840.1.113883.10.20.22.4.119"/>
-								<time value="201208151235-0800"/>
-								<assignedAuthor>
-									<id extension="5555555555" root="2.16.840.1.113883.4.6"/>
-									<code code="207QA0505X" displayName="Adult Medicine" codeSystem="2.16.840.1.113883.6.101" codeSystemName="Healthcare Provider Taxonomy (HIPAA)"/>
-									<addr>
-										<streetAddressLine>1004 Healthcare Drive </streetAddressLine>
-										<city>Portland</city>
-										<state>OR</state>
-										<postalCode>99123</postalCode>
-										<country>US</country>
-									</addr>
-									<telecom use="WP" value="tel:+1(555)555-1004"/>
-									<assignedPerson>
-										<name>
-											<given>Patricia</given>
-											<given qualifier="CL">Patty</given>
-											<family>Primary</family>
-											<suffix qualifier="AC">M.D.</suffix>
-										</name>
-									</assignedPerson>
-								</assignedAuthor>
-							</author>
-							<entryRelationship typeCode="RSON">
-								<observation classCode="OBS" moodCode="EVN">
-									<!-- ** Indication ** -->
-									<templateId root="2.16.840.1.113883.10.20.22.4.19" extension="2014-06-09"/>
-									<templateId root="2.16.840.1.113883.10.20.22.4.19"/>
-									<id root="e63166c7-6482-4a44-83a1-37ccdbde725b"/>
-									<code code="404684003" displayName="Finding" codeSystemName="SNOMED-CT" codeSystem="2.16.840.1.113883.6.96">
-										<!-- MAY
-										<translation code="75321-0" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Clinical finding"/>
-										-->
-									</code>
-									<statusCode code="completed"/>
-									<value xsi:type="CD" code="38341003" displayName="Hypertension" codeSystem="2.16.840.1.113883.6.96"/>
-								</observation>
-							</entryRelationship>
 						</substanceAdministration>
 					</entry>
 				</section>

@@ -47,8 +47,7 @@ public class CDAAllergySectionConverter {
         }
 
         allergy.setOnset(this.basicCDAElementsConverter.getSimpleCDATypesConverter().convertIVLTSDate(allergyObservation.getEffectiveTime()));
-        Map<String, Resource> allergyAuthors = new HashMap<>();
-        allergyObservation.getAuthors().forEach(author -> allergyAuthors.putAll(this.basicCDAElementsConverter.convertSectionAuthor(author, headerResources)));
+        Map<String, Resource> allergyAuthors = this.basicCDAElementsConverter.convertSectionAuthors(allergyObservation.getAuthors(), headerResources);
         if (!allergyAuthors.isEmpty()) {
             allergy.setRecorder(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, allergyAuthors.keySet().stream().findFirst().orElse(null)));
             resources.putAll(allergyAuthors);

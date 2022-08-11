@@ -3,6 +3,7 @@ package org.noria.cdafhirlib.cdaconverter;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.mdht.uml.hl7.datatypes.*;
+import org.eclipse.mdht.uml.hl7.vocab.NullFlavor;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.model.*;
 import org.noria.cdafhirlib.codemapping.CodeMappingProcessor;
@@ -86,22 +87,26 @@ public class SimpleCDATypesConverter {
     }
 
     public Address createFHIRAddress(AD cdaAddress) {
-        Address address = new Address();
-        if (cdaAddress.getUses() != null && cdaAddress.getUses().size() != 0) {
-            address.setUse(Address.AddressUse.fromCode(this.codeMappingProcessor.getStringCodeFromMapping(cdaAddress.getUses().get(0).toString(), CDAtoFHIRCodeConversionType.ADDRESS_USE.toValue())));
+        Address address = null;
+        if (cdaAddress!=null && cdaAddress.getNullFlavor() != NullFlavor.UNK) {
+            address = new Address();
+            if (cdaAddress.getUses() != null && cdaAddress.getUses().size() != 0) {
+                address.setUse(Address.AddressUse.fromCode(this.codeMappingProcessor.getStringCodeFromMapping(cdaAddress.getUses().get(0).toString(), CDAtoFHIRCodeConversionType.ADDRESS_USE.toValue())));
+            }
+
+            address.setLine(cdaAddress.getStreetAddressLines().stream().map(e -> new StringType(e.getText())).collect(Collectors.toList()));
+            address.setCity(cdaAddress.getCities().stream().map(ED::getText).collect(Collectors.joining(",")));
+            address.setCountry(cdaAddress.getCounties().stream().map(ED::getText).collect(Collectors.joining(",")));
+            address.setPostalCode(cdaAddress.getPostalCodes().stream().map(ED::getText).collect(Collectors.joining(",")));
+            address.setState(cdaAddress.getStates().stream().map(ED::getText).collect(Collectors.joining(",")));
         }
 
-        address.setLine(cdaAddress.getStreetAddressLines().stream().map(e -> new StringType(e.getText())).collect(Collectors.toList()));
-        address.setCity(cdaAddress.getCities().stream().map(ED::getText).collect(Collectors.joining(",")));
-        address.setCountry(cdaAddress.getCounties().stream().map(ED::getText).collect(Collectors.joining(",")));
-        address.setPostalCode(cdaAddress.getPostalCodes().stream().map(ED::getText).collect(Collectors.joining(",")));
-        address.setState(cdaAddress.getStates().stream().map(ED::getText).collect(Collectors.joining(",")));
         return address;
     }
 
     public ContactPoint createContactPoint(TEL telecom) {
         ContactPoint contactPoint = new ContactPoint();
-        if (telecom != null) {
+        if (telecom != null && telecom.getNullFlavor() != NullFlavor.UNK) {
             if (telecom.getUses() != null && telecom.getUses().size() != 0) {
                 contactPoint.setUse(ContactPoint.ContactPointUse.fromCode(this.codeMappingProcessor.getStringCodeFromMapping(telecom.getUses().get(0).toString(), CDAtoFHIRCodeConversionType.TELECOM_USE.toValue())));
             }
@@ -157,24 +162,33 @@ public class SimpleCDATypesConverter {
 
     //TODO: Tests for these methods
     public Range createRange(IVL_PQ interval){
-        Range range = new Range();
-        range.setHigh(this.createSimpleQuantity(interval.getHigh()));
-        range.setLow(this.createSimpleQuantity(interval.getLow()));
+        Range range = null;
+        if (interval != null) {
+            range = new Range();
+            range.setHigh(this.createSimpleQuantity(interval.getHigh()));
+            range.setLow(this.createSimpleQuantity(interval.getLow()));
+        }
         return range;
     }
 
     public SimpleQuantity createSimpleQuantity(PQ interval){
-        SimpleQuantity simpleQuantity = new SimpleQuantity();
-        simpleQuantity.setValue(interval.getValue());
-        simpleQuantity.setUnit(interval.getUnit());
+        SimpleQuantity simpleQuantity = null;
+        if (interval != null) {
+            simpleQuantity = new SimpleQuantity();
+            simpleQuantity.setValue(interval.getValue());
+            simpleQuantity.setUnit(interval.getUnit());
+        }
         return simpleQuantity;
     }
 
 
     public Ratio createRatio(RTO_PQ_PQ cdaRatio){
-        Ratio fhirRatio = new Ratio();
-        fhirRatio.setNumerator(this.createSimpleQuantity(cdaRatio.getNumerator()));
-        fhirRatio.setDenominator(this.createSimpleQuantity(cdaRatio.getDenominator()));
+        Ratio fhirRatio = null;
+        if (cdaRatio != null) {
+            fhirRatio =new Ratio();
+            fhirRatio.setNumerator(this.createSimpleQuantity(cdaRatio.getNumerator()));
+            fhirRatio.setDenominator(this.createSimpleQuantity(cdaRatio.getDenominator()));
+        }
         return fhirRatio;
     }
 
@@ -273,23 +287,23 @@ public class SimpleCDATypesConverter {
     //TODO: add test for this method
 
     Timing convertEIVL_TStoFHIRTiming(EIVL_TS eventInterval) {
-        Timing timing = new Timing();
+        Timing timing = null;
         if (eventInterval != null) {
+            timing = new Timing();
             Timing.TimingRepeatComponent repeatComponent = new Timing.TimingRepeatComponent();
             timing.setRepeat(repeatComponent);
             timing.setCode(this.createFHIRCodeableConcept(eventInterval.getEvent(), null));
             repeatComponent.setOffset(eventInterval.getOffset().getValue().intValue());
-
         }
 
         return timing;
     }
 
 
-    //TODO: add test for this method
     Timing convertPIVL_TStoFHIRTiming(PIVL_TS periodicInterval) {
-        Timing timing = new Timing();
+        Timing timing = null;
         if (periodicInterval != null) {
+            timing = new Timing();
             Timing.TimingRepeatComponent repeatComponent = new Timing.TimingRepeatComponent();
             timing.setRepeat(repeatComponent);
             timing.getEvent().add(new DateTimeType(this.convertCDAToFHIRDate(periodicInterval.getValue())));

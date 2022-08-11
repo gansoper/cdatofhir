@@ -15,6 +15,7 @@ public class FHIRElementsHelper {
         return  fhirAllTypes.toCode() + "_" + fhirID;
     }
 
+
     public static Reference createReference(Enumerations.FHIRAllTypes fhirAllTypes, String id){
         Reference reference = new Reference();
         reference.setReference(fhirAllTypes.toCode() + "/" + id);

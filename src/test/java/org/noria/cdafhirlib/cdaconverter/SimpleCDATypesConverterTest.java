@@ -164,9 +164,7 @@ class SimpleCDATypesConverterTest {
         SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
         EIVL_TS eventInterval = null;
         Timing timing = simpleCDATypesConverter.convertEIVL_TStoFHIRTiming(eventInterval);
-        assertNotNull(timing);
-        assertNotNull(timing.getRepeat());
-        assertTrue(timing.getCode().getCoding().isEmpty());
+        assertNull(timing);
 
     }
 
@@ -197,9 +195,7 @@ class SimpleCDATypesConverterTest {
         SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
         PIVL_TS periodicInterval = null;
         Timing timing = simpleCDATypesConverter.convertPIVL_TStoFHIRTiming(periodicInterval);
-        assertNotNull(timing);
-        assertNotNull(timing.getRepeat());
-        assertTrue(timing.getCode().getCoding().isEmpty());
+        assertNull(timing);
     }
 
 

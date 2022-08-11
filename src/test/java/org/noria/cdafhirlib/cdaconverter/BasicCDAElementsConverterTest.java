@@ -82,7 +82,7 @@ class BasicCDAElementsConverterTest {
         ClinicalDocument cda = CDAUtil.load(fis);
         Performer1 performer = cda.getDocumentationOfs().get(0).getServiceEvent().getPerformers().get(0);
         BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems())));
-        Map<String, Resource> resources = basicCDAElementsConverter.convertPerformer(performer);
+        Map<String, Resource> resources = basicCDAElementsConverter.convertPerformer(performer, null);
         assertEquals(resources.size(), 2);
         assertNotEquals(resources.entrySet().stream().filter(k -> k.getValue() instanceof Practitioner).findAny().orElse(null), null);
         assertNotEquals(resources.entrySet().stream().filter(k -> k.getValue() instanceof PractitionerRole).findAny().orElse(null), null);
@@ -109,7 +109,7 @@ class BasicCDAElementsConverterTest {
         ClinicalDocument cda = CDAUtil.load(fis);
         Performer1 performer = cda.getDocumentationOfs().get(0).getServiceEvent().getPerformers().get(0);
         BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems())));
-        Map<String, Resource> resources = basicCDAElementsConverter.convertPerformer(performer);
+        Map<String, Resource> resources = basicCDAElementsConverter.convertPerformer(performer, null);
         assertEquals(resources.size(), 4);
         assertNotEquals(resources.entrySet().stream().filter(k -> k.getValue() instanceof Practitioner).findAny().orElse(null), null);
         assertNotNull(resources.entrySet().stream().filter(k -> k.getValue() instanceof PractitionerRole).findAny().orElse(null));
@@ -160,7 +160,7 @@ class BasicCDAElementsConverterTest {
         ClinicalDocument cda = CDAUtil.load(fis);
         Performer1 performer = cda.getDocumentationOfs().get(0).getServiceEvent().getPerformers().get(0);
         BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems())));
-        Map<String, Resource> resources = basicCDAElementsConverter.convertPerformer(performer);
+        Map<String, Resource> resources = basicCDAElementsConverter.convertPerformer(performer, null);
         assertEquals(resources.size(), 4);
         assertNotEquals(resources.entrySet().stream().filter(k -> k.getValue() instanceof Practitioner).findAny().orElse(null), null);
         assertNotEquals(resources.entrySet().stream().filter(k -> k.getValue() instanceof PractitionerRole).findAny().orElse(null), null);
