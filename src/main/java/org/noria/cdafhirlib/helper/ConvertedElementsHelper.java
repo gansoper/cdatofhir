@@ -1,9 +1,6 @@
 package org.noria.cdafhirlib.helper;
 
-import org.hl7.fhir.r4.model.Enumerations;
-import org.hl7.fhir.r4.model.Identifier;
-import org.hl7.fhir.r4.model.Practitioner;
-import org.hl7.fhir.r4.model.Resource;
+import org.hl7.fhir.r4.model.*;
 
 import java.util.List;
 import java.util.Map;
@@ -23,4 +20,16 @@ public class ConvertedElementsHelper {
 
         return foundPractitioner;
     }
+
+  public static Reference getPateintReference(Map<String, Resource> resources){
+        Reference reference  = null;
+        if (resources != null){
+            Resource resource = resources.values().stream().filter(r-> r instanceof Patient).findFirst().orElse(null);
+            if (resource != null){
+                reference = FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PATIENT, resource.getId());
+            }
+        }
+
+        return reference;
+  }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.mdht.uml.cda.ClinicalDocument;
 import org.eclipse.mdht.uml.cda.util.CDAUtil;
 import org.hl7.fhir.r4.model.AllergyIntolerance;
+import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Period;
 import org.hl7.fhir.r4.model.Resource;
 import org.junit.jupiter.api.Test;
@@ -36,7 +37,11 @@ class CDAAllergySectionConverterTest {
         if (cda instanceof ContinuityOfCareDocument2) {
             BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems())));
             CDAAllergySectionConverter allergySectionConverter = new CDAAllergySectionConverter(basicCDAElementsConverter);
-            Map<String, Resource> resources = allergySectionConverter.convertAllergies(((ContinuityOfCareDocument2) cda).getAllergiesSection2(), new HashMap<>());
+            HashMap<String, Resource> headerResources = new HashMap<>();
+            Patient patient = new Patient();
+            patient.setId("test");
+            headerResources.put("test", patient);
+            Map<String, Resource> resources = allergySectionConverter.convertAllergies(((ContinuityOfCareDocument2) cda).getAllergiesSection2(), headerResources);
             assertFalse(resources.isEmpty());
             assertEquals(resources.size(), 3);
             Resource Resource = resources.values().stream().filter(resource -> resource instanceof AllergyIntolerance).findAny().orElse(null);
@@ -63,6 +68,7 @@ class CDAAllergySectionConverterTest {
             assertEquals(allergyIntolerance.getCriticality().toCode(), "high");
 
             assertEquals(allergyIntolerance.getVerificationStatus().getCodingFirstRep().getCode(), "confirmed");
+            assertEquals(allergyIntolerance.getPatient().getReference(), "Patient/test");
         }
 
     }

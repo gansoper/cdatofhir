@@ -1,7 +1,6 @@
 package org.noria.cdafhirlib.cdaconverter;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.eclipse.mdht.uml.cda.Author;
 import org.eclipse.mdht.uml.hl7.datatypes.CD;
 import org.eclipse.mdht.uml.hl7.datatypes.CE;
 import org.eclipse.mdht.uml.hl7.datatypes.IVL_TS;
@@ -9,9 +8,14 @@ import org.hl7.fhir.r4.model.*;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
 import org.noria.cdafhirlib.helper.ConvertedElementsHelper;
 import org.noria.cdafhirlib.helper.FHIRElementsHelper;
-import org.openhealthtools.mdht.uml.cda.consol.*;
+import org.openhealthtools.mdht.uml.cda.consol.AllergiesSection2;
+import org.openhealthtools.mdht.uml.cda.consol.AllergyObservation2;
+import org.openhealthtools.mdht.uml.cda.consol.ReactionObservation;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CDAAllergySectionConverter {
@@ -54,7 +58,7 @@ public class CDAAllergySectionConverter {
         }
 
         allergy.getCode().setCoding(allergyObservation.getParticipants().stream()
-                .filter(p->p.getParticipantRole()!=null && p.getParticipantRole().getPlayingEntity() !=null)
+                .filter(p -> p.getParticipantRole() != null && p.getParticipantRole().getPlayingEntity() != null)
                 .map(p -> basicCDAElementsConverter.getSimpleCDATypesConverter().createFHIRCoding(p.getParticipantRole().getPlayingEntity().getCode(), null))
                 .collect(Collectors.toList()));
 
@@ -69,12 +73,16 @@ public class CDAAllergySectionConverter {
         allergy.getVerificationStatus().setCoding(Collections.singletonList(basicCDAElementsConverter.getSimpleCDATypesConverter().createFHIRCoding(allergyObservation.getStatusCode(), CDAtoFHIRCodeConversionType.ALLERGY_VERIFICATION_STATUS.toValue())));
         allergy.setReaction(allergyObservation.getReactionObservations().stream().map(this::convertAllergyReaction).collect(Collectors.toList()));
 
-        if (allergyObservation.getCriticalityObservation() != null && CollectionUtils.isNotEmpty(allergyObservation.getCriticalityObservation().getValues())){
-            Coding coding = this.basicCDAElementsConverter.getSimpleCDATypesConverter().createFHIRCoding((CD)allergyObservation.getCriticalityObservation().getValues().get(0), CDAtoFHIRCodeConversionType.ALLERGY_CRITICALITY.toValue());
+        if (allergyObservation.getCriticalityObservation() != null && CollectionUtils.isNotEmpty(allergyObservation.getCriticalityObservation().getValues())) {
+            Coding coding = this.basicCDAElementsConverter.getSimpleCDATypesConverter().createFHIRCoding((CD) allergyObservation.getCriticalityObservation().getValues().get(0), CDAtoFHIRCodeConversionType.ALLERGY_CRITICALITY.toValue());
             allergy.setCriticality(AllergyIntolerance.AllergyIntoleranceCriticality.fromCode(coding.getCode()));
         }
 
         allergy.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.ALLERGYINTOLERANCE, allergy.getIdentifier()));
+        Reference reference = ConvertedElementsHelper.getPateintReference(headerResources);
+        if (reference != null) {
+            allergy.setPatient(reference);
+        }
         resources.put(allergy.getId(), allergy);
         return resources;
     }

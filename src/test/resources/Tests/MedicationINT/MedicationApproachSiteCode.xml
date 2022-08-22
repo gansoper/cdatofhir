@@ -46,17 +46,46 @@
 					<templateId root="2.16.840.1.113883.10.20.22.2.1.1"/>
 					<code code="10160-0" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="HISTORY OF MEDICATION USE"/>
 					<title>MEDICATIONS</title>
+					<text>
+						<table border="1" width="100%">
+							<thead>
+								<tr>
+									<th>Medication</th>
+									<th>Directions</th>
+									<th>Start Date</th>
+									<th>Status</th>
+									<th>Indications</th>
+									<th>Fill Instructions</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>Proventil 0.09 MG/ACTUAT inhalant solution</td>
+									<td>2 puffs q6 hours PRN wheezing</td>
+									<td>Jan 3, 2011</td>
+									<td>Active</td>
+									<td>Asthma</td>
+									<td>Generic Substitition Allowed</td>
+								</tr>
+								<tr>
+									<td>Atenolol 25 MG Oral Tablet</td>
+									<td>1 every 12 hours Orally</td>
+									<td>Mar 18, 2012</td>
+									<td>Active</td>
+									<td>Hypertension</td>
+									<td>-none-</td>
+								</tr>
+							</tbody>
+						</table>
+					</text>
 					<entry typeCode="DRIV">
-						<substanceAdministration classCode="SBADM" moodCode="EVN">
+						<substanceAdministration classCode="SBADM" moodCode="INT">
 							<!-- ** Medication activity ** -->
 							<templateId root="2.16.840.1.113883.10.20.22.4.16" extension="2014-06-09"/>
 							<templateId root="2.16.840.1.113883.10.20.22.4.16"/>
 							<id root="6c844c75-aa34-411c-b7bd-5e4a9f206e29"/>
 							<statusCode code="active"/>
-							<effectiveTime xsi:type="IVL_TS">
-								<low value="20120318"/>
-								<high nullFlavor="UNK"/>
-							</effectiveTime>
+							<approachSiteCode code="10013000" codeSystem="2.16.840.1.113883.6.96"  codeSystemName="SNOMED CT" displayName="Lateral meniscus structure (body structure)" />
 						</substanceAdministration>
 					</entry>
 				</section>
