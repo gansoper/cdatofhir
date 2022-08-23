@@ -27,7 +27,8 @@ public enum CDAtoFHIRCodeConversionType {
 
     MEDICATION_DISPENSE_STATUS("MedicationDispenseStatus"),
 
-    MEDICATION_SUPPLY_ORDER_STATUS("MedicationSupplyOrderStatus");
+    MEDICATION_SUPPLY_ORDER_STATUS("MedicationSupplyOrderStatus"),
+    MEDICATION_ACTIVITY_STATEMENT_STATUS("MedicationActivityStatementStatus");
 
 
     private final String type;

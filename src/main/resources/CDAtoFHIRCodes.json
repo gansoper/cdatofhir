@@ -1003,6 +1003,51 @@
                     }
                 }
             ]
+        },
+        {
+            "type": "MedicationActivityStatementStatus",
+            "mapping": [
+                {
+                    "sourceCode": "active",
+                    "targetCode": {
+                        "display": "Active",
+                        "code": "active",
+                        "system": "http://hl7.org/fhir/CodeSystem/medication-statement-status"
+                    }
+                },
+                {
+                    "sourceCode": "suspended",
+                    "targetCode": {
+                        "display": "on-hold",
+                        "code": "On Hold",
+                        "system": "http://hl7.org/fhir/CodeSystem/medication-statement-status"
+                    }
+                },
+                {
+                    "sourceCode": "completed",
+                    "targetCode": {
+                        "display": "completed",
+                        "code": "Completed",
+                        "system": "http://hl7.org/fhir/CodeSystem/medication-statement-status"
+                    }
+                },
+                {
+                    "sourceCode": "aborted",
+                    "targetCode": {
+                        "display": "stopped",
+                        "code": "Stopped",
+                        "system": "http://hl7.org/fhir/CodeSystem/medication-statement-status"
+                    }
+                },
+                {
+                    "sourceCode": "nullified",
+                    "targetCode": {
+                        "display": "stopped",
+                        "code": "Stopped",
+                        "system": "http://hl7.org/fhir/CodeSystem/medication-statement-status"
+                    }
+                }
+            ]
         }
     ]
 }

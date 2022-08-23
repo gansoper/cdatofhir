@@ -22,153 +22,13 @@ import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class CDAMedicationsSectionConverterTest {
+class CDAMedicationsSectionStatementConverterTest {
 
-    @Test
-    public void testDate() throws Exception {
-        Resource resource = this.getMedicationRequestStatement("Tests/MedicationINT/MedicationDate.xml");
-        assertNotNull(resource);
-        MedicationRequest medicationRequest = (MedicationRequest) resource;
-        assertEquals(medicationRequest.getAuthoredOnElement().getValueAsString(), "2012-03-18");
-
-    }
-
-    @Test
-    public void testEIVL_TS() throws Exception {
-        Resource resource = this.getMedicationRequestStatement("Tests/MedicationINT/MedicationEIVL.xml");
-        assertNotNull(resource);
-        MedicationRequest medicationRequest = (MedicationRequest) resource;
-        assertFalse(medicationRequest.getDosageInstruction().isEmpty());
-        Timing timing = medicationRequest.getDosageInstructionFirstRep().getTiming();
-        assertNotNull(timing.getCode().getCodingFirstRep().getCode());
-        assertEquals(timing.getCode().getCodingFirstRep().getCode(), "AC");
-        assertEquals(timing.getRepeat().getOffset(), 10);
-    }
-
-    @Test
-    public void testPIVL_TS() throws Exception {
-        Resource resource = this.getMedicationRequestStatement("Tests/MedicationINT/MedicationPIVL.xml");
-        assertNotNull(resource);
-        MedicationRequest medicationRequest = (MedicationRequest) resource;
-        assertFalse(medicationRequest.getDosageInstruction().isEmpty());
-        Timing timing = medicationRequest.getDosageInstructionFirstRep().getTiming();
-        assertNotNull(timing);
-        assertEquals(timing.getRepeat().getPeriod(), new BigDecimal(6));
-        assertEquals(timing.getRepeat().getPeriodUnit(), Timing.UnitsOfTime.H);
-    }
-
-    @Test
-    public void testRouteCode() throws Exception {
-        Resource resource = this.getMedicationRequestStatement("Tests/MedicationINT/MedicationRouteCode.xml");
-        assertNotNull(resource);
-        MedicationRequest medicationRequest = (MedicationRequest) resource;
-        assertFalse(medicationRequest.getDosageInstruction().isEmpty());
-        CodeableConcept route = medicationRequest.getDosageInstructionFirstRep().getRoute();
-        assertNotNull(route.getCodingFirstRep().getCode());
-        assertEquals(route.getCodingFirstRep().getCode(), "C38216");
-        assertEquals(route.getCodingFirstRep().getSystem(), "urn:oid:2.16.840.1.113883.3.26.1.1");
-    }
-
-    @Test
-    public void testDoseQuantity() throws Exception {
-        Resource resource = this.getMedicationRequestStatement("Tests/MedicationINT/MedicationDoseSimpleQuantity.xml");
-        assertNotNull(resource);
-        MedicationRequest medicationRequest = (MedicationRequest) resource;
-        assertFalse(medicationRequest.getDosageInstruction().isEmpty());
-        Type dose = medicationRequest.getDosageInstructionFirstRep().getDoseAndRateFirstRep().getDose();
-        assertNotNull(dose);
-        assertTrue(dose instanceof SimpleQuantity);
-        SimpleQuantity sq = (SimpleQuantity) dose;
-        assertEquals(sq.getUnit(), "mg");
-        assertEquals(sq.getValue(), new BigDecimal(2));
-    }
-
-    @Test
-    public void testDoseRangeQuantity() throws Exception {
-        Resource resource = this.getMedicationRequestStatement("Tests/MedicationINT/MedicationDoseRangeQuantity.xml");
-        assertNotNull(resource);
-        MedicationRequest medicationRequest = (MedicationRequest) resource;
-        assertFalse(medicationRequest.getDosageInstruction().isEmpty());
-        Type dose = medicationRequest.getDosageInstructionFirstRep().getDoseAndRateFirstRep().getDose();
-        assertNotNull(dose);
-        assertTrue(dose instanceof Range);
-        Range range = (Range) dose;
-        assertEquals(range.getLow().getValue(), new BigDecimal(1));
-        assertEquals(range.getHigh().getValue(), new BigDecimal(2));
-    }
-
-    @Test
-    public void testMedicationConsumable() throws Exception {
-        Resource resource = this.getMedicationRequestStatement("Tests/MedicationINT/MedicationConsumable.xml");
-        assertNotNull(resource);
-        MedicationRequest medicationRequest = (MedicationRequest) resource;
-        assertNotNull(medicationRequest.getMedication());
-        assertTrue(medicationRequest.getMedication() instanceof CodeableConcept);
-        CodeableConcept medication = (CodeableConcept) medicationRequest.getMedication();
-        assertNotNull(medication.getCodingFirstRep().getCode());
-        assertEquals(medication.getCodingFirstRep().getCode(), "573621");
-        assertEquals(medication.getCodingFirstRep().getSystem(), "http://www.nlm.nih.gov/research/umls/rxnorm");
-    }
-
-
-    @Test
-    public void testRepeatNumber() throws Exception {
-        Resource resource = this.getMedicationRequestStatement("Tests/MedicationINT/MedicationRepeatNumber.xml");
-        assertNotNull(resource);
-        MedicationRequest medicationRequest = (MedicationRequest) resource;
-        assertFalse(medicationRequest.getDosageInstruction().isEmpty());
-        Timing timing = medicationRequest.getDosageInstructionFirstRep().getTiming();
-        assertNotNull(timing);
-        assertEquals(timing.getRepeat().getCount(), 1);
-
-    }
-
-    @Test
-    public void testApproachSiteCode() throws Exception {
-        Resource resource = this.getMedicationRequestStatement("Tests/MedicationINT/MedicationApproachSiteCode.xml");
-        assertNotNull(resource);
-        MedicationRequest medicationRequest = (MedicationRequest) resource;
-        assertNotNull(medicationRequest.getDosageInstructionFirstRep().getSite().getCodingFirstRep().getCode());
-        assertEquals(medicationRequest.getDosageInstructionFirstRep().getSite().getCodingFirstRep().getCode(), "10013000");
-        assertEquals(medicationRequest.getDosageInstructionFirstRep().getSite().getCodingFirstRep().getSystem(), "http://snomed.info/sct");
-    }
-
-    @Test
-    public void testMedicationAuthor() throws Exception {
-        Map<String, Resource> resources = this.getAllResources("Tests/MedicationINT/MedicationAuthor.xml");
-        assertNotNull(resources);
-        assertEquals(resources.size(), 2);
-        Resource mdResource = resources.values().stream().filter(resource -> resource instanceof MedicationRequest).findAny().orElse(null);
-        Resource practitionerResource = resources.values().stream().filter(resource -> resource instanceof Practitioner).findAny().orElse(null);
-        assertNotNull(mdResource);
-        assertNotNull(practitionerResource);
-        MedicationRequest medicationRequest = (MedicationRequest)mdResource;
-        assertNotNull(medicationRequest.getRecorder().getReference());
-        assertTrue(medicationRequest.getRecorder().getReference().contains("Practitioner/"));
-        assertTrue(medicationRequest.getRecorder().getReference().contains(practitionerResource.getId()));
-
-    }
-
-    @Test
-    public void testMedicationPerformer() throws Exception {
-        Map<String, Resource> resources = this.getAllResources("Tests/MedicationINT/MedicationPerformer.xml");
-        assertNotNull(resources);
-        assertEquals(resources.size(), 4);
-        Resource mdResource = resources.values().stream().filter(resource -> resource instanceof MedicationRequest).findAny().orElse(null);
-        Resource practResource = resources.values().stream().filter(resource -> resource instanceof Practitioner).findAny().orElse(null);
-        assertNotNull(mdResource);
-        assertNotNull(practResource);
-        MedicationRequest medicationRequest = (MedicationRequest)mdResource;
-        assertNotNull(medicationRequest.getRequester().getReference());
-        assertTrue(medicationRequest.getRequester().getReference().contains("Practitioner/"));
-        assertTrue(medicationRequest.getRequester().getReference().contains(practResource.getId()));
-
-    }
 
 
     @Test
     public void testEIVL_TSMedicationStatement() throws Exception {
-        Resource resource = this.getMedicationRequestStatement("Tests/MedicationEVN/MedicationEIVL.xml");
+        Resource resource = this.getMedicationStatement("Tests/MedicationEVN/MedicationEIVL.xml");
         assertNotNull(resource);
         MedicationStatement medicationStatement = (MedicationStatement) resource;
         assertFalse(medicationStatement.getDosage().isEmpty());
@@ -180,7 +40,7 @@ class CDAMedicationsSectionConverterTest {
 
     @Test
     public void testPIVL_TSMedicationStatement() throws Exception {
-        Resource resource = this.getMedicationRequestStatement("Tests/MedicationEVN/MedicationPIVL.xml");
+        Resource resource = this.getMedicationStatement("Tests/MedicationEVN/MedicationPIVL.xml");
         assertNotNull(resource);
         MedicationStatement medicationStatement = (MedicationStatement) resource;
         assertFalse(medicationStatement.getDosage().isEmpty());
@@ -192,7 +52,7 @@ class CDAMedicationsSectionConverterTest {
 
     @Test
     public void testRouteCodeMedicationStatement() throws Exception {
-        Resource resource = this.getMedicationRequestStatement("Tests/MedicationEVN/MedicationRouteCode.xml");
+        Resource resource = this.getMedicationStatement("Tests/MedicationEVN/MedicationRouteCode.xml");
         assertNotNull(resource);
         MedicationStatement medicationStatement = (MedicationStatement) resource;
         assertFalse(medicationStatement.getDosage().isEmpty());
@@ -204,7 +64,7 @@ class CDAMedicationsSectionConverterTest {
 
     @Test
     public void testDoseQuantityMedicationStatement() throws Exception {
-        Resource resource = this.getMedicationRequestStatement("Tests/MedicationEVN/MedicationDoseSimpleQuantity.xml");
+        Resource resource = this.getMedicationStatement("Tests/MedicationEVN/MedicationDoseSimpleQuantity.xml");
         assertNotNull(resource);
         MedicationStatement medicationStatement = (MedicationStatement) resource;
         assertFalse(medicationStatement.getDosage().isEmpty());
@@ -218,7 +78,7 @@ class CDAMedicationsSectionConverterTest {
 
     @Test
     public void testDoseRangeQuantityMedicationStatement() throws Exception {
-        Resource resource = this.getMedicationRequestStatement("Tests/MedicationEVN/MedicationDoseRangeQuantity.xml");
+        Resource resource = this.getMedicationStatement("Tests/MedicationEVN/MedicationDoseRangeQuantity.xml");
         assertNotNull(resource);
         MedicationStatement medicationStatement = (MedicationStatement) resource;
         assertFalse(medicationStatement.getDosage().isEmpty());
@@ -232,7 +92,7 @@ class CDAMedicationsSectionConverterTest {
 
     @Test
     public void testMedicationConsumableMedicationStatement() throws Exception {
-        Resource resource = this.getMedicationRequestStatement("Tests/MedicationEVN/MedicationConsumable.xml");
+        Resource resource = this.getMedicationStatement("Tests/MedicationEVN/MedicationConsumable.xml");
         assertNotNull(resource);
         MedicationStatement medicationStatement = (MedicationStatement) resource;
         assertNotNull(medicationStatement.getMedication());
@@ -246,7 +106,7 @@ class CDAMedicationsSectionConverterTest {
 
     @Test
     public void testRepeatNumberMedicationStatement() throws Exception {
-        Resource resource = this.getMedicationRequestStatement("Tests/MedicationEVN/MedicationRepeatNumber.xml");
+        Resource resource = this.getMedicationStatement("Tests/MedicationEVN/MedicationRepeatNumber.xml");
         assertNotNull(resource);
         MedicationStatement medicationStatement = (MedicationStatement) resource;
         assertFalse(medicationStatement.getDosage().isEmpty());
@@ -258,7 +118,7 @@ class CDAMedicationsSectionConverterTest {
 
     @Test
     public void testApproachSiteCodeMedicationStatement() throws Exception {
-        Resource resource = this.getMedicationRequestStatement("Tests/MedicationEVN/MedicationApproachSiteCode.xml");
+        Resource resource = this.getMedicationStatement("Tests/MedicationEVN/MedicationApproachSiteCode.xml");
         assertNotNull(resource);
         MedicationStatement medicationStatement = (MedicationStatement) resource;
         assertNotNull(medicationStatement.getDosageFirstRep().getSite().getCodingFirstRep().getCode());
@@ -311,21 +171,17 @@ class CDAMedicationsSectionConverterTest {
         assertEquals(medicationStatement.getSubject().getReference(), "Patient/test");
     }
 
+
     @Test
-    public void testMedicationPatientMedicationRequest() throws Exception {
-        Map<String, Resource> resources = this.getAllResourcesWithPatient("Tests/MedicationINT/MedicationAuthor.xml");
-        assertNotNull(resources);
-        assertEquals(resources.size(), 2);
-        Resource mdResource = resources.values().stream().filter(resource -> resource instanceof MedicationRequest).findAny().orElse(null);
-        assertNotNull(mdResource);
-        MedicationRequest medicationRequest = (MedicationRequest) mdResource;
-        assertNotNull(medicationRequest.getSubject().getReference());
-        assertEquals(medicationRequest.getSubject().getReference(), "Patient/test");
+    public void testIncorrectStatusCode() throws Exception {
+        Resource resource = this.getMedicationStatement("Tests/MedicationEVN/MedicationIncorrectStatusCode.xml");
+        assertNotNull(resource);
+        MedicationStatement medicationStatement = (MedicationStatement) resource;
+        assertNull(medicationStatement.getStatus());
     }
 
 
-
-    private Resource getMedicationRequestStatement(String testFileName) throws Exception {
+    private Resource getMedicationStatement(String testFileName) throws Exception {
         ConsolPackage.eINSTANCE.eClass();
         String path = Objects.requireNonNull(this.getClass().getClassLoader().getResource(testFileName)).getPath();
         String decodedPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
@@ -335,7 +191,7 @@ class CDAMedicationsSectionConverterTest {
             BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems())));
             CDAMedicationsSectionConverter medicationsSectionConverter = new CDAMedicationsSectionConverter(basicCDAElementsConverter);
             Map<String, Resource> resources = medicationsSectionConverter.convertMedications(((ContinuityOfCareDocument2) cda).getMedicationsSection2(), new HashMap<>());
-            return resources.values().stream().filter(resource -> resource instanceof MedicationRequest||resource instanceof MedicationStatement).findAny().orElse(null);
+            return resources.values().stream().filter(resource -> resource instanceof MedicationStatement).findAny().orElse(null);
         }
         return null;
     }
