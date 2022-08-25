@@ -6,7 +6,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.mdht.uml.cda.Person;
 import org.eclipse.mdht.uml.cda.*;
-import org.eclipse.mdht.uml.hl7.datatypes.AD;
 import org.eclipse.mdht.uml.hl7.datatypes.EN;
 import org.eclipse.mdht.uml.hl7.datatypes.ON;
 import org.eclipse.mdht.uml.hl7.rim.Participation;
@@ -111,27 +110,27 @@ public class BasicCDAElementsConverter {
                     log.info("FHIR Practitioner found in Header");
 
                 } else {
-                    practitioner.getIdentifier().addAll(assignedEntity.getIds().stream().map(this.simpleCDATypesConverter::createFHIRIdentifier).filter(id->id != null).collect(Collectors.toList()));
+                    practitioner.getIdentifier().addAll(assignedEntity.getIds().stream().map(this.simpleCDATypesConverter::createFHIRIdentifier).filter(id -> id != null).collect(Collectors.toList()));
                 }
             }
 
             if (resources.isEmpty() && CollectionUtils.isNotEmpty(assignedEntity.getAddrs())) {
                 List<Address> addresses = new ArrayList<>();
-                practitioner.setAddress(assignedEntity.getAddrs().stream().map(this.simpleCDATypesConverter::createFHIRAddress).filter(ad->ad != null).collect(Collectors.toList()));
+                practitioner.setAddress(assignedEntity.getAddrs().stream().map(this.simpleCDATypesConverter::createFHIRAddress).filter(ad -> ad != null).collect(Collectors.toList()));
             }
 
             if (resources.isEmpty() && CollectionUtils.isNotEmpty(assignedEntity.getTelecoms())) {
-                practitioner.setTelecom(assignedEntity.getTelecoms().stream().map(this.simpleCDATypesConverter::createContactPoint).filter(tel->tel != null).collect(Collectors.toList()));
+                practitioner.setTelecom(assignedEntity.getTelecoms().stream().map(this.simpleCDATypesConverter::createContactPoint).filter(tel -> tel != null).collect(Collectors.toList()));
             }
 
             if (resources.isEmpty() && assignedEntity.getAssignedPerson() != null) {
                 if (CollectionUtils.isNotEmpty(assignedEntity.getAssignedPerson().getNames())) {
-                    practitioner.setName(assignedEntity.getAssignedPerson().getNames().stream().map(this.simpleCDATypesConverter::createFHIRHumanName).filter(name->name != null).collect(Collectors.toList()));
+                    practitioner.setName(assignedEntity.getAssignedPerson().getNames().stream().map(this.simpleCDATypesConverter::createFHIRHumanName).filter(name -> name != null).collect(Collectors.toList()));
                 }
             }
 
             if (CollectionUtils.isNotEmpty(assignedEntity.getRepresentedOrganizations())) {
-                organizations = assignedEntity.getRepresentedOrganizations().stream().map(this::createFHIROrganization).filter(org->org != null).collect(Collectors.toList());
+                organizations = assignedEntity.getRepresentedOrganizations().stream().map(this::createFHIROrganization).filter(org -> org != null).collect(Collectors.toList());
                 log.info("FHIR Organization created from CDA Performer");
             }
 
@@ -201,7 +200,7 @@ public class BasicCDAElementsConverter {
             }
 
             try {
-                patient.setGender(this.simpleCDATypesConverter.getGender(cdaPatient.getAdministrativeGenderCode()));
+                patient.setGender(this.simpleCDATypesConverter.createGender(cdaPatient.getAdministrativeGenderCode()));
             } catch (FHIRException e) {
                 log.error("Unknown Gender Code", e);
             }

@@ -78,7 +78,7 @@ public class SimpleCDATypesConverter {
 
     public CodeableConcept createFHIRCodeableConceptFromList(List<CD> codes, String conversionType) {
         CodeableConcept codeableConcept = null;
-        List<Coding> codings = codes.stream().filter(code-> code != null).map (code-> this.createFHIRCoding(code, conversionType)).collect(Collectors.toList());
+        List<Coding> codings = codes.stream().filter(code -> code != null).map(code -> this.createFHIRCoding(code, conversionType)).collect(Collectors.toList());
         if (!codings.isEmpty()) {
             codeableConcept = new CodeableConcept();
             codeableConcept.setCoding(codings);
@@ -88,7 +88,7 @@ public class SimpleCDATypesConverter {
 
     public Address createFHIRAddress(AD cdaAddress) {
         Address address = null;
-        if (cdaAddress!=null && cdaAddress.getNullFlavor() != NullFlavor.UNK) {
+        if (cdaAddress != null && cdaAddress.getNullFlavor() != NullFlavor.UNK) {
             address = new Address();
             if (cdaAddress.getUses() != null && cdaAddress.getUses().size() != 0) {
                 address.setUse(Address.AddressUse.fromCode(this.codeMappingProcessor.getStringCodeFromMapping(cdaAddress.getUses().get(0).toString(), CDAtoFHIRCodeConversionType.ADDRESS_USE.toValue())));
@@ -133,7 +133,7 @@ public class SimpleCDATypesConverter {
         return identifier;
     }
 
-    public Enumerations.AdministrativeGender getGender(CD genderCode) throws FHIRException {
+    public Enumerations.AdministrativeGender createGender(CD genderCode) throws FHIRException {
         String fhirCode = this.codeMappingProcessor.getStringCodeFromMapping(genderCode.getCode(), CDAtoFHIRCodeConversionType.FAMILY_HISTORY_MEMBER_PERSON_RLT_SUBJ_GENDER.toValue());
         return Enumerations.AdministrativeGender.fromCode(fhirCode);
     }
@@ -161,7 +161,7 @@ public class SimpleCDATypesConverter {
     }
 
     //TODO: Tests for these methods
-    public Range createRange(IVL_PQ interval){
+    public Range createRange(IVL_PQ interval) {
         Range range = null;
         if (interval != null) {
             range = new Range();
@@ -171,7 +171,7 @@ public class SimpleCDATypesConverter {
         return range;
     }
 
-    public SimpleQuantity createSimpleQuantity(PQ interval){
+    public SimpleQuantity createSimpleQuantity(PQ interval) {
         SimpleQuantity simpleQuantity = null;
         if (interval != null) {
             simpleQuantity = new SimpleQuantity();
@@ -182,10 +182,10 @@ public class SimpleCDATypesConverter {
     }
 
 
-    public Ratio createRatio(RTO_PQ_PQ cdaRatio){
+    public Ratio createRatio(RTO_PQ_PQ cdaRatio) {
         Ratio fhirRatio = null;
         if (cdaRatio != null) {
-            fhirRatio =new Ratio();
+            fhirRatio = new Ratio();
             fhirRatio.setNumerator(this.createSimpleQuantity(cdaRatio.getNumerator()));
             fhirRatio.setDenominator(this.createSimpleQuantity(cdaRatio.getDenominator()));
         }
