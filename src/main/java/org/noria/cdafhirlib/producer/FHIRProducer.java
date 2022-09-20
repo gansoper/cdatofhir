@@ -48,7 +48,7 @@ public class FHIRProducer {
 
     public Bundle produceFHIRBundle(InputStream cdaInputStream) throws Exception {
         ClinicalDocument cda = CDAUtil.load(cdaInputStream);
-        BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(new SimpleCDATypesConverter(CodeMappingProcessor.getInstance(this.cdAtoFHIRCodes, this.systemNamesMapping)));
+        BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(this.cdAtoFHIRCodes, this.systemNamesMapping));
         CDAHeaderConverter headerConverter = new CDAHeaderConverter(basicCDAElementsConverter);
         CDAAllergySectionConverter allergySectionConverter = new CDAAllergySectionConverter(basicCDAElementsConverter);
         CDAMedicationsSectionConverter medicationsSectionConverter = new CDAMedicationsSectionConverter(basicCDAElementsConverter);

@@ -6,7 +6,7 @@ import org.eclipse.mdht.uml.cda.ClinicalDocument;
 import org.eclipse.mdht.uml.cda.util.CDAUtil;
 import org.eclipse.mdht.uml.hl7.datatypes.AD;
 import org.eclipse.mdht.uml.hl7.datatypes.ADXP;
-import org.noria.cdafhirlib.cdaconverter.SimpleCDATypesConverter;
+import org.noria.cdafhirlib.cdaconverter.BasicCDAElementsConverter;
 import org.openhealthtools.mdht.uml.cda.consol.*;
 
 
@@ -16,7 +16,7 @@ import java.io.FileInputStream;
 public class StarterTest {
     public static void main(String[] args) throws Exception {
         CDAUtil.loadPackages();
-        SimpleCDATypesConverter simpleCDATypesConverter = new SimpleCDATypesConverter(null);
+        BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(null);
         //simpleCDATypesConverter.testJSON();
 
 
