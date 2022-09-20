@@ -76,12 +76,11 @@ public class CDAMedicationsSectionConverter {
         }
 
         medicationDispenseCDA.getEffectiveTimes().forEach(et -> {
-            Type recordedDate = this.basicCDAElementsConverter.convertIVLTSDate((IVL_TS) et);
-            if (recordedDate instanceof DateTimeType) {
-                medicationDispense.setWhenPreparedElement((DateTimeType) recordedDate);
-            } else if (recordedDate instanceof Period) {
-                medicationDispense.setWhenPreparedElement(((Period) recordedDate).getStartElement());
+            DateTimeType recordedDate = this.basicCDAElementsConverter.convertSXMTSDate(et);
+            if (recordedDate != null){
+                medicationDispense.setWhenPreparedElement(recordedDate);
             }
+
         });
 
         if (medicationDispenseCDA.getProduct() != null && medicationDispenseCDA.getProduct().getManufacturedProduct() != null && medicationDispenseCDA.getProduct().getManufacturedProduct().getManufacturedMaterial() != null) {
@@ -120,7 +119,7 @@ public class CDAMedicationsSectionConverter {
         if (medicationDispenseCDA.getConsolMedicationSupplyOrder2() != null) {
             resources.putAll(this.convertMedicationSupply(medicationDispenseCDA.getConsolMedicationSupplyOrder2(), headerResources));
         }
-
+        medicationDispense.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.MEDICATIONDISPENSE, medicationDispense.getIdentifier()));
         resources.put(medicationDispense.getId(), medicationDispense);
         return resources;
     }
@@ -175,6 +174,7 @@ public class CDAMedicationsSectionConverter {
             }
         }
 
+        medicationRequest.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.MEDICATIONREQUEST, medicationRequest.getIdentifier()));
         resources.put(medicationRequest.getId(), medicationRequest);
         return resources;
     }
@@ -284,7 +284,7 @@ public class CDAMedicationsSectionConverter {
             }
         }
 
-        medicationStatement.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.MEDICATIONREQUEST, medicationStatement.getIdentifier()));
+        medicationStatement.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.MEDICATIONSTATEMENT, medicationStatement.getIdentifier()));
         Reference reference = ConvertedElementsHelper.getPateintReference(headerResources);
         if (reference != null) {
             medicationStatement.setSubject(reference);

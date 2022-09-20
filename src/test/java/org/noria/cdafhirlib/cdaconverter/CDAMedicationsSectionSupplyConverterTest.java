@@ -51,7 +51,7 @@ class CDAMedicationsSectionSupplyConverterTest {
     public void testDosageTiming() throws Exception {
         Map<String, Resource> resources = this.getAllResources("Tests/MedicationSupply/MedicationDosageTiming.xml");
         assertEquals(2, resources.size());
-        Resource resource = resources.values().stream().filter(e -> e instanceof MedicationRequest).filter(e->((MedicationRequest) e).getAuthoredOnElement() != null).findFirst().orElse(null);
+        Resource resource = resources.values().stream().filter(e -> e instanceof MedicationRequest).filter(e->!((MedicationRequest) e).getDosageInstruction().isEmpty()).findFirst().orElse(null);
         assertNotNull(resource);
         MedicationRequest md  = (MedicationRequest)resource;
         assertFalse(md.getDosageInstruction().isEmpty());
@@ -66,7 +66,7 @@ class CDAMedicationsSectionSupplyConverterTest {
     public void testDosageQuantity() throws Exception {
         Map<String, Resource> resources = this.getAllResources("Tests/MedicationSupply/MedicationDosageQuantity.xml");
         assertEquals(2, resources.size());
-        Resource resource = resources.values().stream().filter(e -> e instanceof MedicationRequest).filter(e->((MedicationRequest) e).getAuthoredOnElement() != null).findFirst().orElse(null);
+        Resource resource = resources.values().stream().filter(e -> e instanceof MedicationRequest).filter(e->!((MedicationRequest) e).getDosageInstruction().isEmpty()).findFirst().orElse(null);
         assertNotNull(resource);
         MedicationRequest md  = (MedicationRequest)resource;
         assertFalse(md.getDosageInstruction().isEmpty());
@@ -79,12 +79,23 @@ class CDAMedicationsSectionSupplyConverterTest {
     }
 
 
+    @Test
+    public void testMedicationCodeableConcept() throws Exception {
+        Map<String, Resource> resources = this.getAllResources("Tests/MedicationSupply/MedicationManufacturedProduct.xml");
+        assertEquals(2, resources.size());
+        Resource resource = resources.values().stream().filter(e -> e instanceof MedicationRequest).filter(e->!((MedicationRequest) e).getMedicationCodeableConcept().isEmpty()).findFirst().orElse(null);
+        assertNotNull(resource);
+        MedicationRequest md  = (MedicationRequest)resource;
+        assertFalse(md.getMedicationCodeableConcept().isEmpty());
+        assertTrue(md.getMedicationCodeableConcept().getCodingFirstRep().getCode().equals("573621"));
+    }
+
 
     @Test
     public void testMedicationAuthor() throws Exception {
-        Map<String, Resource> resources = this.getAllResources("Tests/MedicationINT/MedicationAuthor.xml");
+        Map<String, Resource> resources = this.getAllResources("Tests/MedicationSupply/MedicationAuthor.xml");
         assertNotNull(resources);
-        assertEquals(resources.size(), 2);
+        assertEquals(3, resources.size());
         Resource mdResource = resources.values().stream().filter(resource -> resource instanceof MedicationRequest).findAny().orElse(null);
         Resource practitionerResource = resources.values().stream().filter(resource -> resource instanceof Practitioner).findAny().orElse(null);
         assertNotNull(mdResource);
@@ -94,45 +105,6 @@ class CDAMedicationsSectionSupplyConverterTest {
         assertTrue(medicationRequest.getRecorder().getReference().contains("Practitioner/"));
         assertTrue(medicationRequest.getRecorder().getReference().contains(practitionerResource.getId()));
 
-    }
-
-    @Test
-    public void testMedicationPerformer() throws Exception {
-        Map<String, Resource> resources = this.getAllResources("Tests/MedicationINT/MedicationPerformer.xml");
-        assertNotNull(resources);
-        assertEquals(resources.size(), 4);
-        Resource mdResource = resources.values().stream().filter(resource -> resource instanceof MedicationRequest).findAny().orElse(null);
-        Resource practResource = resources.values().stream().filter(resource -> resource instanceof Practitioner).findAny().orElse(null);
-        assertNotNull(mdResource);
-        assertNotNull(practResource);
-        MedicationRequest medicationRequest = (MedicationRequest)mdResource;
-        assertNotNull(medicationRequest.getRequester().getReference());
-        assertTrue(medicationRequest.getRequester().getReference().contains("Practitioner/"));
-        assertTrue(medicationRequest.getRequester().getReference().contains(practResource.getId()));
-
-    }
-
-
-
-    @Test
-    public void testMedicationPatientMedicationRequest() throws Exception {
-        Map<String, Resource> resources = this.getAllResourcesWithPatient("Tests/MedicationINT/MedicationAuthor.xml");
-        assertNotNull(resources);
-        assertEquals(resources.size(), 2);
-        Resource mdResource = resources.values().stream().filter(resource -> resource instanceof MedicationRequest).findAny().orElse(null);
-        assertNotNull(mdResource);
-        MedicationRequest medicationRequest = (MedicationRequest) mdResource;
-        assertNotNull(medicationRequest.getSubject().getReference());
-        assertEquals(medicationRequest.getSubject().getReference(), "Patient/test");
-    }
-
-
-    @Test
-    public void testIncorrectStatusCode() throws Exception {
-        Resource resource = this.getMedicationRequest("Tests/MedicationINT/MedicationIncorrectStatusCode.xml");
-        assertNotNull(resource);
-        MedicationRequest medicationRequest = (MedicationRequest) resource;
-        assertNull(medicationRequest.getStatus());
     }
 
 

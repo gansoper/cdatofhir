@@ -294,6 +294,14 @@ public class BasicCDAElementsConverter {
         return null;
     }
 
+    DateTimeType convertSXMTSDate(SXCM_TS cdaDateTime) {
+        if (cdaDateTime != null) {
+            return new DateTimeType(this.convertCDAToFHIRDate(cdaDateTime.getValue()));
+        }
+        return null;
+    }
+
+
     //TODO: add test for this method
 
     Timing convertEIVL_TStoFHIRTiming(EIVL_TS eventInterval) {
