@@ -2,6 +2,7 @@ package org.noria.cdafhirlib.cdaconverter;
 
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
+import org.eclipse.mdht.uml.hl7.datatypes.CD;
 import org.eclipse.mdht.uml.hl7.datatypes.IVL_TS;
 import org.eclipse.mdht.uml.hl7.vocab.SetOperator;
 import org.hl7.fhir.exceptions.FHIRException;
@@ -11,6 +12,7 @@ import org.noria.cdafhirlib.helper.FHIRElementsHelper;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity2;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationsSection2;
 import org.openhealthtools.mdht.uml.cda.consol.MedicationsSection2;
+import org.openhealthtools.mdht.uml.cda.consol.ReactionObservation;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,7 +35,7 @@ public class CDAImmunizationsSectionConverter {
         return resources;
     }
 
-    private Map<String, Resource> convertImmunizationActivity(ImmunizationActivity2 immunizationActivity, Map<String, Resource> headerResources){
+    private Map<String, Resource> convertImmunizationActivity(ImmunizationActivity2 immunizationActivity, Map<String, Resource> headerResources) {
         Map<String, Resource> resources = new HashMap<>();
         Immunization fhirImmunization = new Immunization();
         if (CollectionUtils.isNotEmpty(immunizationActivity.getIds())) {
@@ -50,8 +52,8 @@ public class CDAImmunizationsSectionConverter {
         }
 
         immunizationActivity.getEffectiveTimes().forEach(et -> {
-                Type recordedDate = this.basicCDAElementsConverter.convertIVLTSDate((IVL_TS) et);
-                fhirImmunization.setOccurrence(recordedDate);
+            Type recordedDate = this.basicCDAElementsConverter.convertIVLTSDate((IVL_TS) et);
+            fhirImmunization.setOccurrence(recordedDate);
         });
 
         fhirImmunization.setRoute(this.basicCDAElementsConverter.createFHIRCodeableConcept(immunizationActivity.getRouteCode(), null));
@@ -78,7 +80,7 @@ public class CDAImmunizationsSectionConverter {
                     immunizationPerformerComponent.setActor(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.ORGANIZATION, organizations.get(0).getId()));
                 }
 
-                if (immunizationPerformerComponent.getActor() != null){
+                if (immunizationPerformerComponent.getActor() != null) {
                     fhirImmunization.setPerformer(Collections.singletonList(immunizationPerformerComponent));
                     resources.putAll(immunizationPerformers);
                 }
@@ -86,23 +88,56 @@ public class CDAImmunizationsSectionConverter {
             }
         }
 
-        if (immunizationActivity.getReactionObservation() != null){
+        if (immunizationActivity.getReactionObservation() != null) {
+            Observation observation = this.createReactionObservation(immunizationActivity.getReactionObservation());
             Immunization.ImmunizationReactionComponent immunizationReactionComponent = new Immunization.ImmunizationReactionComponent();
-
-            if (immunizationActivity.getReactionObservation().getEffectiveTime() != null){
-                Type recordedDate = this.basicCDAElementsConverter.convertIVLTSDate(immunizationActivity.getReactionObservation().getEffectiveTime());
-                if (recordedDate instanceof DateTimeType) {
-                    immunizationReactionComponent.setDate(((DateTimeType) recordedDate).getValue());
-                } else if (recordedDate instanceof Period) {
-                    immunizationReactionComponent.setDate(((Period) recordedDate).getStartElement().getValue());
+            if (observation.getEffective() != null) {
+                Type effective = observation.getEffective();
+                if (effective instanceof DateTimeType) {
+                    immunizationReactionComponent.setDate(((DateTimeType) effective).getValue());
+                } else if (effective instanceof Period) {
+                    immunizationReactionComponent.setDate(((Period) effective).getStartElement().getValue());
                 }
             }
 
-            //TODO: add OBservation Creation from Reaction
+            immunizationReactionComponent.setDetail(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.OBSERVATION, observation.getId()));
+            fhirImmunization.setReaction(Collections.singletonList(immunizationReactionComponent));
+            resources.put(observation.getId(), observation);
         }
 
-
+        fhirImmunization.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.IMMUNIZATION, fhirImmunization.getIdentifier()));
+        resources.put(fhirImmunization.getId(), fhirImmunization);
         return resources;
+    }
+
+
+    private Observation createReactionObservation(ReactionObservation reactionObservation) {
+        Observation observation = new Observation();
+        if (CollectionUtils.isNotEmpty(reactionObservation.getIds())) {
+            reactionObservation.getIds().forEach(id -> observation.addIdentifier(this.basicCDAElementsConverter.createFHIRIdentifier(id)));
+        }
+
+        if (reactionObservation.getEffectiveTime() != null) {
+            Type recordedDate = this.basicCDAElementsConverter.convertIVLTSDate(reactionObservation.getEffectiveTime());
+            observation.setEffective(recordedDate);
+        }
+
+        Coding coding = basicCDAElementsConverter.createFHIRCoding(reactionObservation.getStatusCode(), CDAtoFHIRCodeConversionType.OBSERVATION_STATUS.toValue());
+        if (coding != null) {
+            try {
+                observation.setStatus(Observation.ObservationStatus.fromCode(coding.getCode()));
+            } catch (FHIRException e) {
+                log.error(e.getMessage(), e);
+            }
+        }
+
+        if (!reactionObservation.getValues().isEmpty() && reactionObservation.getValues().get(0) instanceof CD) {
+            observation.setValue(basicCDAElementsConverter.createFHIRCoding((CD) reactionObservation.getValues().get(0), null));
+        }
+
+        observation.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.OBSERVATION, observation.getIdentifier()));
+
+        return observation;
     }
 
 }
