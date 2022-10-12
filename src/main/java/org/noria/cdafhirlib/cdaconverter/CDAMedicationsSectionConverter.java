@@ -120,6 +120,10 @@ public class CDAMedicationsSectionConverter {
             resources.putAll(this.convertMedicationSupply(medicationDispenseCDA.getConsolMedicationSupplyOrder2(), headerResources));
         }
         medicationDispense.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.MEDICATIONDISPENSE, medicationDispense.getIdentifier()));
+        Reference reference = ConvertedElementsHelper.getPateintReference(headerResources);
+        if (reference != null) {
+            medicationDispense.setSubject(reference);
+        }
         resources.put(medicationDispense.getId(), medicationDispense);
         return resources;
     }

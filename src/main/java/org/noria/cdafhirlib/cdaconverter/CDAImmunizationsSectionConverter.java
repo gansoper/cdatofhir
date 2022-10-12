@@ -3,15 +3,13 @@ package org.noria.cdafhirlib.cdaconverter;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.eclipse.mdht.uml.hl7.datatypes.CD;
-import org.eclipse.mdht.uml.hl7.datatypes.IVL_TS;
-import org.eclipse.mdht.uml.hl7.vocab.SetOperator;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.model.*;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
+import org.noria.cdafhirlib.helper.ConvertedElementsHelper;
 import org.noria.cdafhirlib.helper.FHIRElementsHelper;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity2;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationsSection2;
-import org.openhealthtools.mdht.uml.cda.consol.MedicationsSection2;
 import org.openhealthtools.mdht.uml.cda.consol.ReactionObservation;
 
 import java.util.Collections;
@@ -52,7 +50,7 @@ public class CDAImmunizationsSectionConverter {
         }
 
         immunizationActivity.getEffectiveTimes().forEach(et -> {
-            Type recordedDate = this.basicCDAElementsConverter.convertIVLTSDate((IVL_TS) et);
+            Type recordedDate = this.basicCDAElementsConverter.convertSXMTSDate(et);
             fhirImmunization.setOccurrence(recordedDate);
         });
 
@@ -106,6 +104,10 @@ public class CDAImmunizationsSectionConverter {
         }
 
         fhirImmunization.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.IMMUNIZATION, fhirImmunization.getIdentifier()));
+        Reference reference = ConvertedElementsHelper.getPateintReference(headerResources);
+        if (reference != null) {
+            fhirImmunization.setPatient(reference);
+        }
         resources.put(fhirImmunization.getId(), fhirImmunization);
         return resources;
     }
@@ -132,7 +134,7 @@ public class CDAImmunizationsSectionConverter {
         }
 
         if (!reactionObservation.getValues().isEmpty() && reactionObservation.getValues().get(0) instanceof CD) {
-            observation.setValue(basicCDAElementsConverter.createFHIRCoding((CD) reactionObservation.getValues().get(0), null));
+            observation.setValue(basicCDAElementsConverter.createFHIRCodeableConcept((CD) reactionObservation.getValues().get(0), null));
         }
 
         observation.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.OBSERVATION, observation.getIdentifier()));
