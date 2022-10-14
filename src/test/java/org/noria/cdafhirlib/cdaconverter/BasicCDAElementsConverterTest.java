@@ -231,12 +231,12 @@ class BasicCDAElementsConverterTest {
     void convertPIVL_TStoFHIRTimingNotNullPhase() {
         BasicCDAElementsConverter simpleCDATypesConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
         PIVL_TS periodicInterval = DatatypesFactory.eINSTANCE.createPIVL_TS();
-        periodicInterval.setValue("200130311");
+        periodicInterval.setValue("20130311");
         IVL_TS phase = DatatypesFactory.eINSTANCE.createIVL_TS();
         IVXB_TS highTime = DatatypesFactory.eINSTANCE.createIVXB_TS();
-        highTime.setValue("200130311");
+        highTime.setValue("20130311");
         IVXB_TS lowTime = DatatypesFactory.eINSTANCE.createIVXB_TS();
-        lowTime.setValue("200120311");
+        lowTime.setValue("20120311");
         phase.setHigh(highTime);
         phase.setLow(lowTime);
         periodicInterval.setPhase(phase);

@@ -53,6 +53,10 @@ public class CDAResultsSectionConverter {
             diagnosticReport.setCode(this.basicCDAElementsConverter.createFHIRCodeableConcept(resultOrganizer.getCode(), null));
         }
 
+        if (resultOrganizer.getEffectiveTime() != null){
+            diagnosticReport.setEffective(this.basicCDAElementsConverter.convertIVLTSDate(resultOrganizer.getEffectiveTime()));
+        }
+
         Reference reference = ConvertedElementsHelper.getPateintReference(headerResources);
         if (reference != null) {
             diagnosticReport.setSubject(reference);
@@ -62,7 +66,7 @@ public class CDAResultsSectionConverter {
             resources.putAll(this.convertResultAuthors(diagnosticReport, resultOrganizer.getAuthors(), resources, headerResources));
         }
 
-        diagnosticReport.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.DOCUMENTREFERENCE, diagnosticReport.getIdentifier()));
+        diagnosticReport.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.DIAGNOSTICREPORT, diagnosticReport.getIdentifier()));
 
         if (!resultOrganizer.getResultObservations().isEmpty()){
             List<Observation> observations = resultOrganizer.getConsolResultObservation2s().stream().map(ro->createResultObservation(ro, resources, headerResources)).collect(Collectors.toList());
@@ -91,6 +95,10 @@ public class CDAResultsSectionConverter {
         Reference reference = ConvertedElementsHelper.getPateintReference(headerResources);
         if (reference != null) {
             observation.setSubject(reference);
+        }
+
+        if (resultObservation.getCode() != null){
+            observation.setCode(basicCDAElementsConverter.createFHIRCodeableConcept(resultObservation.getCode(), null));
         }
 
         Coding coding = basicCDAElementsConverter.createFHIRCoding(resultObservation.getStatusCode(), CDAtoFHIRCodeConversionType.RESULT_STATUS.toValue());

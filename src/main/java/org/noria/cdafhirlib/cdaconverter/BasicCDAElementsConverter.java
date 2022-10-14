@@ -183,7 +183,7 @@ public class BasicCDAElementsConverter {
 
     public SimpleQuantity createSimpleQuantity(PQ interval) {
         SimpleQuantity simpleQuantity = null;
-        if (interval != null) {
+        if (interval != null && !interval.isSetNullFlavor()) {
             simpleQuantity = new SimpleQuantity();
             simpleQuantity.setValue(interval.getValue());
             simpleQuantity.setUnit(interval.getUnit());
@@ -284,7 +284,7 @@ public class BasicCDAElementsConverter {
                 period.setEndElement(new DateTimeType(this.convertCDAToFHIRDate(cdaDateTime.getHigh().getValue())));
             }
 
-            if (period.getStartElement() != null || period.getEndElement() != null) {
+            if (period.hasStart() || period.hasEnd()) {
                 return period;
             } else if (!cdaDateTime.isSetNullFlavor()) {
                 return new DateTimeType(this.convertCDAToFHIRDate(cdaDateTime.getValue()));
