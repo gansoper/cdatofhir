@@ -147,7 +147,12 @@ public class CDAMedicationsSectionConverter {
         if (!supplyOrder.getAuthors().isEmpty()) {
             Map<String, Resource> medicationRequestAuthors = this.basicCDAElementsConverter.convertSectionAuthors(supplyOrder.getAuthors(), headerResources);
             if (!medicationRequestAuthors.isEmpty()) {
-                medicationRequest.setRecorder(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, medicationRequestAuthors.keySet().stream().findFirst().orElse(null)));
+                Resource practitioner = medicationRequestAuthors.values().stream().filter(r -> r instanceof Practitioner).findFirst().orElse(null);
+                if (practitioner != null){
+                    medicationRequest.setRecorder(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId()));
+
+                }
+
                 resources.putAll(medicationRequestAuthors);
             }
         }
@@ -227,7 +232,12 @@ public class CDAMedicationsSectionConverter {
         if (!medicationActivity.getAuthors().isEmpty()) {
             Map<String, Resource> medicationRequestAuthors = this.basicCDAElementsConverter.convertSectionAuthors(medicationActivity.getAuthors(), headerResources);
             if (!medicationRequestAuthors.isEmpty()) {
-                medicationRequest.setRecorder(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, medicationRequestAuthors.keySet().stream().findFirst().orElse(null)));
+                Resource practitioner = medicationRequestAuthors.values().stream().filter(r -> r instanceof Practitioner).findFirst().orElse(null);
+                if (practitioner != null){
+                    medicationRequest.setRecorder(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId()));
+
+                }
+
                 resources.putAll(medicationRequestAuthors);
             }
         }
@@ -283,7 +293,11 @@ public class CDAMedicationsSectionConverter {
         } else if (!medicationActivity.getAuthors().isEmpty()) {
             Map<String, Resource> medicationStatementAuthors = this.basicCDAElementsConverter.convertSectionAuthors(medicationActivity.getAuthors(), headerResources);
             if (!medicationStatementAuthors.isEmpty()) {
-                medicationStatement.setInformationSource(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, medicationStatementAuthors.keySet().stream().findFirst().orElse(null)));
+                Resource practitioner = medicationStatementAuthors.values().stream().filter(r -> r instanceof Practitioner).findFirst().orElse(null);
+                if (practitioner != null){
+                    medicationStatement.setInformationSource(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId()));
+                }
+
                 resources.putAll(medicationStatementAuthors);
             }
         }

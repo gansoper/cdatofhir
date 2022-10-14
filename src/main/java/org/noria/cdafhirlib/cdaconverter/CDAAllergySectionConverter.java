@@ -53,7 +53,11 @@ public class CDAAllergySectionConverter {
         allergy.setOnset(this.basicCDAElementsConverter.convertIVLTSDate(allergyObservation.getEffectiveTime()));
         Map<String, Resource> allergyAuthors = this.basicCDAElementsConverter.convertSectionAuthors(allergyObservation.getAuthors(), headerResources);
         if (!allergyAuthors.isEmpty()) {
-            allergy.setRecorder(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, allergyAuthors.keySet().stream().findFirst().orElse(null)));
+            Resource practitioner = allergyAuthors.values().stream().filter(r -> r instanceof Practitioner).findFirst().orElse(null);
+            if (practitioner != null){
+                allergy.setRecorder(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId()));
+            }
+
             resources.putAll(allergyAuthors);
         }
 
