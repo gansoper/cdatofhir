@@ -724,26 +724,27 @@ public class BasicCDAElementsConverter {
         Map<String, Resource> authors = new HashMap<>();
         cdaAuthors.forEach(author -> authors.putAll(this.convertSectionAuthor(author, headerResources)));
         if (!authors.isEmpty()) {
-
-            if (fhirResource instanceof DiagnosticReport) {
-                ((DiagnosticReport) fhirResource).setPerformer(authors.values().stream().filter(v -> v instanceof Practitioner).map(
-                        ra ->
-                                FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, ra.getId())
-                ).collect(Collectors.toList()));
-            } else if (fhirResource instanceof Observation) {
-                ((Observation) fhirResource).setPerformer(authors.values().stream().filter(v -> v instanceof Practitioner).map(
-                        ra ->
-                                FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, ra.getId())
-                ).collect(Collectors.toList()));
-            } else if (fhirResource instanceof AllergyIntolerance) {
-                authors.values().stream().filter(r -> r instanceof Practitioner).findFirst().ifPresent(practitioner ->
-                        ((AllergyIntolerance) fhirResource).setRecorder(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId())));
-            } else if (fhirResource instanceof MedicationRequest) {
-                authors.values().stream().filter(r -> r instanceof Practitioner).findFirst().ifPresent(practitioner ->
-                        ((MedicationRequest) fhirResource).setRecorder(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId())));
-            } else if (fhirResource instanceof MedicationStatement) {
-                authors.values().stream().filter(r -> r instanceof Practitioner).findFirst().ifPresent(practitioner ->
-                        ((MedicationStatement) fhirResource).setInformationSource(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId())));
+            if (fhirResource != null) {
+                if (fhirResource instanceof DiagnosticReport) {
+                    ((DiagnosticReport) fhirResource).setPerformer(authors.values().stream().filter(v -> v instanceof Practitioner).map(
+                            ra ->
+                                    FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, ra.getId())
+                    ).collect(Collectors.toList()));
+                } else if (fhirResource instanceof Observation) {
+                    ((Observation) fhirResource).setPerformer(authors.values().stream().filter(v -> v instanceof Practitioner).map(
+                            ra ->
+                                    FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, ra.getId())
+                    ).collect(Collectors.toList()));
+                } else if (fhirResource instanceof AllergyIntolerance) {
+                    authors.values().stream().filter(r -> r instanceof Practitioner).findFirst().ifPresent(practitioner ->
+                            ((AllergyIntolerance) fhirResource).setRecorder(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId())));
+                } else if (fhirResource instanceof MedicationRequest) {
+                    authors.values().stream().filter(r -> r instanceof Practitioner).findFirst().ifPresent(practitioner ->
+                            ((MedicationRequest) fhirResource).setRecorder(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId())));
+                } else if (fhirResource instanceof MedicationStatement) {
+                    authors.values().stream().filter(r -> r instanceof Practitioner).findFirst().ifPresent(practitioner ->
+                            ((MedicationStatement) fhirResource).setInformationSource(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId())));
+                }
             }
         }
 
