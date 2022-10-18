@@ -191,6 +191,15 @@ public class BasicCDAElementsConverter {
         return simpleQuantity;
     }
 
+    public Age createAge(PQ interval) {
+        Age age = null;
+        if (interval != null && !interval.isSetNullFlavor()) {
+            age = new Age();
+            age.setValue(interval.getValue());
+            age.setUnit(interval.getUnit());
+        }
+        return age;
+    }
 
     public Ratio createRatio(RTO_PQ_PQ cdaRatio) {
         Ratio fhirRatio = null;
@@ -744,6 +753,9 @@ public class BasicCDAElementsConverter {
                 } else if (fhirResource instanceof MedicationStatement) {
                     authors.values().stream().filter(r -> r instanceof Practitioner).findFirst().ifPresent(practitioner ->
                             ((MedicationStatement) fhirResource).setInformationSource(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId())));
+                }else if (fhirResource instanceof Condition) {
+                    authors.values().stream().filter(r -> r instanceof Practitioner).findFirst().ifPresent(practitioner ->
+                            ((Condition) fhirResource).setRecorder(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId())));
                 }
             }
         }
