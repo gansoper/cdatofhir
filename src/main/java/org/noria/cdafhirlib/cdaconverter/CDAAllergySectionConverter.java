@@ -51,14 +51,8 @@ public class CDAAllergySectionConverter {
         }
 
         allergy.setOnset(this.basicCDAElementsConverter.convertIVLTSDate(allergyObservation.getEffectiveTime()));
-        Map<String, Resource> allergyAuthors = this.basicCDAElementsConverter.convertSectionAuthors(allergyObservation.getAuthors(), headerResources);
-        if (!allergyAuthors.isEmpty()) {
-            Resource practitioner = allergyAuthors.values().stream().filter(r -> r instanceof Practitioner).findFirst().orElse(null);
-            if (practitioner != null){
-                allergy.setRecorder(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId()));
-            }
-
-            resources.putAll(allergyAuthors);
+        if (!allergyObservation.getAuthors().isEmpty()) {
+            resources.putAll(this.basicCDAElementsConverter.convertAuthors(allergy, allergyObservation.getAuthors(), headerResources));
         }
 
         allergy.getCode().setCoding(allergyObservation.getParticipants().stream()
@@ -83,7 +77,7 @@ public class CDAAllergySectionConverter {
         }
 
         allergy.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.ALLERGYINTOLERANCE, allergy.getIdentifier()));
-        Reference reference = ConvertedElementsHelper.getPateintReference(headerResources);
+        Reference reference = ConvertedElementsHelper.getPatientReference(headerResources);
         if (reference != null) {
             allergy.setPatient(reference);
         }

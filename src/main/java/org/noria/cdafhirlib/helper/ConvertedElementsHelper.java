@@ -21,7 +21,7 @@ public class ConvertedElementsHelper {
         return foundPractitioner;
     }
 
-  public static Reference getPateintReference(Map<String, Resource> resources){
+  public static Reference getPatientReference(Map<String, Resource> resources){
         Reference reference  = null;
         if (resources != null){
             Resource resource = resources.values().stream().filter(r-> r instanceof Patient).findFirst().orElse(null);

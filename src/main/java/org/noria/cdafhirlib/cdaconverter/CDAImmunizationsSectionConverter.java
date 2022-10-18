@@ -87,7 +87,7 @@ public class CDAImmunizationsSectionConverter {
         }
 
         if (immunizationActivity.getReactionObservation() != null) {
-            Observation observation = this.createReactionObservation(immunizationActivity.getReactionObservation());
+            Observation observation = this.basicCDAElementsConverter.createFHIRObservation(immunizationActivity.getReactionObservation(),resources, headerResources);
             Immunization.ImmunizationReactionComponent immunizationReactionComponent = new Immunization.ImmunizationReactionComponent();
             if (observation.getEffective() != null) {
                 Type effective = observation.getEffective();
@@ -104,7 +104,7 @@ public class CDAImmunizationsSectionConverter {
         }
 
         fhirImmunization.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.IMMUNIZATION, fhirImmunization.getIdentifier()));
-        Reference reference = ConvertedElementsHelper.getPateintReference(headerResources);
+        Reference reference = ConvertedElementsHelper.getPatientReference(headerResources);
         if (reference != null) {
             fhirImmunization.setPatient(reference);
         }
@@ -112,7 +112,7 @@ public class CDAImmunizationsSectionConverter {
         return resources;
     }
 
-
+/*
     private Observation createReactionObservation(ReactionObservation reactionObservation) {
         Observation observation = new Observation();
         if (CollectionUtils.isNotEmpty(reactionObservation.getIds())) {
@@ -141,5 +141,5 @@ public class CDAImmunizationsSectionConverter {
 
         return observation;
     }
-
+*/
 }

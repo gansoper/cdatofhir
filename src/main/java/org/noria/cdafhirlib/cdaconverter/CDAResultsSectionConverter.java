@@ -57,19 +57,19 @@ public class CDAResultsSectionConverter {
             diagnosticReport.setEffective(this.basicCDAElementsConverter.convertIVLTSDate(resultOrganizer.getEffectiveTime()));
         }
 
-        Reference reference = ConvertedElementsHelper.getPateintReference(headerResources);
+        Reference reference = ConvertedElementsHelper.getPatientReference(headerResources);
         if (reference != null) {
             diagnosticReport.setSubject(reference);
         }
 
         if (!resultOrganizer.getAuthors().isEmpty()) {
-            resources.putAll(this.convertResultAuthors(diagnosticReport, resultOrganizer.getAuthors(), resources, headerResources));
+            resources.putAll(this.basicCDAElementsConverter.convertAuthors(diagnosticReport, resultOrganizer.getAuthors(), headerResources));
         }
 
         diagnosticReport.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.DIAGNOSTICREPORT, diagnosticReport.getIdentifier()));
 
         if (!resultOrganizer.getResultObservations().isEmpty()){
-            List<Observation> observations = resultOrganizer.getConsolResultObservation2s().stream().map(ro->createResultObservation(ro, resources, headerResources)).collect(Collectors.toList());
+            List<Observation> observations = resultOrganizer.getConsolResultObservation2s().stream().map(ro->this.basicCDAElementsConverter.createFHIRObservation(ro, resources, headerResources)).collect(Collectors.toList());
             observations.forEach(o->{
                 diagnosticReport.getResult().add(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.OBSERVATION, o.getId()));
                 resources.put(o.getId(), o);
@@ -80,7 +80,7 @@ public class CDAResultsSectionConverter {
         return resources;
     }
 
-
+/*
     private Observation createResultObservation(ResultObservation2 resultObservation, Map<String, Resource> resources, Map<String, Resource> headerResources) {
         Observation observation = new Observation();
         if (CollectionUtils.isNotEmpty(resultObservation.getIds())) {
@@ -92,7 +92,7 @@ public class CDAResultsSectionConverter {
             observation.setEffective(recordedDate);
         }
 
-        Reference reference = ConvertedElementsHelper.getPateintReference(headerResources);
+        Reference reference = ConvertedElementsHelper.getPatientReference(headerResources);
         if (reference != null) {
             observation.setSubject(reference);
         }
@@ -174,4 +174,6 @@ public class CDAResultsSectionConverter {
 
         return  resources;
     }
+
+ */
 }

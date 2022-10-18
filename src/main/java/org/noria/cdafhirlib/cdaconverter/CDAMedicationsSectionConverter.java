@@ -120,7 +120,7 @@ public class CDAMedicationsSectionConverter {
             resources.putAll(this.convertMedicationSupply(medicationDispenseCDA.getConsolMedicationSupplyOrder2(), headerResources));
         }
         medicationDispense.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.MEDICATIONDISPENSE, medicationDispense.getIdentifier()));
-        Reference reference = ConvertedElementsHelper.getPateintReference(headerResources);
+        Reference reference = ConvertedElementsHelper.getPatientReference(headerResources);
         if (reference != null) {
             medicationDispense.setSubject(reference);
         }
@@ -145,16 +145,7 @@ public class CDAMedicationsSectionConverter {
         });
 
         if (!supplyOrder.getAuthors().isEmpty()) {
-            Map<String, Resource> medicationRequestAuthors = this.basicCDAElementsConverter.convertSectionAuthors(supplyOrder.getAuthors(), headerResources);
-            if (!medicationRequestAuthors.isEmpty()) {
-                Resource practitioner = medicationRequestAuthors.values().stream().filter(r -> r instanceof Practitioner).findFirst().orElse(null);
-                if (practitioner != null){
-                    medicationRequest.setRecorder(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId()));
-
-                }
-
-                resources.putAll(medicationRequestAuthors);
-            }
+                resources.putAll(this.basicCDAElementsConverter.convertAuthors(medicationRequest, supplyOrder.getAuthors(), headerResources));
         }
 
         if (supplyOrder.getProduct() != null && supplyOrder.getProduct().getManufacturedProduct() != null && supplyOrder.getProduct().getManufacturedProduct().getManufacturedMaterial() != null) {
@@ -169,7 +160,7 @@ public class CDAMedicationsSectionConverter {
             }
         }
 
-        Reference reference = ConvertedElementsHelper.getPateintReference(headerResources);
+        Reference reference = ConvertedElementsHelper.getPatientReference(headerResources);
         if (reference != null) {
             medicationRequest.setSubject(reference);
         }
@@ -230,20 +221,11 @@ public class CDAMedicationsSectionConverter {
         }
 
         if (!medicationActivity.getAuthors().isEmpty()) {
-            Map<String, Resource> medicationRequestAuthors = this.basicCDAElementsConverter.convertSectionAuthors(medicationActivity.getAuthors(), headerResources);
-            if (!medicationRequestAuthors.isEmpty()) {
-                Resource practitioner = medicationRequestAuthors.values().stream().filter(r -> r instanceof Practitioner).findFirst().orElse(null);
-                if (practitioner != null){
-                    medicationRequest.setRecorder(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId()));
-
-                }
-
-                resources.putAll(medicationRequestAuthors);
-            }
+                resources.putAll(this.basicCDAElementsConverter.convertAuthors(medicationRequest, medicationActivity.getAuthors(), headerResources));
         }
 
         medicationRequest.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.MEDICATIONREQUEST, medicationRequest.getIdentifier()));
-        Reference reference = ConvertedElementsHelper.getPateintReference(headerResources);
+        Reference reference = ConvertedElementsHelper.getPatientReference(headerResources);
         if (reference != null) {
             medicationRequest.setSubject(reference);
         }
@@ -291,19 +273,11 @@ public class CDAMedicationsSectionConverter {
                 resources.putAll(medicationRequestPerformers);
             }
         } else if (!medicationActivity.getAuthors().isEmpty()) {
-            Map<String, Resource> medicationStatementAuthors = this.basicCDAElementsConverter.convertSectionAuthors(medicationActivity.getAuthors(), headerResources);
-            if (!medicationStatementAuthors.isEmpty()) {
-                Resource practitioner = medicationStatementAuthors.values().stream().filter(r -> r instanceof Practitioner).findFirst().orElse(null);
-                if (practitioner != null){
-                    medicationStatement.setInformationSource(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId()));
-                }
-
-                resources.putAll(medicationStatementAuthors);
-            }
+              resources.putAll(this.basicCDAElementsConverter.convertAuthors(medicationStatement, medicationActivity.getAuthors(), headerResources));
         }
 
         medicationStatement.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.MEDICATIONSTATEMENT, medicationStatement.getIdentifier()));
-        Reference reference = ConvertedElementsHelper.getPateintReference(headerResources);
+        Reference reference = ConvertedElementsHelper.getPatientReference(headerResources);
         if (reference != null) {
             medicationStatement.setSubject(reference);
         }
