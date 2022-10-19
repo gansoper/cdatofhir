@@ -710,6 +710,11 @@ public class BasicCDAElementsConverter {
 
         if (!cdaObservation.getAuthors().isEmpty()) {
             resources.putAll(this.convertAuthors(observation, cdaObservation.getAuthors(), headerResources));
+        } else if (!resources.isEmpty()){
+            observation.setPerformer(resources.values().stream().filter(v -> v instanceof Practitioner).map(
+                    ra ->
+                            FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, ra.getId())
+            ).collect(Collectors.toList()));
         }
 
         if (!cdaObservation.getReferenceRanges().isEmpty()) {

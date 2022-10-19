@@ -27,11 +27,17 @@ public class CDAProblemsSectionConverter {
 
     public Map<String, Resource> convertProblems(ProblemSection2 problemSection, Map<String, Resource> headerResources) {
         Map<String, Resource> resources = new HashMap<>();
-        problemSection.getConsolProblemConcernAct2s().forEach(act -> resources.putAll(this.convertProblem(act, headerResources)));
+
+        problemSection.getConsolProblemConcernAct2s().forEach(act -> {
+            Map<String, Resource> actAuthors = new HashMap<>();
+            act.getAuthors().forEach(author -> actAuthors.putAll(this.basicCDAElementsConverter.convertSectionAuthor(author, headerResources)));
+            resources.putAll(actAuthors);
+            resources.putAll(this.convertProblem(act, headerResources, actAuthors));
+        });
         return resources;
     }
 
-    private Map<String, Resource> convertProblem(ProblemConcernAct2 act, Map<String, Resource> headerResources) {
+    private Map<String, Resource> convertProblem(ProblemConcernAct2 act, Map<String, Resource> headerResources, Map<String, Resource> actAuthors) {
         Map<String, Resource> resources = new HashMap<>();
 
         if (!act.getAuthors().isEmpty()) {
@@ -65,6 +71,10 @@ public class CDAProblemsSectionConverter {
 
             if (!problemObservation.getAuthors().isEmpty()) {
                 resources.putAll(this.basicCDAElementsConverter.convertAuthors(condition, problemObservation.getAuthors(), headerResources));
+            } else if (!actAuthors.isEmpty()){
+                actAuthors.values().stream().filter(r -> r instanceof Practitioner).findFirst().ifPresent(practitioner ->
+                        condition.setRecorder(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId())));
+
             }
 
             if (problemObservation.getAgeObservation() != null && !problemObservation.getAgeObservation().getValues().isEmpty()) {

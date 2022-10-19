@@ -2,16 +2,13 @@ package org.noria.cdafhirlib.cdaconverter;
 
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
-import org.eclipse.mdht.uml.cda.Author;
-import org.eclipse.mdht.uml.hl7.datatypes.CD;
-import org.eclipse.mdht.uml.hl7.datatypes.IVL_PQ;
-import org.eclipse.mdht.uml.hl7.datatypes.PQ;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.model.*;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
 import org.noria.cdafhirlib.helper.ConvertedElementsHelper;
 import org.noria.cdafhirlib.helper.FHIRElementsHelper;
-import org.openhealthtools.mdht.uml.cda.consol.*;
+import org.openhealthtools.mdht.uml.cda.consol.ResultOrganizer2;
+import org.openhealthtools.mdht.uml.cda.consol.ResultsSection2;
 
 import java.util.HashMap;
 import java.util.List;
@@ -49,11 +46,11 @@ public class CDAResultsSectionConverter {
             }
         }
 
-        if (resultOrganizer.getCode() != null){
+        if (resultOrganizer.getCode() != null) {
             diagnosticReport.setCode(this.basicCDAElementsConverter.createFHIRCodeableConcept(resultOrganizer.getCode(), null));
         }
 
-        if (resultOrganizer.getEffectiveTime() != null){
+        if (resultOrganizer.getEffectiveTime() != null) {
             diagnosticReport.setEffective(this.basicCDAElementsConverter.convertIVLTSDate(resultOrganizer.getEffectiveTime()));
         }
 
@@ -68,9 +65,9 @@ public class CDAResultsSectionConverter {
 
         diagnosticReport.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.DIAGNOSTICREPORT, diagnosticReport.getIdentifier()));
 
-        if (!resultOrganizer.getResultObservations().isEmpty()){
-            List<Observation> observations = resultOrganizer.getConsolResultObservation2s().stream().map(ro->this.basicCDAElementsConverter.createFHIRObservation(ro, resources, headerResources)).collect(Collectors.toList());
-            observations.forEach(o->{
+        if (!resultOrganizer.getResultObservations().isEmpty()) {
+            List<Observation> observations = resultOrganizer.getConsolResultObservation2s().stream().map(ro -> this.basicCDAElementsConverter.createFHIRObservation(ro, resources, headerResources)).collect(Collectors.toList());
+            observations.forEach(o -> {
                 diagnosticReport.getResult().add(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.OBSERVATION, o.getId()));
                 resources.put(o.getId(), o);
             });

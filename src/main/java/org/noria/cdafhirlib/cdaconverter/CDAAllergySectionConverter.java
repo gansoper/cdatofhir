@@ -29,14 +29,16 @@ public class CDAAllergySectionConverter {
     public Map<String, Resource> convertAllergies(AllergiesSection2 allergiesSection, Map<String, Resource> headerResources) {
         Map<String, Resource> resources = new HashMap<>();
         allergiesSection.getConsolAllergyConcernAct2s().forEach(act -> {
-            act.getAuthors().forEach(author -> resources.putAll(this.basicCDAElementsConverter.convertSectionAuthor(author, headerResources)));
-            act.getConsolAllergyObservation2s().forEach(allergyObservation -> resources.putAll(this.convertCDAAllergyObservation(allergyObservation, act.getEffectiveTime(), headerResources)));
+            Map<String, Resource> actAuthors = new HashMap<>();
+            act.getAuthors().forEach(author -> actAuthors.putAll(this.basicCDAElementsConverter.convertSectionAuthor(author, headerResources)));
+            resources.putAll(actAuthors);
+            act.getConsolAllergyObservation2s().forEach(allergyObservation -> resources.putAll(this.convertCDAAllergyObservation(allergyObservation, act.getEffectiveTime(), actAuthors, headerResources)));
         });
 
         return resources;
     }
 
-    private Map<String, Resource> convertCDAAllergyObservation(AllergyObservation2 allergyObservation, IVL_TS recordedTime, Map<String, Resource> headerResources) {
+    private Map<String, Resource> convertCDAAllergyObservation(AllergyObservation2 allergyObservation, IVL_TS recordedTime, Map<String, Resource> actAuthors, Map<String, Resource> headerResources) {
         Map<String, Resource> resources = new HashMap<>();
         AllergyIntolerance allergy = new AllergyIntolerance();
         Type recordedDate = this.basicCDAElementsConverter.convertIVLTSDate(recordedTime);
@@ -53,7 +55,11 @@ public class CDAAllergySectionConverter {
         allergy.setOnset(this.basicCDAElementsConverter.convertIVLTSDate(allergyObservation.getEffectiveTime()));
         if (!allergyObservation.getAuthors().isEmpty()) {
             resources.putAll(this.basicCDAElementsConverter.convertAuthors(allergy, allergyObservation.getAuthors(), headerResources));
+        } else if (!actAuthors.isEmpty()){
+            actAuthors.values().stream().filter(r -> r instanceof Practitioner).findFirst().ifPresent(practitioner ->
+                    allergy.setRecorder(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId())));
         }
+
 
         allergy.getCode().setCoding(allergyObservation.getParticipants().stream()
                 .filter(p -> p.getParticipantRole() != null && p.getParticipantRole().getPlayingEntity() != null)
