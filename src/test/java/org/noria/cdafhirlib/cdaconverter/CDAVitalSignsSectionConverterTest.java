@@ -100,6 +100,20 @@ class CDAVitalSignsSectionConverterTest {
     }
 
 
+
+    @Test
+    public void testObservationNoAuthor() throws Exception {
+        Map<String, Resource> resources = this.getAllResources("Tests/VitalSigns/VitalSignsNoAuthor.xml");
+        assertNotNull(resources);
+        Resource obResource = resources.values().stream().filter(r -> r instanceof Observation).findFirst().orElse(null);
+        Resource practResource = resources.values().stream().filter(r -> r instanceof Practitioner).findFirst().orElse(null);
+        assertNotNull(obResource);
+        assertNotNull(practResource);
+        Observation observation = (Observation) obResource;
+        assertFalse(observation.getPerformer().isEmpty());
+        assertEquals("Practitioner/" + practResource.getId(), observation.getPerformerFirstRep().getReference());
+    }
+
     @Test
     public void testObservationNoValue() throws Exception {
         Map<String, Resource> resources = this.getAllResources("Tests/VitalSigns/VitalSignsAuthor.xml");

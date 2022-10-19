@@ -69,9 +69,60 @@ class CDAAllergySectionConverterTest {
 
             assertEquals(allergyIntolerance.getVerificationStatus().getCodingFirstRep().getCode(), "confirmed");
             assertEquals(allergyIntolerance.getPatient().getReference(), "Patient/test");
+            assertFalse(allergyIntolerance.getRecorder().isEmpty());
         }
 
     }
+
+    @Test
+    public void convertAllergiesSectionNoAuthor() throws Exception {
+        // this is needed for types casting
+        ConsolPackage.eINSTANCE.eClass();
+        String path = Objects.requireNonNull(this.getClass().getClassLoader().getResource("Tests/Allergy/AllergySectionNoAuthor.xml")).getPath();
+        String decodedPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
+        FileInputStream fis = new FileInputStream(decodedPath);
+        ClinicalDocument cda = CDAUtil.load(fis);
+        if (cda instanceof ContinuityOfCareDocument2) {
+            BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
+            CDAAllergySectionConverter allergySectionConverter = new CDAAllergySectionConverter(basicCDAElementsConverter);
+            HashMap<String, Resource> headerResources = new HashMap<>();
+            Patient patient = new Patient();
+            patient.setId("test");
+            headerResources.put("test", patient);
+            Map<String, Resource> resources = allergySectionConverter.convertAllergies(((ContinuityOfCareDocument2) cda).getAllergiesSection2(), headerResources);
+            assertFalse(resources.isEmpty());
+            assertEquals(resources.size(), 2);
+            Resource Resource = resources.values().stream().filter(resource -> resource instanceof AllergyIntolerance).findAny().orElse(null);
+            assertNotNull(Resource);
+            AllergyIntolerance allergyIntolerance = (AllergyIntolerance) Resource;
+            assertEquals(allergyIntolerance.getRecordedDateElement().getValueAsString(), "1998-05-01T11:45:00-08:00");
+
+            assertNull(allergyIntolerance.getIdentifier().get(0).getSystem());
+
+            assertTrue(allergyIntolerance.getOnset() instanceof Period);
+            assertEquals(((Period) allergyIntolerance.getOnset()).getStartElement().getValueAsString(), "1998-05-01");
+
+            assertEquals(allergyIntolerance.getCode().getCodingFirstRep().getCode(), "70618");
+            assertEquals(allergyIntolerance.getCode().getCodingFirstRep().getSystem(), "http://www.nlm.nih.gov/research/umls/rxnorm");
+
+            assertEquals(allergyIntolerance.getClinicalStatus().getCodingFirstRep().getCode(), "active");
+
+
+            assertEquals(allergyIntolerance.getReactionFirstRep().getManifestationFirstRep().getCodingFirstRep().getCode(), "422587007");
+            assertEquals(allergyIntolerance.getReactionFirstRep().getManifestationFirstRep().getCodingFirstRep().getSystem(), "http://snomed.info/sct");
+
+            assertEquals(allergyIntolerance.getReactionFirstRep().getSeverity().toCode(), "mild");
+
+            assertEquals(allergyIntolerance.getCriticality().toCode(), "high");
+
+            assertEquals(allergyIntolerance.getVerificationStatus().getCodingFirstRep().getCode(), "confirmed");
+            assertEquals(allergyIntolerance.getPatient().getReference(), "Patient/test");
+            assertFalse(allergyIntolerance.getRecorder().isEmpty());
+        }
+
+    }
+
+
 
     private CDAtoFHIRCodes getTestCodes() {
         try {
