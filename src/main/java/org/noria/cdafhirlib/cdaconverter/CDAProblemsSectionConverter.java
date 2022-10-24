@@ -93,7 +93,7 @@ public class CDAProblemsSectionConverter {
 
             }
 
-            if (problemObservation.getAgeObservation() != null && !problemObservation.getAgeObservation().getValues().isEmpty() && condition.getOnset().isEmpty()) {
+            if (problemObservation.getAgeObservation() != null && !problemObservation.getAgeObservation().getValues().isEmpty() && !condition.hasOnset()) {
                 condition.setOnset(this.basicCDAElementsConverter.createAge((PQ) problemObservation.getAgeObservation().getValues().get(0)));
             }
 

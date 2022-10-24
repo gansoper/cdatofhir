@@ -132,7 +132,7 @@ class CDAProblemSectionConverterTest {
 
     @Test
     public void testProblemAge() throws Exception {
-        Map<String, Resource> resources = this.getAllResources("Tests/Problems/ProblemsValue.xml");
+        Map<String, Resource> resources = this.getAllResources("Tests/Problems/ProblemsAge.xml");
         assertNotNull(resources);
         Resource cResource = resources.values().stream().filter(r -> r instanceof Condition).findFirst().orElse(null);
         assertNotNull(cResource);

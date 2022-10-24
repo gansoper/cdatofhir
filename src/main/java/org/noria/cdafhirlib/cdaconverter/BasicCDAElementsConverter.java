@@ -55,7 +55,7 @@ public class BasicCDAElementsConverter {
 
     public Coding createFHIRCoding(CD code, String conversionType) {
         Coding coding = null;
-        if (code != null) {
+        if (code != null && !code.isSetNullFlavor()) {
             coding = new Coding();
             if (conversionType != null) {
                 coding = this.codeMappingProcessor.getCodeFromMapping(code.getCode(), conversionType);
@@ -72,7 +72,7 @@ public class BasicCDAElementsConverter {
 
     public CodeableConcept createFHIRCodeableConcept(CD code, String conversionType) {
         CodeableConcept codeableConcept = null;
-        if (code != null) {
+        if (code != null && !code.isSetNullFlavor()) {
             CodeableConcept codeableConceptInner = new CodeableConcept();
             Coding coding = this.createFHIRCoding(code, conversionType);
             codeableConceptInner.addCoding(coding);

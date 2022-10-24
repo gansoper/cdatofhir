@@ -12,10 +12,7 @@ import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity2;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationsSection2;
 import org.openhealthtools.mdht.uml.cda.consol.ReactionObservation;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -71,18 +68,24 @@ public class CDAImmunizationsSectionConverter {
             if (!immunizationPerformers.isEmpty()) {
                 List<Resource> practitioners = immunizationPerformers.values().stream().filter(r -> r instanceof Practitioner).collect(Collectors.toList());
                 List<Resource> organizations = immunizationPerformers.values().stream().filter(r -> r instanceof Organization).collect(Collectors.toList());
-                Immunization.ImmunizationPerformerComponent immunizationPerformerComponent = new Immunization.ImmunizationPerformerComponent();
-                if (!practitioners.isEmpty()) {
-                    immunizationPerformerComponent.setActor(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioners.get(0).getId()));
-                } else if (!organizations.isEmpty()) {
-                    immunizationPerformerComponent.setActor(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.ORGANIZATION, organizations.get(0).getId()));
+
+                List< Immunization.ImmunizationPerformerComponent> immunizationPerformerComponents = new ArrayList<>();
+                for(Resource practitioner: practitioners){
+                    Immunization.ImmunizationPerformerComponent immunizationPerformerComponent = new Immunization.ImmunizationPerformerComponent();
+                    immunizationPerformerComponent.setActor(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId()));
+                    immunizationPerformerComponents.add(immunizationPerformerComponent);
                 }
 
-                if (immunizationPerformerComponent.getActor() != null) {
-                    fhirImmunization.setPerformer(Collections.singletonList(immunizationPerformerComponent));
+                for(Resource organization: organizations){
+                    Immunization.ImmunizationPerformerComponent immunizationPerformerComponent = new Immunization.ImmunizationPerformerComponent();
+                    immunizationPerformerComponent.setActor(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.ORGANIZATION, organization.getId()));
+                    immunizationPerformerComponents.add(immunizationPerformerComponent);
+                }
+
+                if (!immunizationPerformerComponents.isEmpty()){
+                    fhirImmunization.setPerformer(immunizationPerformerComponents);
                     resources.putAll(immunizationPerformers);
                 }
-
             }
         }
 
