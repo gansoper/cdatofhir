@@ -81,6 +81,17 @@ class CDAProblemSectionConverterTest {
 
 
     @Test
+    public void testProblemRecordedDate() throws Exception {
+        Map<String, Resource> resources = this.getAllResources("Tests/Problems/ProblemsEffectiveTime.xml");
+        assertNotNull(resources);
+        Resource cResource = resources.values().stream().filter(r -> r instanceof Condition).findFirst().orElse(null);
+        assertNotNull(cResource);
+        Condition condition = (Condition) cResource;
+        assertTrue(condition.hasRecordedDate());
+        assertEquals("2013-07-06T11:45:00-08:00", condition.getRecordedDateElement().getValueAsString());
+    }
+
+    @Test
     public void testProblemEffectiveTime() throws Exception {
         Map<String, Resource> resources = this.getAllResources("Tests/Problems/ProblemsEffectiveTime.xml");
         assertNotNull(resources);
@@ -90,6 +101,8 @@ class CDAProblemSectionConverterTest {
         assertTrue(condition.hasOnsetPeriod());
         assertEquals("2013-07-03", condition.getOnsetPeriod().getStartElement().getValueAsString());
         assertEquals("2008-08-14", condition.getOnsetPeriod().getEndElement().getValueAsString());
+        assertTrue(condition.hasAbatement());
+        assertEquals("2008-08-14", condition.getAbatementDateTimeType().getValueAsString());
     }
 
     @Test

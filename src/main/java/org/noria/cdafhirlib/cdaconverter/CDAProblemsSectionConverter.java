@@ -13,6 +13,7 @@ import org.openhealthtools.mdht.uml.cda.consol.ProblemObservation2;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemSection2;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,16 +44,31 @@ public class CDAProblemsSectionConverter {
         if (!act.getAuthors().isEmpty()) {
             resources.putAll(this.basicCDAElementsConverter.convertAuthors(null, act.getAuthors(), headerResources));
         }
-
+        Type recordedDate = this.basicCDAElementsConverter.convertIVLTSDate(act.getEffectiveTime());
         for (ProblemObservation2 problemObservation : act.getConsolProblemObservation2s()) {
             Condition condition = new Condition();
             if (CollectionUtils.isNotEmpty(problemObservation.getIds())) {
                 problemObservation.getIds().forEach(id -> condition.addIdentifier(this.basicCDAElementsConverter.createFHIRIdentifier(id)));
             }
 
+            if (recordedDate != null){
+                if (recordedDate instanceof DateTimeType) {
+                    condition.setRecordedDateElement((DateTimeType) recordedDate);
+                }
+                else if (recordedDate instanceof Period){
+                    condition.setRecordedDateElement(((Period) recordedDate).getStartElement());
+                }
+            }
+
             if (problemObservation.getEffectiveTime() != null) {
-                Type recordedDate = this.basicCDAElementsConverter.convertIVLTSDate(problemObservation.getEffectiveTime());
-                condition.setOnset(recordedDate);
+                Type onSetDate = this.basicCDAElementsConverter.convertIVLTSDate(problemObservation.getEffectiveTime());
+                condition.setOnset(onSetDate);
+                if (onSetDate instanceof Period){
+                    Period period = (Period) onSetDate;
+                    if (!period.getEndElement().isEmpty()) {
+                        condition.setAbatement(period.getEndElement());
+                    }
+                }
             }
 
             if (problemObservation.getConsolProblemStatus() != null && !problemObservation.getConsolProblemStatus().getValues().isEmpty()) {
@@ -77,9 +93,8 @@ public class CDAProblemsSectionConverter {
 
             }
 
-            if (problemObservation.getAgeObservation() != null && !problemObservation.getAgeObservation().getValues().isEmpty()) {
+            if (problemObservation.getAgeObservation() != null && !problemObservation.getAgeObservation().getValues().isEmpty() && condition.getOnset().isEmpty()) {
                 condition.setOnset(this.basicCDAElementsConverter.createAge((PQ) problemObservation.getAgeObservation().getValues().get(0)));
-                ;
             }
 
             Reference reference = ConvertedElementsHelper.getPatientReference(headerResources);
