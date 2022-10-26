@@ -4,9 +4,11 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.codesystems.ObservationCategory;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
 import org.noria.cdafhirlib.helper.ConvertedElementsHelper;
 import org.noria.cdafhirlib.helper.FHIRElementsHelper;
+import org.openhealthtools.mdht.uml.cda.consol.ResultObservation2;
 import org.openhealthtools.mdht.uml.cda.consol.ResultOrganizer2;
 import org.openhealthtools.mdht.uml.cda.consol.ResultsSection2;
 
@@ -66,11 +68,15 @@ public class CDAResultsSectionConverter {
         diagnosticReport.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.DIAGNOSTICREPORT, diagnosticReport.getIdentifier()));
 
         if (!resultOrganizer.getResultObservations().isEmpty()) {
-            List<Observation> observations = resultOrganizer.getConsolResultObservation2s().stream().map(ro -> this.basicCDAElementsConverter.createFHIRObservation(ro, resources, headerResources)).collect(Collectors.toList());
+            Map<String, Resource> observationResources = new HashMap<>();
+            for(ResultObservation2 ro: resultOrganizer.getConsolResultObservation2s()){
+                observationResources.putAll(this.basicCDAElementsConverter.createFHIRObservation(ro, ObservationCategory.EXAM, resources, headerResources));
+            }
+            List<Resource> observations = observationResources.values().stream().filter(r-> r instanceof Observation).collect(Collectors.toList());
             observations.forEach(o -> {
                 diagnosticReport.getResult().add(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.OBSERVATION, o.getId()));
-                resources.put(o.getId(), o);
             });
+            resources.putAll(observationResources);
         }
 
         resources.put(diagnosticReport.getId(), diagnosticReport);

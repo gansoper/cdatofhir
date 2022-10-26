@@ -70,6 +70,19 @@ class CDAResultsSectionConverterTest {
     }
 
     @Test
+    public void testObservationCategory() throws Exception {
+        Map<String, Resource> resources = this.getAllResources("Tests/Result/ResultObservationCode.xml");
+        assertNotNull(resources);
+        Resource obResource = resources.values().stream().filter(r -> r instanceof Observation).findFirst().orElse(null);
+        assertNotNull(obResource);
+        Observation observation = (Observation) obResource;
+        assertTrue(observation.hasCategory());
+        assertTrue(observation.getCategoryFirstRep().hasCoding());
+        assertEquals("exam", observation.getCategoryFirstRep().getCodingFirstRep().getCode());
+    }
+
+
+    @Test
     public void testObservationCode() throws Exception {
         Map<String, Resource> resources = this.getAllResources("Tests/Result/ResultObservationCode.xml");
         assertNotNull(resources);

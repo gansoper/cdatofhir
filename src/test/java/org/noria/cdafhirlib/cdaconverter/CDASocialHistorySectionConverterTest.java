@@ -3,7 +3,10 @@ package org.noria.cdafhirlib.cdaconverter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.mdht.uml.cda.ClinicalDocument;
 import org.eclipse.mdht.uml.cda.util.CDAUtil;
-import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.DateTimeType;
+import org.hl7.fhir.r4.model.Observation;
+import org.hl7.fhir.r4.model.Practitioner;
+import org.hl7.fhir.r4.model.Resource;
 import org.junit.jupiter.api.Test;
 import org.noria.cdafhirlib.codemapping.CodeMappingProcessor;
 import org.noria.cdafhirlib.model.CDAtoFHIRCodes;
@@ -21,20 +24,7 @@ import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class CDAVitalSignsSectionConverterTest {
-
-
-    @Test
-    public void testObservationCategory() throws Exception {
-        Map<String, Resource> resources = this.getAllResources("Tests/VitalSigns/VitalSignsCode.xml");
-        assertNotNull(resources);
-        Resource obResource = resources.values().stream().filter(r -> r instanceof Observation).findFirst().orElse(null);
-        assertNotNull(obResource);
-        Observation observation = (Observation) obResource;
-        assertTrue(observation.hasCategory());
-        assertTrue(observation.getCategoryFirstRep().hasCoding());
-        assertEquals("vital-signs", observation.getCategoryFirstRep().getCodingFirstRep().getCode());
-    }
+class CDASocialHistorySectionConverterTest {
 
 
     @Test
@@ -147,8 +137,8 @@ class CDAVitalSignsSectionConverterTest {
         ClinicalDocument cda = CDAUtil.load(fis);
         if (cda instanceof ContinuityOfCareDocument2) {
             BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-            CDAVitalSignsSectionConverter vsSectionConverter = new CDAVitalSignsSectionConverter(basicCDAElementsConverter);
-            return vsSectionConverter.convertVitalSigns(((ContinuityOfCareDocument2) cda).getVitalSignsSection2(), new HashMap<>());
+            CDASocialHistorySectionConverter shSectionConverter = new CDASocialHistorySectionConverter(basicCDAElementsConverter);
+            return shSectionConverter.convertSocialHistory(((ContinuityOfCareDocument2) cda).getSocialHistorySection2(), new HashMap<>());
         }
 
         return null;

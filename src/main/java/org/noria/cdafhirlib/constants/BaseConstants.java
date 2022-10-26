@@ -9,4 +9,5 @@ public class BaseConstants {
     public static final String CDA_TO_FHIR_CODES_FILE = "CDAtoFHIRCodes.json";
 
     public static final String OID_TO_URL_FILE = "OIDtoURL.json";
+
 }

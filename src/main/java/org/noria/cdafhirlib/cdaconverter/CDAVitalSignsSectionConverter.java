@@ -4,13 +4,11 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.codesystems.ObservationCategory;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
 import org.noria.cdafhirlib.helper.ConvertedElementsHelper;
 import org.noria.cdafhirlib.helper.FHIRElementsHelper;
-import org.openhealthtools.mdht.uml.cda.consol.ResultOrganizer2;
-import org.openhealthtools.mdht.uml.cda.consol.ResultsSection2;
-import org.openhealthtools.mdht.uml.cda.consol.VitalSignsOrganizer2;
-import org.openhealthtools.mdht.uml.cda.consol.VitalSignsSection2;
+import org.openhealthtools.mdht.uml.cda.consol.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -41,10 +39,9 @@ public class CDAVitalSignsSectionConverter {
         }
 
         if (!vitalSignsOrganizer2.getConsolVitalSignObservation2s().isEmpty()){
-            List<Observation> observations = vitalSignsOrganizer2.getConsolVitalSignObservation2s().stream().map(vso->this.basicCDAElementsConverter.createFHIRObservation(vso, resources, headerResources)).collect(Collectors.toList());
-            observations.forEach(o->{
-                resources.put(o.getId(), o);
-            });
+            for(VitalSignObservation2 vso: vitalSignsOrganizer2.getConsolVitalSignObservation2s()){
+                resources.putAll(this.basicCDAElementsConverter.createFHIRObservation(vso, ObservationCategory.VITALSIGNS, resources, headerResources));
+            }
         }
 
         return resources;

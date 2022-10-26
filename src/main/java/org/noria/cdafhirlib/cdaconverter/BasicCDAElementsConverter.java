@@ -16,6 +16,7 @@ import org.hl7.fhir.r4.model.Organization;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.codesystems.ObservationCategory;
 import org.noria.cdafhirlib.codemapping.CodeMappingProcessor;
 import org.noria.cdafhirlib.constants.BaseConstants;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
@@ -657,10 +658,21 @@ public class BasicCDAElementsConverter {
         return organization;
     }
 
-    public Observation createFHIRObservation(org.eclipse.mdht.uml.cda.Observation cdaObservation, Map<String, Resource> resources, Map<String, Resource> headerResources) {
+    public Map<String, Resource> createFHIRObservation(org.eclipse.mdht.uml.cda.Observation cdaObservation, ObservationCategory observationCategory, Map<String, Resource> outerResources, Map<String, Resource> headerResources) {
+        Map<String, Resource> resources = new HashMap<>();
         Observation observation = new Observation();
         if (CollectionUtils.isNotEmpty(cdaObservation.getIds())) {
             cdaObservation.getIds().forEach(id -> observation.addIdentifier(this.createFHIRIdentifier(id)));
+        }
+
+        if (observationCategory != null){
+            CodeableConcept codeableConcept = new CodeableConcept();
+            Coding coding = new Coding();
+            coding.setSystem(observationCategory.getSystem());
+            coding.setCode(observationCategory.toCode());
+            coding.setDisplay(observationCategory.getDisplay());
+            codeableConcept.setCoding(Collections.singletonList(coding));
+            observation.setCategory(Collections.singletonList(codeableConcept));
         }
 
         if (cdaObservation.getEffectiveTime() != null) {
@@ -710,8 +722,8 @@ public class BasicCDAElementsConverter {
 
         if (!cdaObservation.getAuthors().isEmpty()) {
             resources.putAll(this.convertAuthors(observation, cdaObservation.getAuthors(), headerResources));
-        } else if (!resources.isEmpty()){
-            observation.setPerformer(resources.values().stream().filter(v -> v instanceof Practitioner).map(
+        } else if (!outerResources.isEmpty()){
+            observation.setPerformer(outerResources.values().stream().filter(v -> v instanceof Practitioner).map(
                     ra ->
                             FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, ra.getId())
             ).collect(Collectors.toList()));
@@ -730,8 +742,8 @@ public class BasicCDAElementsConverter {
         }
 
         observation.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.OBSERVATION, observation.getIdentifier()));
-
-        return observation;
+        resources.put(observation.getId(), observation);
+        return resources;
     }
 
     public Map<String, Resource> convertAuthors(Resource fhirResource, List<Author> cdaAuthors, Map<String, Resource> headerResources) {

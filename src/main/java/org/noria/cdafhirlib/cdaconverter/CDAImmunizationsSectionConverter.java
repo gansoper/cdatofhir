@@ -5,6 +5,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.eclipse.mdht.uml.hl7.datatypes.CD;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.codesystems.ObservationCategory;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
 import org.noria.cdafhirlib.helper.ConvertedElementsHelper;
 import org.noria.cdafhirlib.helper.FHIRElementsHelper;
@@ -90,20 +91,24 @@ public class CDAImmunizationsSectionConverter {
         }
 
         if (immunizationActivity.getReactionObservation() != null) {
-            Observation observation = this.basicCDAElementsConverter.createFHIRObservation(immunizationActivity.getReactionObservation(),resources, headerResources);
-            Immunization.ImmunizationReactionComponent immunizationReactionComponent = new Immunization.ImmunizationReactionComponent();
-            if (observation.getEffective() != null) {
-                Type effective = observation.getEffective();
-                if (effective instanceof DateTimeType) {
-                    immunizationReactionComponent.setDate(((DateTimeType) effective).getValue());
-                } else if (effective instanceof Period) {
-                    immunizationReactionComponent.setDate(((Period) effective).getStartElement().getValue());
+            Map<String, Resource> observationResources = this.basicCDAElementsConverter.createFHIRObservation(immunizationActivity.getReactionObservation(), ObservationCategory.EXAM, resources, headerResources);
+            Resource observationResource = observationResources.values().stream().filter(r-> r instanceof Observation).findFirst().orElse(null);
+            if (observationResource != null) {
+                Observation observation = (Observation)observationResource;
+                Immunization.ImmunizationReactionComponent immunizationReactionComponent = new Immunization.ImmunizationReactionComponent();
+                if (observation.getEffective() != null) {
+                    Type effective = observation.getEffective();
+                    if (effective instanceof DateTimeType) {
+                        immunizationReactionComponent.setDate(((DateTimeType) effective).getValue());
+                    } else if (effective instanceof Period) {
+                        immunizationReactionComponent.setDate(((Period) effective).getStartElement().getValue());
+                    }
                 }
-            }
 
-            immunizationReactionComponent.setDetail(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.OBSERVATION, observation.getId()));
-            fhirImmunization.setReaction(Collections.singletonList(immunizationReactionComponent));
-            resources.put(observation.getId(), observation);
+                immunizationReactionComponent.setDetail(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.OBSERVATION, observation.getId()));
+                fhirImmunization.setReaction(Collections.singletonList(immunizationReactionComponent));
+                resources.putAll(observationResources);
+            }
         }
 
         fhirImmunization.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.IMMUNIZATION, fhirImmunization.getIdentifier()));
