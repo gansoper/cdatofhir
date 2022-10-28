@@ -304,7 +304,7 @@ public class BasicCDAElementsConverter {
         return null;
     }
 
-    DateTimeType convertSXMTSDate(SXCM_TS cdaDateTime) {
+    DateTimeType convertTSDate(TS cdaDateTime) {
         if (cdaDateTime != null) {
             return new DateTimeType(this.convertCDAToFHIRDate(cdaDateTime.getValue()));
         }

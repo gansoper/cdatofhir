@@ -3,10 +3,7 @@ package org.noria.cdafhirlib.cdaconverter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.mdht.uml.cda.ClinicalDocument;
 import org.eclipse.mdht.uml.cda.util.CDAUtil;
-import org.hl7.fhir.r4.model.DateTimeType;
-import org.hl7.fhir.r4.model.Observation;
-import org.hl7.fhir.r4.model.Practitioner;
-import org.hl7.fhir.r4.model.Resource;
+import org.hl7.fhir.r4.model.*;
 import org.junit.jupiter.api.Test;
 import org.noria.cdafhirlib.codemapping.CodeMappingProcessor;
 import org.noria.cdafhirlib.model.CDAtoFHIRCodes;
@@ -28,36 +25,25 @@ class CDASocialHistorySectionConverterTest {
 
 
     @Test
-    public void testObservationCode() throws Exception {
-        Map<String, Resource> resources = this.getAllResources("Tests/VitalSigns/VitalSignsCode.xml");
-        assertNotNull(resources);
-        Resource obResource = resources.values().stream().filter(r -> r instanceof Observation).findFirst().orElse(null);
-        assertNotNull(obResource);
-        Observation observation = (Observation) obResource;
-        assertTrue(observation.hasCode());
-        assertFalse(observation.getCode().getCoding().isEmpty());
-        assertEquals("8302-2", observation.getCode().getCodingFirstRep().getCode());
-    }
-
-    @Test
-    public void testObservationStatusCode() throws Exception {
-        Map<String, Resource> resources = this.getAllResources("Tests/VitalSigns/VitalSignsStatusCode.xml");
+    public void testSmokingStatus() throws Exception {
+        Map<String, Resource> resources = this.getAllResources("Tests/SocialHistory/SocialHistorySmokingStatus.xml");
         assertNotNull(resources);
         Resource obResource = resources.values().stream().filter(r -> r instanceof Observation).findFirst().orElse(null);
         assertNotNull(obResource);
         Observation observation = (Observation) obResource;
         assertTrue(observation.hasStatus());
         assertEquals("final", observation.getStatus().toCode());
-    }
-
-
-    @Test
-    public void testObservationEffectiveTime() throws Exception {
-        Map<String, Resource> resources = this.getAllResources("Tests/VitalSigns/VitalSignsEffectiveTime.xml");
-        assertNotNull(resources);
-        Resource obResource = resources.values().stream().filter(r -> r instanceof Observation).findFirst().orElse(null);
-        assertNotNull(obResource);
-        Observation observation = (Observation) obResource;
+        assertTrue(observation.hasCategory());
+        assertEquals("social-history", observation.getCategoryFirstRep().getCodingFirstRep().getCode());
+        assertTrue(observation.hasCode());
+        assertFalse(observation.getCode().getCoding().isEmpty());
+        assertEquals("72166-2", observation.getCode().getCodingFirstRep().getCode());
+        assertTrue(observation.hasValueCodeableConcept());
+        assertEquals("8517006", observation.getValueCodeableConcept().getCodingFirstRep().getCode());
+        Resource practResource = resources.values().stream().filter(r -> r instanceof Practitioner).findFirst().orElse(null);
+        assertNotNull(practResource);
+        assertFalse(observation.getPerformer().isEmpty());
+        assertEquals("Practitioner/" + practResource.getId(), observation.getPerformerFirstRep().getReference());
         assertTrue(observation.hasEffective());
         assertTrue(observation.getEffective() instanceof DateTimeType);
         assertEquals("2012-09-10", ((DateTimeType) observation.getEffective()).getValueAsString());
@@ -65,69 +51,97 @@ class CDASocialHistorySectionConverterTest {
 
 
     @Test
-    public void testObservationValue() throws Exception {
-        Map<String, Resource> resources = this.getAllResources("Tests/VitalSigns/VitalSignsValue.xml");
+    public void testTobaccoUse() throws Exception {
+        Map<String, Resource> resources = this.getAllResources("Tests/SocialHistory/SocialHistoryTobaccoUse.xml");
         assertNotNull(resources);
         Resource obResource = resources.values().stream().filter(r -> r instanceof Observation).findFirst().orElse(null);
         assertNotNull(obResource);
         Observation observation = (Observation) obResource;
+        assertTrue(observation.hasStatus());
+        assertEquals("final", observation.getStatus().toCode());
+        assertTrue(observation.hasCategory());
+        assertEquals("social-history", observation.getCategoryFirstRep().getCodingFirstRep().getCode());
+        assertTrue(observation.hasCode());
+        assertFalse(observation.getCode().getCoding().isEmpty());
+        assertEquals("11367-0", observation.getCode().getCodingFirstRep().getCode());
+        assertTrue(observation.hasValueCodeableConcept());
+        assertEquals("160604004", observation.getValueCodeableConcept().getCodingFirstRep().getCode());
+        Resource practResource = resources.values().stream().filter(r -> r instanceof Practitioner).findFirst().orElse(null);
+        assertNotNull(practResource);
+        assertFalse(observation.getPerformer().isEmpty());
+        assertEquals("Practitioner/" + practResource.getId(), observation.getPerformerFirstRep().getReference());
+        assertTrue(observation.hasEffectivePeriod());
+        assertEquals("2009-02-14", observation.getEffectivePeriod().getStartElement().getValueAsString());
+        assertEquals("2011-02-15", observation.getEffectivePeriod().getEndElement().getValueAsString());
+    }
+
+    @Test
+    public void testSH() throws Exception {
+        Map<String, Resource> resources = this.getAllResources("Tests/SocialHistory/SocialHistorySH.xml");
+        assertNotNull(resources);
+        Resource obResource = resources.values().stream().filter(r -> r instanceof Observation).findFirst().orElse(null);
+        assertNotNull(obResource);
+        Observation observation = (Observation) obResource;
+        assertTrue(observation.hasStatus());
+        assertEquals("final", observation.getStatus().toCode());
+        assertTrue(observation.hasCategory());
+        assertEquals("social-history", observation.getCategoryFirstRep().getCodingFirstRep().getCode());
+        assertTrue(observation.hasCode());
+        assertFalse(observation.getCode().getCoding().isEmpty());
+        assertEquals("74013-4", observation.getCode().getCodingFirstRep().getCode());
         assertTrue(observation.hasValueQuantity());
-        assertEquals(177, observation.getValueQuantity().getValue().doubleValue());
-        assertEquals("cm", observation.getValueQuantity().getUnit());
-    }
-
-    @Test
-    public void testObservationInterpretationCode() throws Exception {
-        Map<String, Resource> resources = this.getAllResources("Tests/VitalSigns/VitalSignsInterpretationCode.xml");
-        assertNotNull(resources);
-        Resource obResource = resources.values().stream().filter(r -> r instanceof Observation).findFirst().orElse(null);
-        assertNotNull(obResource);
-        Observation observation = (Observation) obResource;
-        assertFalse(observation.getInterpretation().isEmpty());
-        assertFalse(observation.getInterpretationFirstRep().getCoding().isEmpty());
-        assertEquals("N", observation.getInterpretationFirstRep().getCodingFirstRep().getCode());
-    }
-
-
-    @Test
-    public void testObservationAuthor() throws Exception {
-        Map<String, Resource> resources = this.getAllResources("Tests/VitalSigns/VitalSignsAuthor.xml");
-        assertNotNull(resources);
-        Resource obResource = resources.values().stream().filter(r -> r instanceof Observation).findFirst().orElse(null);
+        assertEquals(12, observation.getValueQuantity().getValue().intValue());
         Resource practResource = resources.values().stream().filter(r -> r instanceof Practitioner).findFirst().orElse(null);
-        assertNotNull(obResource);
         assertNotNull(practResource);
-        Observation observation = (Observation) obResource;
         assertFalse(observation.getPerformer().isEmpty());
         assertEquals("Practitioner/" + practResource.getId(), observation.getPerformerFirstRep().getReference());
+        assertTrue(observation.hasEffectivePeriod());
+        assertEquals("2012-02-15", observation.getEffectivePeriod().getStartElement().getValueAsString());
     }
 
 
-
     @Test
-    public void testObservationNoAuthor() throws Exception {
-        Map<String, Resource> resources = this.getAllResources("Tests/VitalSigns/VitalSignsNoAuthor.xml");
+    public void testPregnancy() throws Exception {
+        Map<String, Resource> resources = this.getAllResources("Tests/SocialHistory/SocialHistoryPregnancy.xml");
         assertNotNull(resources);
         Resource obResource = resources.values().stream().filter(r -> r instanceof Observation).findFirst().orElse(null);
+        assertNotNull(obResource);
+        Observation observation = (Observation) obResource;
+        assertTrue(observation.hasStatus());
+        assertEquals("final", observation.getStatus().toCode());
+        assertTrue(observation.hasCategory());
+        assertEquals("exam", observation.getCategoryFirstRep().getCodingFirstRep().getCode());
+        assertTrue(observation.hasCode());
+        assertFalse(observation.getCode().getCoding().isEmpty());
+        assertEquals("10163-4", observation.getCode().getCodingFirstRep().getCode());
+        assertTrue(observation.hasValueCodeableConcept());
+        assertEquals("77386006", observation.getValueCodeableConcept().getCodingFirstRep().getCode());
         Resource practResource = resources.values().stream().filter(r -> r instanceof Practitioner).findFirst().orElse(null);
-        assertNotNull(obResource);
-        assertNotNull(practResource);
-        Observation observation = (Observation) obResource;
-        assertFalse(observation.getPerformer().isEmpty());
-        assertEquals("Practitioner/" + practResource.getId(), observation.getPerformerFirstRep().getReference());
+        assertNull(practResource);
+        assertTrue(observation.hasEffectivePeriod());
+        assertEquals("2011-04-10", observation.getEffectivePeriod().getStartElement().getValueAsString());
+        assertFalse(observation.hasHasMember());
     }
+
 
     @Test
-    public void testObservationNoValue() throws Exception {
-        Map<String, Resource> resources = this.getAllResources("Tests/VitalSigns/VitalSignsAuthor.xml");
+    public void testPregnancyEDOD() throws Exception {
+        Map<String, Resource> resources = this.getAllResources("Tests/SocialHistory/SocialHistoryPregnancyEDOD.xml");
         assertNotNull(resources);
-        Resource obResource = resources.values().stream().filter(r -> r instanceof Observation).findFirst().orElse(null);
+        Resource obResource = resources.values().stream().filter(r -> r instanceof Observation && !((Observation) r).hasValueDateTimeType()).findFirst().orElse(null);
         assertNotNull(obResource);
         Observation observation = (Observation) obResource;
-        assertFalse(observation.hasValueQuantity());
+        assertTrue(observation.hasHasMember());
+        Reference reference  = observation.getHasMemberFirstRep();
+        Resource edodResource = resources.values().stream().filter(r -> r instanceof Observation && r.getId() != observation.getId()).findFirst().orElse(null);
+        assertNotNull(edodResource);
+        assertTrue(reference.getReference().contains(edodResource.getId()));
+        Observation edodObservation = (Observation) edodResource;
+        assertTrue(edodObservation.hasCode());
+        assertEquals("11778-8", edodObservation.getCode().getCodingFirstRep().getCode());
+        assertTrue(edodObservation.hasValueDateTimeType());
+        assertEquals("2011-09-19", edodObservation.getValueDateTimeType().getValueAsString());
     }
-
-
 
     private Map<String, Resource> getAllResources(String testFileName) throws Exception {
         ConsolPackage.eINSTANCE.eClass();

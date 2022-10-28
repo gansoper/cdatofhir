@@ -2,7 +2,6 @@ package org.noria.cdafhirlib.cdaconverter;
 
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
-import org.eclipse.mdht.uml.hl7.datatypes.CD;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.codesystems.ObservationCategory;
@@ -11,7 +10,6 @@ import org.noria.cdafhirlib.helper.ConvertedElementsHelper;
 import org.noria.cdafhirlib.helper.FHIRElementsHelper;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationActivity2;
 import org.openhealthtools.mdht.uml.cda.consol.ImmunizationsSection2;
-import org.openhealthtools.mdht.uml.cda.consol.ReactionObservation;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -48,7 +46,7 @@ public class CDAImmunizationsSectionConverter {
         }
 
         immunizationActivity.getEffectiveTimes().forEach(et -> {
-            Type recordedDate = this.basicCDAElementsConverter.convertSXMTSDate(et);
+            Type recordedDate = this.basicCDAElementsConverter.convertTSDate(et);
             fhirImmunization.setOccurrence(recordedDate);
         });
 

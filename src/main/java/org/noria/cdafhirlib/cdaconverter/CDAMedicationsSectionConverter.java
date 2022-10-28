@@ -76,7 +76,7 @@ public class CDAMedicationsSectionConverter {
         }
 
         medicationDispenseCDA.getEffectiveTimes().forEach(et -> {
-            DateTimeType recordedDate = this.basicCDAElementsConverter.convertSXMTSDate(et);
+            DateTimeType recordedDate = this.basicCDAElementsConverter.convertTSDate(et);
             if (recordedDate != null){
                 medicationDispense.setWhenPreparedElement(recordedDate);
             }
