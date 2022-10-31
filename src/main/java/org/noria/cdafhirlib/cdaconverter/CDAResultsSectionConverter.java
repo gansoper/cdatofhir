@@ -5,6 +5,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.codesystems.ObservationCategory;
+import org.noria.cdafhirlib.codemapping.CodeMappingProcessor;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
 import org.noria.cdafhirlib.helper.ConvertedElementsHelper;
 import org.noria.cdafhirlib.helper.FHIRElementsHelper;
@@ -20,10 +21,10 @@ import java.util.stream.Collectors;
 @Log4j2
 public class CDAResultsSectionConverter {
 
-    private final CDABasicElementsConverter CDABasicElementsConverter;
+    private final CodeMappingProcessor codeMappingProcessor;
 
-    public CDAResultsSectionConverter(CDABasicElementsConverter CDABasicElementsConverter) {
-        this.CDABasicElementsConverter = CDABasicElementsConverter;
+    public CDAResultsSectionConverter(CodeMappingProcessor codeMappingProcessor) {
+        this.codeMappingProcessor = codeMappingProcessor;
     }
 
     public Map<String, Resource> convertResult(ResultsSection2 resultsSection, Map<String, Resource> headerResources) {
@@ -34,12 +35,13 @@ public class CDAResultsSectionConverter {
 
     private Map<String, Resource> convertResultOrganizer(ResultOrganizer2 resultOrganizer, Map<String, Resource> headerResources) {
         Map<String, Resource> resources = new HashMap<>();
+        CDABasicElementsConverter cdaBasicElementsConverter = CDABasicElementsConverter.getInstance(this.codeMappingProcessor);
         DiagnosticReport diagnosticReport = new DiagnosticReport();
         if (CollectionUtils.isNotEmpty(resultOrganizer.getIds())) {
-            resultOrganizer.getIds().forEach(id -> diagnosticReport.addIdentifier(this.CDABasicElementsConverter.createFHIRIdentifier(id)));
+            resultOrganizer.getIds().forEach(id -> diagnosticReport.addIdentifier(cdaBasicElementsConverter.createFHIRIdentifier(id)));
         }
 
-        Coding coding = CDABasicElementsConverter.createFHIRCoding(resultOrganizer.getStatusCode(), CDAtoFHIRCodeConversionType.RESULT_STATUS.toValue());
+        Coding coding = cdaBasicElementsConverter.createFHIRCoding(resultOrganizer.getStatusCode(), CDAtoFHIRCodeConversionType.RESULT_STATUS.toValue());
         if (coding != null) {
             try {
                 diagnosticReport.setStatus(DiagnosticReport.DiagnosticReportStatus.fromCode(coding.getCode()));
@@ -49,11 +51,11 @@ public class CDAResultsSectionConverter {
         }
 
         if (resultOrganizer.getCode() != null) {
-            diagnosticReport.setCode(this.CDABasicElementsConverter.createFHIRCodeableConcept(resultOrganizer.getCode(), null));
+            diagnosticReport.setCode(cdaBasicElementsConverter.createFHIRCodeableConcept(resultOrganizer.getCode(), null));
         }
 
         if (resultOrganizer.getEffectiveTime() != null) {
-            diagnosticReport.setEffective(this.CDABasicElementsConverter.convertIVLTSDate(resultOrganizer.getEffectiveTime()));
+            diagnosticReport.setEffective(cdaBasicElementsConverter.convertIVLTSDate(resultOrganizer.getEffectiveTime()));
         }
 
         Reference reference = ConvertedElementsHelper.getPatientReference(headerResources);
@@ -62,7 +64,7 @@ public class CDAResultsSectionConverter {
         }
 
         if (!resultOrganizer.getAuthors().isEmpty()) {
-            resources.putAll(CDACommonElementsConverter.getInstance(this.CDABasicElementsConverter).convertAuthors(diagnosticReport, resultOrganizer.getAuthors(), headerResources));
+            resources.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).convertAuthors(diagnosticReport, resultOrganizer.getAuthors(), headerResources));
         }
 
         diagnosticReport.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.DIAGNOSTICREPORT, diagnosticReport.getIdentifier()));
@@ -70,7 +72,7 @@ public class CDAResultsSectionConverter {
         if (!resultOrganizer.getResultObservations().isEmpty()) {
             Map<String, Resource> observationResources = new HashMap<>();
             for (ResultObservation2 ro : resultOrganizer.getConsolResultObservation2s()) {
-                observationResources.putAll(CDACommonElementsConverter.getInstance(this.CDABasicElementsConverter).createFHIRObservation(ro, ObservationCategory.EXAM, resources, headerResources));
+                observationResources.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).createFHIRObservation(ro, ObservationCategory.EXAM, resources, headerResources));
             }
             List<Resource> observations = observationResources.values().stream().filter(r -> r instanceof Observation).collect(Collectors.toList());
             observations.forEach(o -> {

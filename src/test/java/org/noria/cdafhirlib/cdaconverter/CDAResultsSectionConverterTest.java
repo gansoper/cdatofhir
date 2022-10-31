@@ -206,8 +206,8 @@ class CDAResultsSectionConverterTest {
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
         if (cda instanceof ContinuityOfCareDocument2) {
-            CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-            CDAResultsSectionConverter resultsSectionConverter = new CDAResultsSectionConverter(CDABasicElementsConverter);
+            CodeMappingProcessor codeMappingProcessor = new CodeMappingProcessor(this.getTestCodes(), getSystems());
+            CDAResultsSectionConverter resultsSectionConverter = new CDAResultsSectionConverter(codeMappingProcessor);
             Map<String, Resource> resources = resultsSectionConverter.convertResult(((ContinuityOfCareDocument2) cda).getResultsSection2(), new HashMap<>());
             return resources.values().stream().filter(resource -> resource instanceof DiagnosticReport).findAny().orElse(null);
         }
@@ -222,8 +222,8 @@ class CDAResultsSectionConverterTest {
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
         if (cda instanceof ContinuityOfCareDocument2) {
-            CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-            CDAResultsSectionConverter resultsSectionConverter = new CDAResultsSectionConverter(CDABasicElementsConverter);
+            CodeMappingProcessor codeMappingProcessor = new CodeMappingProcessor(this.getTestCodes(), getSystems());
+            CDAResultsSectionConverter resultsSectionConverter = new CDAResultsSectionConverter(codeMappingProcessor);
             return resultsSectionConverter.convertResult(((ContinuityOfCareDocument2) cda).getResultsSection2(), new HashMap<>());
         }
 

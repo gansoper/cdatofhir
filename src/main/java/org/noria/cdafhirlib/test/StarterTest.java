@@ -15,7 +15,7 @@ import java.io.FileInputStream;
 @Log4j2
 public class StarterTest {
     public static void main(String[] args) throws Exception {
-        CDAUtil.loadPackages();
+        /*CDAUtil.loadPackages();
         CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(null);
         //simpleCDATypesConverter.testJSON();
 
@@ -29,7 +29,7 @@ public class StarterTest {
         MedicationsSection2 ms = ccd.getMedicationsSection2();
         EList<AD> addresses = cda.getPatientRoles().get(0).getAddrs();
         EList<ADXP> cities = addresses.get(0).getCities();
-        cities.forEach(e -> System.out.println(e.getText()));
+        cities.forEach(e -> System.out.println(e.getText()));*/
 /*
         ContinuityOfCareDocument ccd = ConsolFactory.eINSTANCE.createContinuityOfCareDocument();//CCDFactory.eINSTANCE.createContinuityOfCareDocument().init();
         ConsultationNote cn = ConsolFactory.eINSTANCE.createConsultationNote();

@@ -27,9 +27,9 @@ class CDAMedicationsSectionDispenseConverterTest {
     public void testCode() throws Exception {
         Map<String, Resource> resources = this.getAllResources("Tests/MedicationDispense/MedicationCode.xml");
         assertEquals(2, resources.size());
-        Resource resource = resources.values().stream().filter(e -> e instanceof MedicationDispense).filter(e->((MedicationDispense) e).getStatus() != null).findFirst().orElse(null);
+        Resource resource = resources.values().stream().filter(e -> e instanceof MedicationDispense).filter(e -> ((MedicationDispense) e).getStatus() != null).findFirst().orElse(null);
         assertNotNull(resource);
-        MedicationDispense md  = (MedicationDispense)resource;
+        MedicationDispense md = (MedicationDispense) resource;
         assertEquals(md.getStatus(), MedicationDispense.MedicationDispenseStatus.COMPLETED);
 
     }
@@ -38,9 +38,9 @@ class CDAMedicationsSectionDispenseConverterTest {
     public void testDate() throws Exception {
         Map<String, Resource> resources = this.getAllResources("Tests/MedicationDispense/MedicationDate.xml");
         assertEquals(2, resources.size());
-        Resource resource = resources.values().stream().filter(e -> e instanceof MedicationDispense).filter(e->((MedicationDispense) e).getWhenPrepared() != null).findFirst().orElse(null);
+        Resource resource = resources.values().stream().filter(e -> e instanceof MedicationDispense).filter(e -> ((MedicationDispense) e).getWhenPrepared() != null).findFirst().orElse(null);
         assertNotNull(resource);
-        MedicationDispense md  = (MedicationDispense)resource;
+        MedicationDispense md = (MedicationDispense) resource;
         assertEquals(md.getWhenPreparedElement().getValueAsString(), "2012-08-15T14:50:00-08:00");
 
     }
@@ -49,9 +49,9 @@ class CDAMedicationsSectionDispenseConverterTest {
     public void testDosageTiming() throws Exception {
         Map<String, Resource> resources = this.getAllResources("Tests/MedicationDispense/MedicationDosageTiming.xml");
         assertEquals(2, resources.size());
-        Resource resource = resources.values().stream().filter(e -> e instanceof MedicationDispense).filter(e->!((MedicationDispense) e).getDosageInstruction().isEmpty()).findFirst().orElse(null);
+        Resource resource = resources.values().stream().filter(e -> e instanceof MedicationDispense).filter(e -> !((MedicationDispense) e).getDosageInstruction().isEmpty()).findFirst().orElse(null);
         assertNotNull(resource);
-        MedicationDispense md  = (MedicationDispense)resource;
+        MedicationDispense md = (MedicationDispense) resource;
         assertFalse(md.getDosageInstruction().isEmpty());
         Dosage dosage = md.getDosageInstructionFirstRep();
         assertEquals(1, dosage.getTiming().getRepeat().getCount());
@@ -64,15 +64,15 @@ class CDAMedicationsSectionDispenseConverterTest {
     public void testDosageQuantity() throws Exception {
         Map<String, Resource> resources = this.getAllResources("Tests/MedicationDispense/MedicationDosageQuantity.xml");
         assertEquals(2, resources.size());
-        Resource resource = resources.values().stream().filter(e -> e instanceof MedicationDispense).filter(e->!((MedicationDispense) e).getDosageInstruction().isEmpty()).findFirst().orElse(null);
+        Resource resource = resources.values().stream().filter(e -> e instanceof MedicationDispense).filter(e -> !((MedicationDispense) e).getDosageInstruction().isEmpty()).findFirst().orElse(null);
         assertNotNull(resource);
-        MedicationDispense md  = (MedicationDispense)resource;
+        MedicationDispense md = (MedicationDispense) resource;
         assertFalse(md.getDosageInstruction().isEmpty());
         Dosage dosage = md.getDosageInstructionFirstRep();
         assertNotNull(dosage.getDoseAndRateFirstRep().getRate());
         assertTrue(dosage.getDoseAndRateFirstRep().getRate() instanceof SimpleQuantity);
-        assertNotNull(((SimpleQuantity)dosage.getDoseAndRateFirstRep().getRate()).getValue());
-        assertEquals(((SimpleQuantity)dosage.getDoseAndRateFirstRep().getRate()).getValue().intValue(), 75);
+        assertNotNull(((SimpleQuantity) dosage.getDoseAndRateFirstRep().getRate()).getValue());
+        assertEquals(((SimpleQuantity) dosage.getDoseAndRateFirstRep().getRate()).getValue().intValue(), 75);
 
     }
 
@@ -81,9 +81,9 @@ class CDAMedicationsSectionDispenseConverterTest {
     public void testMedicationCodeableConcept() throws Exception {
         Map<String, Resource> resources = this.getAllResources("Tests/MedicationDispense/MedicationManufacturedProduct.xml");
         assertEquals(2, resources.size());
-        Resource resource = resources.values().stream().filter(e -> e instanceof MedicationDispense).filter(e->!((MedicationDispense) e).getMedicationCodeableConcept().isEmpty()).findFirst().orElse(null);
+        Resource resource = resources.values().stream().filter(e -> e instanceof MedicationDispense).filter(e -> !((MedicationDispense) e).getMedicationCodeableConcept().isEmpty()).findFirst().orElse(null);
         assertNotNull(resource);
-        MedicationDispense md  = (MedicationDispense)resource;
+        MedicationDispense md = (MedicationDispense) resource;
         assertFalse(md.getMedicationCodeableConcept().isEmpty());
         assertTrue(md.getMedicationCodeableConcept().getCodingFirstRep().getCode().equals("573621"));
     }
@@ -98,7 +98,7 @@ class CDAMedicationsSectionDispenseConverterTest {
         Resource practitionerResource = resources.values().stream().filter(resource -> resource instanceof Practitioner).findAny().orElse(null);
         assertNotNull(mdResource);
         assertNotNull(practitionerResource);
-        MedicationDispense md = (MedicationDispense)mdResource;
+        MedicationDispense md = (MedicationDispense) mdResource;
         assertFalse(md.getPerformerFirstRep().isEmpty());
         assertTrue(md.getPerformerFirstRep().getActor().getReference().contains("Practitioner/"));
         assertTrue(md.getPerformerFirstRep().getActor().getReference().contains(practitionerResource.getId()));
@@ -113,8 +113,8 @@ class CDAMedicationsSectionDispenseConverterTest {
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
         if (cda instanceof ContinuityOfCareDocument2) {
-            CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-            CDAMedicationsSectionConverter medicationsSectionConverter = new CDAMedicationsSectionConverter(CDABasicElementsConverter);
+            CodeMappingProcessor codeMappingProcessor = new CodeMappingProcessor(this.getTestCodes(), getSystems());
+            CDAMedicationsSectionConverter medicationsSectionConverter = new CDAMedicationsSectionConverter(codeMappingProcessor);
             return medicationsSectionConverter.convertMedications(((ContinuityOfCareDocument2) cda).getMedicationsSection2(), new HashMap<>());
         }
 

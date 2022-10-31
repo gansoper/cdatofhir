@@ -5,6 +5,7 @@ import org.eclipse.mdht.uml.hl7.datatypes.CD;
 import org.eclipse.mdht.uml.hl7.datatypes.CE;
 import org.eclipse.mdht.uml.hl7.datatypes.IVL_TS;
 import org.hl7.fhir.r4.model.*;
+import org.noria.cdafhirlib.codemapping.CodeMappingProcessor;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
 import org.noria.cdafhirlib.helper.ConvertedElementsHelper;
 import org.noria.cdafhirlib.helper.FHIRElementsHelper;
@@ -20,17 +21,17 @@ import java.util.stream.Collectors;
 
 public class CDAAllergySectionConverter {
 
-    private final CDABasicElementsConverter CDABasicElementsConverter;
+    private final CodeMappingProcessor codeMappingProcessor;
 
-    public CDAAllergySectionConverter(CDABasicElementsConverter CDABasicElementsConverter) {
-        this.CDABasicElementsConverter = CDABasicElementsConverter;
+    public CDAAllergySectionConverter(CodeMappingProcessor codeMappingProcessor) {
+        this.codeMappingProcessor = codeMappingProcessor;
     }
 
     public Map<String, Resource> convertAllergies(AllergiesSection2 allergiesSection, Map<String, Resource> headerResources) {
         Map<String, Resource> resources = new HashMap<>();
         allergiesSection.getConsolAllergyConcernAct2s().forEach(act -> {
             Map<String, Resource> actAuthors = new HashMap<>();
-            act.getAuthors().forEach(author -> actAuthors.putAll(CDACommonElementsConverter.getInstance(this.CDABasicElementsConverter).convertSectionAuthor(author, headerResources)));
+            act.getAuthors().forEach(author -> actAuthors.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).convertSectionAuthor(author, headerResources)));
             resources.putAll(actAuthors);
             act.getConsolAllergyObservation2s().forEach(allergyObservation -> resources.putAll(this.convertCDAAllergyObservation(allergyObservation, act.getEffectiveTime(), actAuthors, headerResources)));
         });
@@ -40,8 +41,9 @@ public class CDAAllergySectionConverter {
 
     private Map<String, Resource> convertCDAAllergyObservation(AllergyObservation2 allergyObservation, IVL_TS recordedTime, Map<String, Resource> actAuthors, Map<String, Resource> headerResources) {
         Map<String, Resource> resources = new HashMap<>();
+        CDABasicElementsConverter cdaBasicElementsConverter = CDABasicElementsConverter.getInstance(this.codeMappingProcessor);
         AllergyIntolerance allergy = new AllergyIntolerance();
-        Type recordedDate = this.CDABasicElementsConverter.convertIVLTSDate(recordedTime);
+        Type recordedDate = cdaBasicElementsConverter.convertIVLTSDate(recordedTime);
         if (recordedDate instanceof DateTimeType) {
             allergy.setRecordedDateElement((DateTimeType) recordedDate);
         } else if (recordedDate instanceof Period) {
@@ -49,13 +51,13 @@ public class CDAAllergySectionConverter {
         }
 
         if (CollectionUtils.isNotEmpty(allergyObservation.getIds())) {
-            allergyObservation.getIds().forEach(id -> allergy.addIdentifier(this.CDABasicElementsConverter.createFHIRIdentifier(id)));
+            allergyObservation.getIds().forEach(id -> allergy.addIdentifier(cdaBasicElementsConverter.createFHIRIdentifier(id)));
         }
 
-        allergy.setOnset(this.CDABasicElementsConverter.convertIVLTSDate(allergyObservation.getEffectiveTime()));
+        allergy.setOnset(cdaBasicElementsConverter.convertIVLTSDate(allergyObservation.getEffectiveTime()));
         if (!allergyObservation.getAuthors().isEmpty()) {
-            resources.putAll(CDACommonElementsConverter.getInstance(this.CDABasicElementsConverter).convertAuthors(allergy, allergyObservation.getAuthors(), headerResources));
-        } else if (!actAuthors.isEmpty()){
+            resources.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).convertAuthors(allergy, allergyObservation.getAuthors(), headerResources));
+        } else if (!actAuthors.isEmpty()) {
             actAuthors.values().stream().filter(r -> r instanceof Practitioner).findFirst().ifPresent(practitioner ->
                     allergy.setRecorder(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId())));
         }
@@ -63,22 +65,22 @@ public class CDAAllergySectionConverter {
 
         allergy.getCode().setCoding(allergyObservation.getParticipants().stream()
                 .filter(p -> p.getParticipantRole() != null && p.getParticipantRole().getPlayingEntity() != null)
-                .map(p -> CDABasicElementsConverter.createFHIRCoding(p.getParticipantRole().getPlayingEntity().getCode(), null))
+                .map(p -> cdaBasicElementsConverter.createFHIRCoding(p.getParticipantRole().getPlayingEntity().getCode(), null))
                 .collect(Collectors.toList()));
 
         if (allergyObservation.getAllergyStatusObservation() != null && CollectionUtils.isNotEmpty(allergyObservation.getAllergyStatusObservation().getValues())) {
             CodeableConcept codeableConcept = new CodeableConcept();
             codeableConcept.setCoding(allergyObservation.getAllergyStatusObservation().getValues().stream()
-                    .map(v -> this.CDABasicElementsConverter.createFHIRCoding((CE) v, CDAtoFHIRCodeConversionType.ALLERGY_CLINICAL_STATUS.toValue()))
+                    .map(v -> cdaBasicElementsConverter.createFHIRCoding((CE) v, CDAtoFHIRCodeConversionType.ALLERGY_CLINICAL_STATUS.toValue()))
                     .collect(Collectors.toList()));
             allergy.setClinicalStatus(codeableConcept);
 
         }
-        allergy.getVerificationStatus().setCoding(Collections.singletonList(CDABasicElementsConverter.createFHIRCoding(allergyObservation.getStatusCode(), CDAtoFHIRCodeConversionType.ALLERGY_VERIFICATION_STATUS.toValue())));
+        allergy.getVerificationStatus().setCoding(Collections.singletonList(cdaBasicElementsConverter.createFHIRCoding(allergyObservation.getStatusCode(), CDAtoFHIRCodeConversionType.ALLERGY_VERIFICATION_STATUS.toValue())));
         allergy.setReaction(allergyObservation.getReactionObservations().stream().map(this::convertAllergyReaction).collect(Collectors.toList()));
 
         if (allergyObservation.getCriticalityObservation() != null && CollectionUtils.isNotEmpty(allergyObservation.getCriticalityObservation().getValues())) {
-            Coding coding = this.CDABasicElementsConverter.createFHIRCoding((CD) allergyObservation.getCriticalityObservation().getValues().get(0), CDAtoFHIRCodeConversionType.ALLERGY_CRITICALITY.toValue());
+            Coding coding = cdaBasicElementsConverter.createFHIRCoding((CD) allergyObservation.getCriticalityObservation().getValues().get(0), CDAtoFHIRCodeConversionType.ALLERGY_CRITICALITY.toValue());
             allergy.setCriticality(AllergyIntolerance.AllergyIntoleranceCriticality.fromCode(coding.getCode()));
         }
 
@@ -94,13 +96,14 @@ public class CDAAllergySectionConverter {
 
     private AllergyIntolerance.AllergyIntoleranceReactionComponent convertAllergyReaction(ReactionObservation reactionObservation) {
         if (CollectionUtils.isNotEmpty(reactionObservation.getValues())) {
+            CDABasicElementsConverter cdaBasicElementsConverter = CDABasicElementsConverter.getInstance(this.codeMappingProcessor);
             AllergyIntolerance.AllergyIntoleranceReactionComponent allergyIntoleranceReactionComponent = new AllergyIntolerance.AllergyIntoleranceReactionComponent();
-            List<Coding> reactionCodes = reactionObservation.getValues().stream().map(value -> this.CDABasicElementsConverter.createFHIRCoding((CD) value, null)).collect(Collectors.toList());
+            List<Coding> reactionCodes = reactionObservation.getValues().stream().map(value -> cdaBasicElementsConverter.createFHIRCoding((CD) value, null)).collect(Collectors.toList());
             CodeableConcept codeableConcept = new CodeableConcept();
             codeableConcept.setCoding(reactionCodes);
             allergyIntoleranceReactionComponent.setManifestation(Collections.singletonList(codeableConcept));
             if (reactionObservation.getSeverityObservation() != null && CollectionUtils.isNotEmpty(reactionObservation.getSeverityObservation().getValues())) {
-                Coding coding = this.CDABasicElementsConverter.createFHIRCoding((CD) reactionObservation.getSeverityObservation().getValues().get(0), CDAtoFHIRCodeConversionType.ALLERGY_SEVERITY.toValue());
+                Coding coding = cdaBasicElementsConverter.createFHIRCoding((CD) reactionObservation.getSeverityObservation().getValues().get(0), CDAtoFHIRCodeConversionType.ALLERGY_SEVERITY.toValue());
                 allergyIntoleranceReactionComponent.setSeverity(AllergyIntolerance.AllergyIntoleranceSeverity.fromCode(coding.getCode()));
             }
             return allergyIntoleranceReactionComponent;

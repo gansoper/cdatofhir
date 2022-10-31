@@ -46,7 +46,7 @@ public class FHIRProducer {
         return fhirProducer;
     }
 
-    public Bundle produceFHIRBundle(InputStream cdaInputStream) throws Exception {
+  /*  public Bundle produceFHIRBundle(InputStream cdaInputStream) throws Exception {
         ClinicalDocument cda = CDAUtil.load(cdaInputStream);
         CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(this.cdAtoFHIRCodes, this.systemNamesMapping));
         CDAHeaderConverter headerConverter = new CDAHeaderConverter(CDABasicElementsConverter);
@@ -71,7 +71,7 @@ public class FHIRProducer {
         });
         return bundle;
     }
-
+*/
     private CDAtoFHIRCodes getTestCodes() throws IOException {
         String path = Objects.requireNonNull(this.getClass().getClassLoader().getResource(BaseConstants.CDA_TO_FHIR_CODES_FILE)).getPath();
         String decodedPath = URLDecoder.decode(path, StandardCharsets.UTF_8);

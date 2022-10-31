@@ -28,8 +28,8 @@ class CDAHeaderConverterTest {
         String decodedPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
-        CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-        CDAHeaderConverter cdaHeaderConverter = new CDAHeaderConverter(CDABasicElementsConverter);
+        CodeMappingProcessor codeMappingProcessor = new CodeMappingProcessor(this.getTestCodes(), getSystems());
+        CDAHeaderConverter cdaHeaderConverter = new CDAHeaderConverter(codeMappingProcessor);
         Map<String, Resource> resources = cdaHeaderConverter.convertHeaderResources(cda);
         assertTrue(resources.size() != 0);
         assertEquals(resources.size(), 6);

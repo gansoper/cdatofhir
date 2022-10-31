@@ -7,6 +7,7 @@ import org.eclipse.mdht.uml.hl7.datatypes.TS;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.codesystems.ObservationCategory;
+import org.noria.cdafhirlib.codemapping.CodeMappingProcessor;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
 import org.noria.cdafhirlib.helper.ConvertedElementsHelper;
 import org.noria.cdafhirlib.helper.FHIRElementsHelper;
@@ -19,34 +20,33 @@ import java.util.Map;
 @Log4j2
 public class CDASocialHistorySectionConverter {
 
-    private final CDABasicElementsConverter CDABasicElementsConverter;
+    private final static String PREGNANCIES_HISTORY_CODE = "10163-4";
+    private final static String PREGNANCIES_HISTORY_SYSTEM = "http://loinc.org";
+    private final static String PREGNANCIES_HISTORY_DISPLAY = "History of pregnancies";
+    private final CodeMappingProcessor codeMappingProcessor;
 
-    private final static String  PREGNANCIES_HISTORY_CODE =   "10163-4";
-    private final static String  PREGNANCIES_HISTORY_SYSTEM =   "http://loinc.org";
-    private final static String  PREGNANCIES_HISTORY_DISPLAY = "History of pregnancies";
 
-
-    public CDASocialHistorySectionConverter(CDABasicElementsConverter CDABasicElementsConverter) {
-        this.CDABasicElementsConverter = CDABasicElementsConverter;
+    public CDASocialHistorySectionConverter(CodeMappingProcessor codeMappingProcessor) {
+        this.codeMappingProcessor = codeMappingProcessor;
     }
 
     public Map<String, Resource> convertSocialHistory(SocialHistorySection2 socialHistorySection, Map<String, Resource> headerResources) {
         Map<String, Resource> resources = new HashMap<>();
 
         for (SocialHistoryObservation2 so : socialHistorySection.getConsolSocialHistoryObservation2s()) {
-            resources.putAll(CDACommonElementsConverter.getInstance(this.CDABasicElementsConverter).createFHIRObservation(so, ObservationCategory.SOCIALHISTORY, new HashMap<>(), headerResources));
+            resources.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).createFHIRObservation(so, ObservationCategory.SOCIALHISTORY, new HashMap<>(), headerResources));
         }
 
         for (PregnancyObservation po : socialHistorySection.getPregnancyObservations()) {
-            resources.putAll(this.createPregnancyObservation(po,headerResources));
+            resources.putAll(this.createPregnancyObservation(po, headerResources));
         }
 
         for (SmokingStatusMeaningfulUse2 smsmu : socialHistorySection.getConsolCurrentSmokingStatus2s()) {
-            resources.putAll(CDACommonElementsConverter.getInstance(this.CDABasicElementsConverter).createFHIRObservation(smsmu, ObservationCategory.SOCIALHISTORY, new HashMap<>(), headerResources));
+            resources.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).createFHIRObservation(smsmu, ObservationCategory.SOCIALHISTORY, new HashMap<>(), headerResources));
         }
 
         for (TobaccoUse2 tu : socialHistorySection.getConsolTobaccoUse2s()) {
-            resources.putAll(CDACommonElementsConverter.getInstance(this.CDABasicElementsConverter).createFHIRObservation(tu, ObservationCategory.SOCIALHISTORY, new HashMap<>(), headerResources));
+            resources.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).createFHIRObservation(tu, ObservationCategory.SOCIALHISTORY, new HashMap<>(), headerResources));
         }
 
         return resources;
@@ -54,9 +54,10 @@ public class CDASocialHistorySectionConverter {
 
     private Map<String, Resource> createPregnancyObservation(PregnancyObservation pregnancyObservation, Map<String, Resource> headerResources) {
         Map<String, Resource> resources = new HashMap<>();
+        CDABasicElementsConverter cdaBasicElementsConverter = CDABasicElementsConverter.getInstance(this.codeMappingProcessor);
         Observation observation = new Observation();
         if (CollectionUtils.isNotEmpty(pregnancyObservation.getIds())) {
-            pregnancyObservation.getIds().forEach(id -> observation.addIdentifier(this.CDABasicElementsConverter.createFHIRIdentifier(id)));
+            pregnancyObservation.getIds().forEach(id -> observation.addIdentifier(cdaBasicElementsConverter.createFHIRIdentifier(id)));
         }
 
         CodeableConcept codeableConcept = new CodeableConcept();
@@ -76,7 +77,7 @@ public class CDASocialHistorySectionConverter {
         observation.setCode(codeableConcept);
 
         if (pregnancyObservation.getStatusCode() != null && !pregnancyObservation.getStatusCode().isSetNullFlavor()) {
-            coding = this.CDABasicElementsConverter.createFHIRCoding(pregnancyObservation.getStatusCode(), CDAtoFHIRCodeConversionType.OBSERVATION_STATUS.toValue());
+            coding = cdaBasicElementsConverter.createFHIRCoding(pregnancyObservation.getStatusCode(), CDAtoFHIRCodeConversionType.OBSERVATION_STATUS.toValue());
             if (coding != null) {
                 try {
                     observation.setStatus(Observation.ObservationStatus.fromCode(coding.getCode()));
@@ -87,28 +88,28 @@ public class CDASocialHistorySectionConverter {
         }
 
         if (pregnancyObservation.getEffectiveTime() != null) {
-            Type recordedDate = this.CDABasicElementsConverter.convertIVLTSDate(pregnancyObservation.getEffectiveTime());
+            Type recordedDate = cdaBasicElementsConverter.convertIVLTSDate(pregnancyObservation.getEffectiveTime());
             observation.setEffective(recordedDate);
         }
 
-        if (!pregnancyObservation.getValues().isEmpty()){
-            observation.setValue(this.CDABasicElementsConverter.createFHIRCodeableConcept((CD)pregnancyObservation.getValues().get(0),null));
+        if (!pregnancyObservation.getValues().isEmpty()) {
+            observation.setValue(cdaBasicElementsConverter.createFHIRCodeableConcept((CD) pregnancyObservation.getValues().get(0), null));
         }
 
         Reference reference = ConvertedElementsHelper.getPatientReference(headerResources);
 
-        if (pregnancyObservation.getEstimatedDateOfDelivery() != null){
+        if (pregnancyObservation.getEstimatedDateOfDelivery() != null) {
             EstimatedDateOfDelivery edod = pregnancyObservation.getEstimatedDateOfDelivery();
-            Observation edodObservation  = new Observation();
+            Observation edodObservation = new Observation();
             if (CollectionUtils.isNotEmpty(edod.getIds())) {
-                edod.getIds().forEach(id -> edodObservation.addIdentifier(this.CDABasicElementsConverter.createFHIRIdentifier(id)));
+                edod.getIds().forEach(id -> edodObservation.addIdentifier(cdaBasicElementsConverter.createFHIRIdentifier(id)));
             }
-            edodObservation.setCode(this.CDABasicElementsConverter.createFHIRCodeableConcept(edod.getCode(), null));
+            edodObservation.setCode(cdaBasicElementsConverter.createFHIRCodeableConcept(edod.getCode(), null));
             if (reference != null) {
                 observation.setSubject(reference);
             }
             if (!edod.getValues().isEmpty()) {
-                edodObservation.setValue(this.CDABasicElementsConverter.convertTSDate((TS) edod.getValues().get(0)));
+                edodObservation.setValue(cdaBasicElementsConverter.convertTSDate((TS) edod.getValues().get(0)));
             }
             edodObservation.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.OBSERVATION, edodObservation.getIdentifier()));
             observation.addHasMember(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.OBSERVATION, edodObservation.getId()));

@@ -1,28 +1,25 @@
 package org.noria.cdafhirlib.cdaconverter;
 
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
-import org.hl7.fhir.exceptions.FHIRException;
-import org.hl7.fhir.r4.model.*;
-import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
-import org.noria.cdafhirlib.helper.FHIRElementsHelper;
-import org.openhealthtools.mdht.uml.cda.consol.*;
+import org.hl7.fhir.r4.model.Resource;
+import org.noria.cdafhirlib.codemapping.CodeMappingProcessor;
+import org.openhealthtools.mdht.uml.cda.consol.ProceduresSection2;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
 
 @Log4j2
 public class CDAProceduresSectionConverter {
 
-    private final CDABasicElementsConverter CDABasicElementsConverter;
+    private final CodeMappingProcessor codeMappingProcessor;
 
-    public CDAProceduresSectionConverter(CDABasicElementsConverter CDABasicElementsConverter) {
-        this.CDABasicElementsConverter = CDABasicElementsConverter;
+    public CDAProceduresSectionConverter(CodeMappingProcessor codeMappingProcessor) {
+        this.codeMappingProcessor = codeMappingProcessor;
     }
 
     public Map<String, Resource> convertProcedures(ProceduresSection2 proceduresSection, Map<String, Resource> headerResources) {
         Map<String, Resource> resources = new HashMap<>();
-        proceduresSection.getConsolProcedureActivityProcedure2s().forEach(procedureActivityProcedure -> resources.putAll(CDACommonElementsConverter.getInstance(this.CDABasicElementsConverter).convertProcedureActivityProcedure(procedureActivityProcedure, headerResources)));
+        proceduresSection.getConsolProcedureActivityProcedure2s().forEach(procedureActivityProcedure -> resources.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).convertProcedureActivityProcedure(procedureActivityProcedure, headerResources)));
         return resources;
     }
 

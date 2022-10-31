@@ -5,6 +5,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.codesystems.ObservationCategory;
+import org.noria.cdafhirlib.codemapping.CodeMappingProcessor;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
 import org.noria.cdafhirlib.helper.ConvertedElementsHelper;
 import org.noria.cdafhirlib.helper.FHIRElementsHelper;
@@ -17,10 +18,10 @@ import java.util.stream.Collectors;
 @Log4j2
 public class CDAImmunizationsSectionConverter {
 
-    private final CDABasicElementsConverter CDABasicElementsConverter;
+    private final CodeMappingProcessor codeMappingProcessor;
 
-    public CDAImmunizationsSectionConverter(CDABasicElementsConverter CDABasicElementsConverter) {
-        this.CDABasicElementsConverter = CDABasicElementsConverter;
+    public CDAImmunizationsSectionConverter(CodeMappingProcessor codeMappingProcessor) {
+        this.codeMappingProcessor = codeMappingProcessor;
     }
 
     public Map<String, Resource> convertImmunizations(ImmunizationsSection2 immunizationsSection, Map<String, Resource> headerResources) {
@@ -31,12 +32,13 @@ public class CDAImmunizationsSectionConverter {
 
     private Map<String, Resource> convertImmunizationActivity(ImmunizationActivity2 immunizationActivity, Map<String, Resource> headerResources) {
         Map<String, Resource> resources = new HashMap<>();
+        CDABasicElementsConverter cdaBasicElementsConverter = CDABasicElementsConverter.getInstance(this.codeMappingProcessor);
         Immunization fhirImmunization = new Immunization();
         if (CollectionUtils.isNotEmpty(immunizationActivity.getIds())) {
-            immunizationActivity.getIds().forEach(id -> fhirImmunization.addIdentifier(this.CDABasicElementsConverter.createFHIRIdentifier(id)));
+            immunizationActivity.getIds().forEach(id -> fhirImmunization.addIdentifier(cdaBasicElementsConverter.createFHIRIdentifier(id)));
         }
 
-        Coding coding = CDABasicElementsConverter.createFHIRCoding(immunizationActivity.getStatusCode(), CDAtoFHIRCodeConversionType.IMMUNIZATION_STATUS.toValue());
+        Coding coding = cdaBasicElementsConverter.createFHIRCoding(immunizationActivity.getStatusCode(), CDAtoFHIRCodeConversionType.IMMUNIZATION_STATUS.toValue());
         if (coding != null) {
             try {
                 fhirImmunization.setStatus(Immunization.ImmunizationStatus.fromCode(coding.getCode()));
@@ -46,24 +48,24 @@ public class CDAImmunizationsSectionConverter {
         }
 
         immunizationActivity.getEffectiveTimes().forEach(et -> {
-            Type recordedDate = this.CDABasicElementsConverter.convertTSDate(et);
+            Type recordedDate = cdaBasicElementsConverter.convertTSDate(et);
             fhirImmunization.setOccurrence(recordedDate);
         });
 
-        fhirImmunization.setRoute(this.CDABasicElementsConverter.createFHIRCodeableConcept(immunizationActivity.getRouteCode(), null));
-        fhirImmunization.setSite(this.CDABasicElementsConverter.createFHIRCodeableConceptFromList(immunizationActivity.getApproachSiteCodes(), null));
+        fhirImmunization.setRoute(cdaBasicElementsConverter.createFHIRCodeableConcept(immunizationActivity.getRouteCode(), null));
+        fhirImmunization.setSite(cdaBasicElementsConverter.createFHIRCodeableConceptFromList(immunizationActivity.getApproachSiteCodes(), null));
 
         if (immunizationActivity.getDoseQuantity() != null && immunizationActivity.getDoseQuantity().getValue() != null) {
-            fhirImmunization.setDoseQuantity(this.CDABasicElementsConverter.createSimpleQuantity(immunizationActivity.getDoseQuantity()));
+            fhirImmunization.setDoseQuantity(cdaBasicElementsConverter.createSimpleQuantity(immunizationActivity.getDoseQuantity()));
         }
 
         if (immunizationActivity.getConsumable() != null && immunizationActivity.getConsumable().getManufacturedProduct() != null && immunizationActivity.getConsumable().getManufacturedProduct().getManufacturedMaterial() != null) {
-            fhirImmunization.setVaccineCode(this.CDABasicElementsConverter.createFHIRCodeableConcept(immunizationActivity.getConsumable().getManufacturedProduct().getManufacturedMaterial().getCode(), null));
+            fhirImmunization.setVaccineCode(cdaBasicElementsConverter.createFHIRCodeableConcept(immunizationActivity.getConsumable().getManufacturedProduct().getManufacturedMaterial().getCode(), null));
         }
 
         if (!immunizationActivity.getPerformers().isEmpty()) {
             Map<String, Resource> immunizationPerformers = new HashMap<>();
-            immunizationActivity.getPerformers().forEach(performer -> immunizationPerformers.putAll(CDACommonElementsConverter.getInstance(this.CDABasicElementsConverter).convertPerformer(performer, headerResources)));
+            immunizationActivity.getPerformers().forEach(performer -> immunizationPerformers.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).convertPerformer(performer, headerResources)));
             if (!immunizationPerformers.isEmpty()) {
                 List<Resource> practitioners = immunizationPerformers.values().stream().filter(r -> r instanceof Practitioner).collect(Collectors.toList());
                 List<Resource> organizations = immunizationPerformers.values().stream().filter(r -> r instanceof Organization).collect(Collectors.toList());
@@ -89,7 +91,7 @@ public class CDAImmunizationsSectionConverter {
         }
 
         if (immunizationActivity.getReactionObservation() != null) {
-            Map<String, Resource> observationResources = CDACommonElementsConverter.getInstance(this.CDABasicElementsConverter).createFHIRObservation(immunizationActivity.getReactionObservation(), ObservationCategory.EXAM, resources, headerResources);
+            Map<String, Resource> observationResources = CDACommonElementsConverter.getInstance(this.codeMappingProcessor).createFHIRObservation(immunizationActivity.getReactionObservation(), ObservationCategory.EXAM, resources, headerResources);
             Resource observationResource = observationResources.values().stream().filter(r -> r instanceof Observation).findFirst().orElse(null);
             if (observationResource != null) {
                 Observation observation = (Observation) observationResource;

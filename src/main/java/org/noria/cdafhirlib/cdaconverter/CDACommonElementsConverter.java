@@ -16,6 +16,7 @@ import org.hl7.fhir.r4.model.Procedure;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.*;
 import org.hl7.fhir.r4.model.codesystems.ObservationCategory;
+import org.noria.cdafhirlib.codemapping.CodeMappingProcessor;
 import org.noria.cdafhirlib.constants.BaseConstants;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
 import org.noria.cdafhirlib.helper.ConvertedElementsHelper;
@@ -31,15 +32,18 @@ public class CDACommonElementsConverter {
 
     private static CDACommonElementsConverter instance;
 
-    private CDABasicElementsConverter cdaBasicElementsConverter;
+    //private CDABasicElementsConverter cdaBasicElementsConverter;
 
-    private CDACommonElementsConverter(CDABasicElementsConverter cdaBasicElementsConverter) {
-        this.cdaBasicElementsConverter = cdaBasicElementsConverter;
+    private final CodeMappingProcessor codeMappingProcessor;
+
+    private CDACommonElementsConverter(CodeMappingProcessor codeMappingProcessor) {
+        //cdaBasicElementsConverter = cdaBasicElementsConverter;
+        this.codeMappingProcessor = codeMappingProcessor;
     }
 
-    public static CDACommonElementsConverter getInstance(CDABasicElementsConverter cdaBasicElementsConverter) {
+    public static CDACommonElementsConverter getInstance(CodeMappingProcessor codeMappingProcessor) {
         if (instance == null) {
-            instance = new CDACommonElementsConverter(cdaBasicElementsConverter);
+            instance = new CDACommonElementsConverter(codeMappingProcessor);
         }
 
         return instance;
@@ -50,28 +54,29 @@ public class CDACommonElementsConverter {
         Map<String, Resource> resources = new HashMap<>();
         Practitioner practitioner = new Practitioner();
         PractitionerRole practitionerRole = new PractitionerRole();
+        CDABasicElementsConverter cdaBasicElementsConverter = CDABasicElementsConverter.getInstance(this.codeMappingProcessor);
 
         if (author.getAssignedAuthor() != null) {
 
             if (CollectionUtils.isNotEmpty(author.getAssignedAuthor().getIds())) {
-                author.getAssignedAuthor().getIds().forEach(e -> practitioner.getIdentifier().add(this.cdaBasicElementsConverter.createFHIRIdentifier(e)));
+                author.getAssignedAuthor().getIds().forEach(e -> practitioner.getIdentifier().add(cdaBasicElementsConverter.createFHIRIdentifier(e)));
                 practitioner.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getIdentifier()));
                 practitionerRole.getIdentifier().addAll(practitioner.getIdentifier());
             }
 
             if (CollectionUtils.isNotEmpty(author.getAssignedAuthor().getAddrs())) {
-                practitioner.setAddress(author.getAssignedAuthor().getAddrs().stream().map(this.cdaBasicElementsConverter::createFHIRAddress).collect(Collectors.toList()));
+                practitioner.setAddress(author.getAssignedAuthor().getAddrs().stream().map(cdaBasicElementsConverter::createFHIRAddress).collect(Collectors.toList()));
             }
 
             if (CollectionUtils.isNotEmpty(author.getAssignedAuthor().getTelecoms())) {
-                practitioner.setTelecom(author.getAssignedAuthor().getTelecoms().stream().map(this.cdaBasicElementsConverter::createContactPoint).collect(Collectors.toList()));
+                practitioner.setTelecom(author.getAssignedAuthor().getTelecoms().stream().map(cdaBasicElementsConverter::createContactPoint).collect(Collectors.toList()));
             }
 
 
             if (author.getAssignedAuthor().getAssignedPerson() != null) {
 
                 if (author.getAssignedAuthor().getAssignedPerson() != null && author.getAssignedAuthor().getAssignedPerson().getNames() != null) {
-                    practitioner.setName(author.getAssignedAuthor().getAssignedPerson().getNames().stream().map(this.cdaBasicElementsConverter::createFHIRHumanName).collect(Collectors.toList()));
+                    practitioner.setName(author.getAssignedAuthor().getAssignedPerson().getNames().stream().map(cdaBasicElementsConverter::createFHIRHumanName).collect(Collectors.toList()));
                 }
 
                 if (author.getAssignedAuthor().getRepresentedOrganization() != null) {
@@ -102,6 +107,7 @@ public class CDACommonElementsConverter {
 
     public Map<String, Resource> convertPerformer(Participation performer, Map<String, Resource> headerResources) {
         Map<String, Resource> resources = new HashMap<>();
+        CDABasicElementsConverter cdaBasicElementsConverter = CDABasicElementsConverter.getInstance(this.codeMappingProcessor);
         Practitioner practitioner = new Practitioner();
         List<PractitionerRole> practitionerRoles = new ArrayList<>();
         List<Location> locations = new ArrayList<>();
@@ -116,7 +122,7 @@ public class CDACommonElementsConverter {
 
         if (assignedEntity != null) {
             if (CollectionUtils.isNotEmpty(assignedEntity.getIds())) {
-                List<Identifier> identifiers = assignedEntity.getIds().stream().map(this.cdaBasicElementsConverter::createFHIRIdentifier).collect(Collectors.toList());
+                List<Identifier> identifiers = assignedEntity.getIds().stream().map(cdaBasicElementsConverter::createFHIRIdentifier).collect(Collectors.toList());
                 Practitioner existingPractitoner = ConvertedElementsHelper.findPractitionerByIdentifier(identifiers, headerResources);
                 if (existingPractitoner != null) {
                     practitioner = existingPractitoner;
@@ -124,21 +130,21 @@ public class CDACommonElementsConverter {
                     log.info("FHIR Practitioner found in Header");
 
                 } else {
-                    practitioner.getIdentifier().addAll(assignedEntity.getIds().stream().map(this.cdaBasicElementsConverter::createFHIRIdentifier).filter(Objects::nonNull).collect(Collectors.toList()));
+                    practitioner.getIdentifier().addAll(assignedEntity.getIds().stream().map(cdaBasicElementsConverter::createFHIRIdentifier).filter(Objects::nonNull).collect(Collectors.toList()));
                 }
             }
 
             if (resources.isEmpty() && CollectionUtils.isNotEmpty(assignedEntity.getAddrs())) {
-                practitioner.setAddress(assignedEntity.getAddrs().stream().map(this.cdaBasicElementsConverter::createFHIRAddress).filter(Objects::nonNull).collect(Collectors.toList()));
+                practitioner.setAddress(assignedEntity.getAddrs().stream().map(cdaBasicElementsConverter::createFHIRAddress).filter(Objects::nonNull).collect(Collectors.toList()));
             }
 
             if (resources.isEmpty() && CollectionUtils.isNotEmpty(assignedEntity.getTelecoms())) {
-                practitioner.setTelecom(assignedEntity.getTelecoms().stream().map(this.cdaBasicElementsConverter::createContactPoint).filter(Objects::nonNull).collect(Collectors.toList()));
+                practitioner.setTelecom(assignedEntity.getTelecoms().stream().map(cdaBasicElementsConverter::createContactPoint).filter(Objects::nonNull).collect(Collectors.toList()));
             }
 
             if (resources.isEmpty() && assignedEntity.getAssignedPerson() != null) {
                 if (CollectionUtils.isNotEmpty(assignedEntity.getAssignedPerson().getNames())) {
-                    practitioner.setName(assignedEntity.getAssignedPerson().getNames().stream().map(this.cdaBasicElementsConverter::createFHIRHumanName).filter(Objects::nonNull).collect(Collectors.toList()));
+                    practitioner.setName(assignedEntity.getAssignedPerson().getNames().stream().map(cdaBasicElementsConverter::createFHIRHumanName).filter(Objects::nonNull).collect(Collectors.toList()));
                 }
             }
 
@@ -170,7 +176,7 @@ public class CDACommonElementsConverter {
         CodeableConcept codeableConcept = null;
         if (performer instanceof Performer1) {
             Performer1 performerWithFC = (Performer1) performer;
-            codeableConcept = this.cdaBasicElementsConverter.createFHIRCodeableConcept(performerWithFC.getFunctionCode(), null);
+            codeableConcept = cdaBasicElementsConverter.createFHIRCodeableConcept(performerWithFC.getFunctionCode(), null);
         }
         if (CollectionUtils.isNotEmpty(organizations)) {
             for (Organization organization : organizations) {
@@ -191,52 +197,53 @@ public class CDACommonElementsConverter {
 
     Map<String, Resource> convertPatient(PatientRole cdaPatientRole) {
         Map<String, Resource> resources = new HashMap<>();
+        CDABasicElementsConverter cdaBasicElementsConverter = CDABasicElementsConverter.getInstance(this.codeMappingProcessor);
         Patient patient = new Patient();
         if (CollectionUtils.isNotEmpty(cdaPatientRole.getIds())) {
-            cdaPatientRole.getIds().forEach(id -> patient.getIdentifier().add(this.cdaBasicElementsConverter.createFHIRIdentifier(id)));
+            cdaPatientRole.getIds().forEach(id -> patient.getIdentifier().add(cdaBasicElementsConverter.createFHIRIdentifier(id)));
         }
 
         patient.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.PATIENT, patient.getIdentifier()));
 
         if (CollectionUtils.isNotEmpty(cdaPatientRole.getAddrs())) {
-            cdaPatientRole.getAddrs().forEach(address -> patient.getAddress().add(this.cdaBasicElementsConverter.createFHIRAddress(address)));
+            cdaPatientRole.getAddrs().forEach(address -> patient.getAddress().add(cdaBasicElementsConverter.createFHIRAddress(address)));
         }
 
         if (CollectionUtils.isNotEmpty(cdaPatientRole.getTelecoms())) {
-            cdaPatientRole.getTelecoms().forEach(tel -> patient.getTelecom().add(this.cdaBasicElementsConverter.createContactPoint(tel)));
+            cdaPatientRole.getTelecoms().forEach(tel -> patient.getTelecom().add(cdaBasicElementsConverter.createContactPoint(tel)));
         }
 
         if (cdaPatientRole.getPatient() != null) {
             org.eclipse.mdht.uml.cda.Patient cdaPatient = cdaPatientRole.getPatient();
             if (CollectionUtils.isNotEmpty(cdaPatient.getNames())) {
-                cdaPatient.getNames().forEach(name -> patient.getName().add(this.cdaBasicElementsConverter.createFHIRHumanName(name)));
+                cdaPatient.getNames().forEach(name -> patient.getName().add(cdaBasicElementsConverter.createFHIRHumanName(name)));
             }
 
             try {
-                patient.setGender(this.cdaBasicElementsConverter.createGender(cdaPatient.getAdministrativeGenderCode()));
+                patient.setGender(cdaBasicElementsConverter.createGender(cdaPatient.getAdministrativeGenderCode()));
             } catch (FHIRException e) {
                 log.error("Unknown Gender Code", e);
             }
 
-            patient.setMaritalStatus(this.cdaBasicElementsConverter.createFHIRCodeableConcept(cdaPatient.getMaritalStatusCode(), null));
+            patient.setMaritalStatus(cdaBasicElementsConverter.createFHIRCodeableConcept(cdaPatient.getMaritalStatusCode(), null));
 
             if (cdaPatient.getReligiousAffiliationCode() != null) {
-                patient.getExtension().add(this.cdaBasicElementsConverter.createExtension(cdaPatient.getReligiousAffiliationCode(), BaseConstants.USCORE_EXTENSION_URL));
+                patient.getExtension().add(cdaBasicElementsConverter.createExtension(cdaPatient.getReligiousAffiliationCode(), BaseConstants.USCORE_EXTENSION_URL));
             }
 
             if (cdaPatient.getRaceCode() != null) {
-                patient.getExtension().add(this.cdaBasicElementsConverter.createExtension(cdaPatient.getRaceCode(), BaseConstants.USCORE_EXTENSION_URL));
+                patient.getExtension().add(cdaBasicElementsConverter.createExtension(cdaPatient.getRaceCode(), BaseConstants.USCORE_EXTENSION_URL));
             }
 
             if (cdaPatient.getBirthplace() != null && cdaPatient.getBirthplace().getPlace() != null) {
                 if (CollectionUtils.isNotEmpty(cdaPatient.getBirthplace().getPlace().getAddrs())) {
-                    cdaPatient.getBirthplace().getPlace().getAddrs().forEach(ad -> patient.getExtension().add(this.cdaBasicElementsConverter.createExtension(ad, BaseConstants.BIRTHPLACE_EXTENSION_URL)));
+                    cdaPatient.getBirthplace().getPlace().getAddrs().forEach(ad -> patient.getExtension().add(cdaBasicElementsConverter.createExtension(ad, BaseConstants.BIRTHPLACE_EXTENSION_URL)));
                 }
             }
 
             if (CollectionUtils.isNotEmpty(cdaPatient.getLanguageCommunications())) {
                 List<Patient.PatientCommunicationComponent> patientCommunicationComponents = cdaPatient.getLanguageCommunications().stream()
-                        .map(languageCommunication -> new Patient.PatientCommunicationComponent(this.cdaBasicElementsConverter.createFHIRCodeableConcept(languageCommunication.getLanguageCode(), null)))
+                        .map(languageCommunication -> new Patient.PatientCommunicationComponent(cdaBasicElementsConverter.createFHIRCodeableConcept(languageCommunication.getLanguageCode(), null)))
                         .collect(Collectors.toList());
                 patient.setCommunication(patientCommunicationComponents);
             }
@@ -255,12 +262,13 @@ public class CDACommonElementsConverter {
 
     Map<String, Resource> convertCustodian(Custodian custodian) {
         Map<String, Resource> resources = new HashMap<>();
+        CDABasicElementsConverter cdaBasicElementsConverter = CDABasicElementsConverter.getInstance(this.codeMappingProcessor);
         if (custodian.getAssignedCustodian() != null && custodian.getAssignedCustodian().getRepresentedCustodianOrganization() != null) {
             CustodianOrganization custodianOrganization = custodian.getAssignedCustodian().getRepresentedCustodianOrganization();
 
             Organization organization = new Organization();
             if (CollectionUtils.isNotEmpty(custodianOrganization.getIds())) {
-                custodianOrganization.getIds().forEach(e -> organization.addIdentifier(this.cdaBasicElementsConverter.createFHIRIdentifier(e)));
+                custodianOrganization.getIds().forEach(e -> organization.addIdentifier(cdaBasicElementsConverter.createFHIRIdentifier(e)));
             }
 
             if (custodianOrganization.getNames() != null) {
@@ -268,10 +276,10 @@ public class CDACommonElementsConverter {
             }
 
             if (CollectionUtils.isNotEmpty(custodianOrganization.getAddrs())) {
-                organization.setAddress(custodianOrganization.getAddrs().stream().map(this.cdaBasicElementsConverter::createFHIRAddress).collect(Collectors.toList()));
+                organization.setAddress(custodianOrganization.getAddrs().stream().map(cdaBasicElementsConverter::createFHIRAddress).collect(Collectors.toList()));
             }
             if (CollectionUtils.isNotEmpty(custodianOrganization.getTelecoms())) {
-                organization.setTelecom(custodianOrganization.getTelecoms().stream().map(this.cdaBasicElementsConverter::createContactPoint).collect(Collectors.toList()));
+                organization.setTelecom(custodianOrganization.getTelecoms().stream().map(cdaBasicElementsConverter::createContactPoint).collect(Collectors.toList()));
             }
             organization.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.ORGANIZATION, organization.getIdentifier()));
             resources.put(organization.getId(), organization);
@@ -282,24 +290,25 @@ public class CDACommonElementsConverter {
 
     Map<String, Resource> convertParticipant(Participant1 participant) {
         Map<String, Resource> resources = new HashMap<>();
+        CDABasicElementsConverter cdaBasicElementsConverter = CDABasicElementsConverter.getInstance(this.codeMappingProcessor);
         if (participant.getAssociatedEntity() != null && !participant.getAssociatedEntity().isSetNullFlavor()) {
             Practitioner practitioner = new Practitioner();
             if (CollectionUtils.isNotEmpty(participant.getAssociatedEntity().getIds())) {
-                participant.getAssociatedEntity().getIds().forEach(id -> practitioner.addIdentifier(this.cdaBasicElementsConverter.createFHIRIdentifier(id)));
+                participant.getAssociatedEntity().getIds().forEach(id -> practitioner.addIdentifier(cdaBasicElementsConverter.createFHIRIdentifier(id)));
             }
 
             if (CollectionUtils.isNotEmpty(participant.getAssociatedEntity().getAddrs())) {
-                practitioner.setAddress(participant.getAssociatedEntity().getAddrs().stream().map(this.cdaBasicElementsConverter::createFHIRAddress).collect(Collectors.toList()));
+                practitioner.setAddress(participant.getAssociatedEntity().getAddrs().stream().map(cdaBasicElementsConverter::createFHIRAddress).collect(Collectors.toList()));
             }
 
             if (CollectionUtils.isNotEmpty(participant.getAssociatedEntity().getTelecoms())) {
-                practitioner.setTelecom(participant.getAssociatedEntity().getTelecoms().stream().map(this.cdaBasicElementsConverter::createContactPoint).collect(Collectors.toList()));
+                practitioner.setTelecom(participant.getAssociatedEntity().getTelecoms().stream().map(cdaBasicElementsConverter::createContactPoint).collect(Collectors.toList()));
             }
 
             if (participant.getAssociatedEntity().getAssociatedPerson() != null && !participant.getAssociatedEntity().getAssociatedPerson().isSetNullFlavor()) {
                 Person person = participant.getAssociatedEntity().getAssociatedPerson();
                 if (CollectionUtils.isNotEmpty(person.getNames())) {
-                    person.getNames().forEach(name -> practitioner.getName().add(this.cdaBasicElementsConverter.createFHIRHumanName(name)));
+                    person.getNames().forEach(name -> practitioner.getName().add(cdaBasicElementsConverter.createFHIRHumanName(name)));
                 }
             }
 
@@ -311,8 +320,9 @@ public class CDACommonElementsConverter {
     }
 
     public Map<String, Resource> convertSectionAuthor(Author cdaAuthor, Map<String, Resource> headerResources) {
+        CDABasicElementsConverter cdaBasicElementsConverter = CDABasicElementsConverter.getInstance(this.codeMappingProcessor);
         if (cdaAuthor.getAssignedAuthor() != null && !cdaAuthor.getAssignedAuthor().isSetNullFlavor() && CollectionUtils.isNotEmpty(cdaAuthor.getAssignedAuthor().getIds())) {
-            List<Identifier> identifiers = cdaAuthor.getAssignedAuthor().getIds().stream().map(this.cdaBasicElementsConverter::createFHIRIdentifier).collect(Collectors.toList());
+            List<Identifier> identifiers = cdaAuthor.getAssignedAuthor().getIds().stream().map(cdaBasicElementsConverter::createFHIRIdentifier).collect(Collectors.toList());
             Practitioner existingPractitoner = ConvertedElementsHelper.findPractitionerByIdentifier(identifiers, headerResources);
             if (existingPractitoner != null) {
                 Map<String, Resource> resources = new HashMap<>();
@@ -328,8 +338,9 @@ public class CDACommonElementsConverter {
 
     public Organization createFHIROrganization(org.eclipse.mdht.uml.cda.Organization cdaOrganization) {
         Organization organization = new Organization();
+        CDABasicElementsConverter cdaBasicElementsConverter = CDABasicElementsConverter.getInstance(this.codeMappingProcessor);
         if (CollectionUtils.isNotEmpty(cdaOrganization.getIds())) {
-            cdaOrganization.getIds().forEach(e -> organization.addIdentifier(this.cdaBasicElementsConverter.createFHIRIdentifier(e)));
+            cdaOrganization.getIds().forEach(e -> organization.addIdentifier(cdaBasicElementsConverter.createFHIRIdentifier(e)));
         }
 
         if (cdaOrganization.getNames() != null) {
@@ -337,10 +348,10 @@ public class CDACommonElementsConverter {
         }
 
         if (CollectionUtils.isNotEmpty(cdaOrganization.getAddrs())) {
-            organization.setAddress(cdaOrganization.getAddrs().stream().map(this.cdaBasicElementsConverter::createFHIRAddress).collect(Collectors.toList()));
+            organization.setAddress(cdaOrganization.getAddrs().stream().map(cdaBasicElementsConverter::createFHIRAddress).collect(Collectors.toList()));
         }
         if (CollectionUtils.isNotEmpty(cdaOrganization.getTelecoms())) {
-            organization.setTelecom(cdaOrganization.getTelecoms().stream().map(this.cdaBasicElementsConverter::createContactPoint).collect(Collectors.toList()));
+            organization.setTelecom(cdaOrganization.getTelecoms().stream().map(cdaBasicElementsConverter::createContactPoint).collect(Collectors.toList()));
         }
 
         organization.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.ORGANIZATION, organization.getIdentifier()));
@@ -349,9 +360,10 @@ public class CDACommonElementsConverter {
 
     public Map<String, Resource> createFHIRObservation(org.eclipse.mdht.uml.cda.Observation cdaObservation, ObservationCategory observationCategory, Map<String, Resource> outerResources, Map<String, Resource> headerResources) {
         Map<String, Resource> resources = new HashMap<>();
+        CDABasicElementsConverter cdaBasicElementsConverter = CDABasicElementsConverter.getInstance(this.codeMappingProcessor);
         Observation observation = new Observation();
         if (CollectionUtils.isNotEmpty(cdaObservation.getIds())) {
-            cdaObservation.getIds().forEach(id -> observation.addIdentifier(this.cdaBasicElementsConverter.createFHIRIdentifier(id)));
+            cdaObservation.getIds().forEach(id -> observation.addIdentifier(cdaBasicElementsConverter.createFHIRIdentifier(id)));
         }
 
         if (observationCategory != null) {
@@ -365,7 +377,7 @@ public class CDACommonElementsConverter {
         }
 
         if (cdaObservation.getEffectiveTime() != null) {
-            Type recordedDate = this.cdaBasicElementsConverter.convertIVLTSDate(cdaObservation.getEffectiveTime());
+            Type recordedDate = cdaBasicElementsConverter.convertIVLTSDate(cdaObservation.getEffectiveTime());
             observation.setEffective(recordedDate);
         }
 
@@ -375,7 +387,7 @@ public class CDACommonElementsConverter {
         }
 
         if (cdaObservation.getCode() != null) {
-            observation.setCode(this.cdaBasicElementsConverter.createFHIRCodeableConcept(cdaObservation.getCode(), null));
+            observation.setCode(cdaBasicElementsConverter.createFHIRCodeableConcept(cdaObservation.getCode(), null));
         }
 
         Coding coding = this.createObservationStatusCoding(cdaObservation);
@@ -389,24 +401,24 @@ public class CDACommonElementsConverter {
 
         if (!cdaObservation.getValues().isEmpty()) {
             if (cdaObservation.getValues().get(0) instanceof CD) {
-                observation.setValue(this.cdaBasicElementsConverter.createFHIRCodeableConcept((CD) cdaObservation.getValues().get(0), null));
+                observation.setValue(cdaBasicElementsConverter.createFHIRCodeableConcept((CD) cdaObservation.getValues().get(0), null));
             }
 
             if (cdaObservation.getValues().get(0) instanceof PQ) {
-                observation.setValue(this.cdaBasicElementsConverter.createSimpleQuantity((PQ) cdaObservation.getValues().get(0)));
+                observation.setValue(cdaBasicElementsConverter.createSimpleQuantity((PQ) cdaObservation.getValues().get(0)));
             }
         }
 
         if (!cdaObservation.getInterpretationCodes().isEmpty()) {
-            cdaObservation.getInterpretationCodes().forEach(ic -> observation.getInterpretation().add(this.cdaBasicElementsConverter.createFHIRCodeableConcept(ic, null)));
+            cdaObservation.getInterpretationCodes().forEach(ic -> observation.getInterpretation().add(cdaBasicElementsConverter.createFHIRCodeableConcept(ic, null)));
         }
 
         if (!cdaObservation.getMethodCodes().isEmpty()) {
-            observation.setMethod(this.cdaBasicElementsConverter.createFHIRCodeableConcept(cdaObservation.getMethodCodes().get(0), null));
+            observation.setMethod(cdaBasicElementsConverter.createFHIRCodeableConcept(cdaObservation.getMethodCodes().get(0), null));
         }
 
         if (!cdaObservation.getTargetSiteCodes().isEmpty()) {
-            observation.setBodySite(this.cdaBasicElementsConverter.createFHIRCodeableConcept(cdaObservation.getTargetSiteCodes().get(0), null));
+            observation.setBodySite(cdaBasicElementsConverter.createFHIRCodeableConcept(cdaObservation.getTargetSiteCodes().get(0), null));
         }
 
         if (!cdaObservation.getAuthors().isEmpty()) {
@@ -423,8 +435,8 @@ public class CDACommonElementsConverter {
                 if (rr.getObservationRange() != null && rr.getObservationRange().getValue() instanceof IVL_PQ) {
                     IVL_PQ refRangeValue = (IVL_PQ) rr.getObservationRange().getValue();
                     Observation.ObservationReferenceRangeComponent observationReferenceRangeComponent = new Observation.ObservationReferenceRangeComponent();
-                    observationReferenceRangeComponent.setLow(this.cdaBasicElementsConverter.createSimpleQuantity(refRangeValue.getLow()));
-                    observationReferenceRangeComponent.setHigh(this.cdaBasicElementsConverter.createSimpleQuantity(refRangeValue.getHigh()));
+                    observationReferenceRangeComponent.setLow(cdaBasicElementsConverter.createSimpleQuantity(refRangeValue.getLow()));
+                    observationReferenceRangeComponent.setHigh(cdaBasicElementsConverter.createSimpleQuantity(refRangeValue.getHigh()));
                     observation.getReferenceRange().add(observationReferenceRangeComponent);
                 }
             });
@@ -470,50 +482,49 @@ public class CDACommonElementsConverter {
     }
 
 
-
     public Map<String, Resource> convertProcedureActivityProcedure(ProcedureActivityProcedure2 procedureActivityProcedure, Map<String, Resource> headerResources) {
         Map<String, Resource> resources = new HashMap<>();
+        CDABasicElementsConverter cdaBasicElementsConverter = CDABasicElementsConverter.getInstance(this.codeMappingProcessor);
         Procedure procedure = new Procedure();
         if (CollectionUtils.isNotEmpty(procedureActivityProcedure.getIds())) {
-            procedureActivityProcedure.getIds().forEach(id -> procedure.addIdentifier(this.cdaBasicElementsConverter.createFHIRIdentifier(id)));
+            procedureActivityProcedure.getIds().forEach(id -> procedure.addIdentifier(cdaBasicElementsConverter.createFHIRIdentifier(id)));
         }
 
-        if (procedureActivityProcedure.getEffectiveTime() !=null && !procedureActivityProcedure.getEffectiveTime().isSetNullFlavor()){
-            Type performedDate = this.cdaBasicElementsConverter.convertIVLTSDate(procedureActivityProcedure.getEffectiveTime());
+        if (procedureActivityProcedure.getEffectiveTime() != null && !procedureActivityProcedure.getEffectiveTime().isSetNullFlavor()) {
+            Type performedDate = cdaBasicElementsConverter.convertIVLTSDate(procedureActivityProcedure.getEffectiveTime());
             procedure.setPerformed(performedDate);
         }
 
-        if (procedureActivityProcedure.getCode() != null && !procedureActivityProcedure.getCode().isSetNullFlavor()){
-            procedure.setCode(this.cdaBasicElementsConverter.createFHIRCodeableConcept(procedureActivityProcedure.getCode(), null));
+        if (procedureActivityProcedure.getCode() != null && !procedureActivityProcedure.getCode().isSetNullFlavor()) {
+            procedure.setCode(cdaBasicElementsConverter.createFHIRCodeableConcept(procedureActivityProcedure.getCode(), null));
         }
 
-        if (procedureActivityProcedure.getStatusCode() != null && !procedureActivityProcedure.getStatusCode().isSetNullFlavor()){
-            try{
-                Coding procedureStatusCoding = this.cdaBasicElementsConverter.createFHIRCoding(procedureActivityProcedure.getStatusCode(), CDAtoFHIRCodeConversionType.PROCEDURE_STATUS.toValue());
+        if (procedureActivityProcedure.getStatusCode() != null && !procedureActivityProcedure.getStatusCode().isSetNullFlavor()) {
+            try {
+                Coding procedureStatusCoding = cdaBasicElementsConverter.createFHIRCoding(procedureActivityProcedure.getStatusCode(), CDAtoFHIRCodeConversionType.PROCEDURE_STATUS.toValue());
                 procedure.setStatus(Procedure.ProcedureStatus.fromCode(procedureStatusCoding.getCode()));
-            }
-            catch (FHIRException e){
+            } catch (FHIRException e) {
                 log.error(e.getMessage(), e);
             }
         }
 
-        if (!procedureActivityProcedure.getTargetSiteCodes().isEmpty()){
-            List<CodeableConcept> bodySite =procedureActivityProcedure.getTargetSiteCodes().stream().map(cd-> this.cdaBasicElementsConverter.createFHIRCodeableConcept(cd, null)).collect(Collectors.toList());
+        if (!procedureActivityProcedure.getTargetSiteCodes().isEmpty()) {
+            List<CodeableConcept> bodySite = procedureActivityProcedure.getTargetSiteCodes().stream().map(cd -> cdaBasicElementsConverter.createFHIRCodeableConcept(cd, null)).collect(Collectors.toList());
             procedure.setBodySite(bodySite);
         }
 
-        if (!procedureActivityProcedure.getSpecimens().isEmpty()){
+        if (!procedureActivityProcedure.getSpecimens().isEmpty()) {
             List<Coding> outcomeCodingList = procedureActivityProcedure.getSpecimens().stream()
-                    .filter(specimen -> !specimen.isSetNullFlavor() && specimen.getSpecimenRole() !=null && !specimen.getSpecimenRole().isSetNullFlavor() )
-                    .filter(specimen -> specimen.getSpecimenRole().getSpecimenPlayingEntity() !=null && !specimen.getSpecimenRole().getSpecimenPlayingEntity().isSetNullFlavor())
-                    .map(specimen -> this.cdaBasicElementsConverter.createFHIRCoding(specimen.getSpecimenRole().getSpecimenPlayingEntity().getCode(), null))
+                    .filter(specimen -> !specimen.isSetNullFlavor() && specimen.getSpecimenRole() != null && !specimen.getSpecimenRole().isSetNullFlavor())
+                    .filter(specimen -> specimen.getSpecimenRole().getSpecimenPlayingEntity() != null && !specimen.getSpecimenRole().getSpecimenPlayingEntity().isSetNullFlavor())
+                    .map(specimen -> cdaBasicElementsConverter.createFHIRCoding(specimen.getSpecimenRole().getSpecimenPlayingEntity().getCode(), null))
                     .collect(Collectors.toList());
             CodeableConcept outcome = new CodeableConcept();
             outcome.setCoding(outcomeCodingList);
             procedure.setOutcome(outcome);
         }
 
-        if (CollectionUtils.isNotEmpty(procedureActivityProcedure.getPerformers())){
+        if (CollectionUtils.isNotEmpty(procedureActivityProcedure.getPerformers())) {
             Map<String, Resource> procedurePerformers = new HashMap<>();
             procedureActivityProcedure.getPerformers().forEach(performer -> procedurePerformers.putAll(this.convertPerformer(performer, headerResources)));
             if (!procedurePerformers.isEmpty()) {
@@ -521,19 +532,19 @@ public class CDACommonElementsConverter {
                 List<Resource> organizations = procedurePerformers.values().stream().filter(r -> r instanceof Organization).collect(Collectors.toList());
 
                 List<Procedure.ProcedurePerformerComponent> procedurePerformerComponents = new ArrayList<>();
-                for(Resource practitioner: practitioners){
+                for (Resource practitioner : practitioners) {
                     Procedure.ProcedurePerformerComponent procedurePerformerComponent = new Procedure.ProcedurePerformerComponent();
                     procedurePerformerComponent.setActor(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId()));
                     procedurePerformerComponents.add(procedurePerformerComponent);
                 }
 
-                for(Resource organization: organizations){
+                for (Resource organization : organizations) {
                     Procedure.ProcedurePerformerComponent procedurePerformerComponent = new Procedure.ProcedurePerformerComponent();
                     procedurePerformerComponent.setActor(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.ORGANIZATION, organization.getId()));
                     procedurePerformerComponents.add(procedurePerformerComponent);
                 }
 
-                if (!procedurePerformerComponents.isEmpty()){
+                if (!procedurePerformerComponents.isEmpty()) {
                     procedure.setPerformer(procedurePerformerComponents);
                     resources.putAll(procedurePerformers);
                 }
@@ -574,10 +585,11 @@ public class CDACommonElementsConverter {
     }
 
     private Coding createObservationStatusCoding(org.eclipse.mdht.uml.cda.Observation cdaObservation) {
+        CDABasicElementsConverter cdaBasicElementsConverter = CDABasicElementsConverter.getInstance(this.codeMappingProcessor);
         if (cdaObservation instanceof ResultObservation2) {
-            return this.cdaBasicElementsConverter.createFHIRCoding(cdaObservation.getStatusCode(), CDAtoFHIRCodeConversionType.RESULT_STATUS.toValue());
+            return cdaBasicElementsConverter.createFHIRCoding(cdaObservation.getStatusCode(), CDAtoFHIRCodeConversionType.RESULT_STATUS.toValue());
         } else {
-            return this.cdaBasicElementsConverter.createFHIRCoding(cdaObservation.getStatusCode(), CDAtoFHIRCodeConversionType.OBSERVATION_STATUS.toValue());
+            return cdaBasicElementsConverter.createFHIRCoding(cdaObservation.getStatusCode(), CDAtoFHIRCodeConversionType.OBSERVATION_STATUS.toValue());
         }
     }
 

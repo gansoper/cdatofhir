@@ -142,7 +142,7 @@ class CDAMedicationsSectionRequestConverterTest {
         Resource practitionerResource = resources.values().stream().filter(resource -> resource instanceof Practitioner).findAny().orElse(null);
         assertNotNull(mdResource);
         assertNotNull(practitionerResource);
-        MedicationRequest medicationRequest = (MedicationRequest)mdResource;
+        MedicationRequest medicationRequest = (MedicationRequest) mdResource;
         assertNotNull(medicationRequest.getRecorder().getReference());
         assertTrue(medicationRequest.getRecorder().getReference().contains("Practitioner/"));
         assertTrue(medicationRequest.getRecorder().getReference().contains(practitionerResource.getId()));
@@ -158,13 +158,12 @@ class CDAMedicationsSectionRequestConverterTest {
         Resource practResource = resources.values().stream().filter(resource -> resource instanceof Practitioner).findAny().orElse(null);
         assertNotNull(mdResource);
         assertNotNull(practResource);
-        MedicationRequest medicationRequest = (MedicationRequest)mdResource;
+        MedicationRequest medicationRequest = (MedicationRequest) mdResource;
         assertNotNull(medicationRequest.getRequester().getReference());
         assertTrue(medicationRequest.getRequester().getReference().contains("Practitioner/"));
         assertTrue(medicationRequest.getRequester().getReference().contains(practResource.getId()));
 
     }
-
 
 
     @Test
@@ -189,7 +188,6 @@ class CDAMedicationsSectionRequestConverterTest {
     }
 
 
-
     private Resource getMedicationRequest(String testFileName) throws Exception {
         ConsolPackage.eINSTANCE.eClass();
         String path = Objects.requireNonNull(this.getClass().getClassLoader().getResource(testFileName)).getPath();
@@ -197,8 +195,8 @@ class CDAMedicationsSectionRequestConverterTest {
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
         if (cda instanceof ContinuityOfCareDocument2) {
-            CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-            CDAMedicationsSectionConverter medicationsSectionConverter = new CDAMedicationsSectionConverter(CDABasicElementsConverter);
+            CodeMappingProcessor codeMappingProcessor = new CodeMappingProcessor(this.getTestCodes(), getSystems());
+            CDAMedicationsSectionConverter medicationsSectionConverter = new CDAMedicationsSectionConverter(codeMappingProcessor);
             Map<String, Resource> resources = medicationsSectionConverter.convertMedications(((ContinuityOfCareDocument2) cda).getMedicationsSection2(), new HashMap<>());
             return resources.values().stream().filter(resource -> resource instanceof MedicationRequest).findAny().orElse(null);
         }
@@ -213,8 +211,8 @@ class CDAMedicationsSectionRequestConverterTest {
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
         if (cda instanceof ContinuityOfCareDocument2) {
-            CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-            CDAMedicationsSectionConverter medicationsSectionConverter = new CDAMedicationsSectionConverter(CDABasicElementsConverter);
+            CodeMappingProcessor codeMappingProcessor = new CodeMappingProcessor(this.getTestCodes(), getSystems());
+            CDAMedicationsSectionConverter medicationsSectionConverter = new CDAMedicationsSectionConverter(codeMappingProcessor);
             return medicationsSectionConverter.convertMedications(((ContinuityOfCareDocument2) cda).getMedicationsSection2(), new HashMap<>());
         }
 
@@ -228,8 +226,8 @@ class CDAMedicationsSectionRequestConverterTest {
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
         if (cda instanceof ContinuityOfCareDocument2) {
-            CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-            CDAMedicationsSectionConverter medicationsSectionConverter = new CDAMedicationsSectionConverter(CDABasicElementsConverter);
+            CodeMappingProcessor codeMappingProcessor = new CodeMappingProcessor(this.getTestCodes(), getSystems());
+            CDAMedicationsSectionConverter medicationsSectionConverter = new CDAMedicationsSectionConverter(codeMappingProcessor);
             HashMap<String, Resource> headerResources = new HashMap<>();
             Patient patient = new Patient();
             patient.setId("test");

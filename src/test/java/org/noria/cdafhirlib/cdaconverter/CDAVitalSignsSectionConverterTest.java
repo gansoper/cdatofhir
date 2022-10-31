@@ -3,7 +3,10 @@ package org.noria.cdafhirlib.cdaconverter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.mdht.uml.cda.ClinicalDocument;
 import org.eclipse.mdht.uml.cda.util.CDAUtil;
-import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.DateTimeType;
+import org.hl7.fhir.r4.model.Observation;
+import org.hl7.fhir.r4.model.Practitioner;
+import org.hl7.fhir.r4.model.Resource;
 import org.junit.jupiter.api.Test;
 import org.noria.cdafhirlib.codemapping.CodeMappingProcessor;
 import org.noria.cdafhirlib.model.CDAtoFHIRCodes;
@@ -113,7 +116,6 @@ class CDAVitalSignsSectionConverterTest {
     }
 
 
-
     @Test
     public void testObservationNoAuthor() throws Exception {
         Map<String, Resource> resources = this.getAllResources("Tests/VitalSigns/VitalSignsNoAuthor.xml");
@@ -138,7 +140,6 @@ class CDAVitalSignsSectionConverterTest {
     }
 
 
-
     private Map<String, Resource> getAllResources(String testFileName) throws Exception {
         ConsolPackage.eINSTANCE.eClass();
         String path = Objects.requireNonNull(this.getClass().getClassLoader().getResource(testFileName)).getPath();
@@ -146,8 +147,8 @@ class CDAVitalSignsSectionConverterTest {
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
         if (cda instanceof ContinuityOfCareDocument2) {
-            CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-            CDAVitalSignsSectionConverter vsSectionConverter = new CDAVitalSignsSectionConverter(CDABasicElementsConverter);
+            CodeMappingProcessor codeMappingProcessor = new CodeMappingProcessor(this.getTestCodes(), getSystems());
+            CDAVitalSignsSectionConverter vsSectionConverter = new CDAVitalSignsSectionConverter(codeMappingProcessor);
             return vsSectionConverter.convertVitalSigns(((ContinuityOfCareDocument2) cda).getVitalSignsSection2(), new HashMap<>());
         }
 

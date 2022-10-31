@@ -149,8 +149,8 @@ class CDAProblemSectionConverterTest {
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
         if (cda instanceof ContinuityOfCareDocument2) {
-            CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-            CDAProblemsSectionConverter cdaProblemsSectionConverter = new CDAProblemsSectionConverter(CDABasicElementsConverter);
+            CodeMappingProcessor codeMappingProcessor = new CodeMappingProcessor(this.getTestCodes(), getSystems());
+            CDAProblemsSectionConverter cdaProblemsSectionConverter = new CDAProblemsSectionConverter(codeMappingProcessor);
             return cdaProblemsSectionConverter.convertProblems(((ContinuityOfCareDocument2) cda).getProblemSection2(), new HashMap<>());
         }
 

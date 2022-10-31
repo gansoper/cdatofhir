@@ -9,23 +9,13 @@ import java.util.regex.Pattern;
 
 public class CodeMappingProcessor {
 
-    private static CodeMappingProcessor instance;
     private final CDAtoFHIRCodes codeMappings;
     private final SystemNamesMapping systemNamesMapping;
 
-    private CodeMappingProcessor(CDAtoFHIRCodes codeMappings, SystemNamesMapping systemNamesMapping) {
+    public CodeMappingProcessor(CDAtoFHIRCodes codeMappings, SystemNamesMapping systemNamesMapping) {
         this.codeMappings = codeMappings;
         this.systemNamesMapping = systemNamesMapping;
     }
-
-    public static CodeMappingProcessor getInstance(CDAtoFHIRCodes codeMappings, SystemNamesMapping systemNamesMapping) {
-        if (instance == null) {
-            instance = new CodeMappingProcessor(codeMappings, systemNamesMapping);
-        }
-
-        return instance;
-    }
-
 
     public String getStringCodeFromMapping(String sourceCode, String conversionType) {
         if (StringUtils.isNoneBlank(conversionType) && this.codeMappings != null) {

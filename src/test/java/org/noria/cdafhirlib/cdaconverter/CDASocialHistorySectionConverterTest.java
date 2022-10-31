@@ -150,8 +150,8 @@ class CDASocialHistorySectionConverterTest {
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
         if (cda instanceof ContinuityOfCareDocument2) {
-            CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-            CDASocialHistorySectionConverter shSectionConverter = new CDASocialHistorySectionConverter(CDABasicElementsConverter);
+            CodeMappingProcessor codeMappingProcessor = new CodeMappingProcessor(this.getTestCodes(), getSystems());
+            CDASocialHistorySectionConverter shSectionConverter = new CDASocialHistorySectionConverter(codeMappingProcessor);
             return shSectionConverter.convertSocialHistory(((ContinuityOfCareDocument2) cda).getSocialHistorySection2(), new HashMap<>());
         }
 
