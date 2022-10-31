@@ -13,11 +13,9 @@ import org.openhealthtools.mdht.uml.cda.consol.ContinuityOfCareDocument2;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -116,8 +114,8 @@ class CDAMedicationsSectionSupplyConverterTest {
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
         if (cda instanceof ContinuityOfCareDocument2) {
-            BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-            CDAMedicationsSectionConverter medicationsSectionConverter = new CDAMedicationsSectionConverter(basicCDAElementsConverter);
+            CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
+            CDAMedicationsSectionConverter medicationsSectionConverter = new CDAMedicationsSectionConverter(CDABasicElementsConverter);
             Map<String, Resource> resources = medicationsSectionConverter.convertMedications(((ContinuityOfCareDocument2) cda).getMedicationsSection2(), new HashMap<>());
             return resources.values().stream().filter(resource -> resource instanceof MedicationRequest).findAny().orElse(null);
         }
@@ -132,8 +130,8 @@ class CDAMedicationsSectionSupplyConverterTest {
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
         if (cda instanceof ContinuityOfCareDocument2) {
-            BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-            CDAMedicationsSectionConverter medicationsSectionConverter = new CDAMedicationsSectionConverter(basicCDAElementsConverter);
+            CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
+            CDAMedicationsSectionConverter medicationsSectionConverter = new CDAMedicationsSectionConverter(CDABasicElementsConverter);
             return medicationsSectionConverter.convertMedications(((ContinuityOfCareDocument2) cda).getMedicationsSection2(), new HashMap<>());
         }
 
@@ -147,8 +145,8 @@ class CDAMedicationsSectionSupplyConverterTest {
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
         if (cda instanceof ContinuityOfCareDocument2) {
-            BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-            CDAMedicationsSectionConverter medicationsSectionConverter = new CDAMedicationsSectionConverter(basicCDAElementsConverter);
+            CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
+            CDAMedicationsSectionConverter medicationsSectionConverter = new CDAMedicationsSectionConverter(CDABasicElementsConverter);
             HashMap<String, Resource> headerResources = new HashMap<>();
             Patient patient = new Patient();
             patient.setId("test");

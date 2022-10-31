@@ -48,10 +48,10 @@ public class FHIRProducer {
 
     public Bundle produceFHIRBundle(InputStream cdaInputStream) throws Exception {
         ClinicalDocument cda = CDAUtil.load(cdaInputStream);
-        BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(this.cdAtoFHIRCodes, this.systemNamesMapping));
-        CDAHeaderConverter headerConverter = new CDAHeaderConverter(basicCDAElementsConverter);
-        CDAAllergySectionConverter allergySectionConverter = new CDAAllergySectionConverter(basicCDAElementsConverter);
-        CDAMedicationsSectionConverter medicationsSectionConverter = new CDAMedicationsSectionConverter(basicCDAElementsConverter);
+        CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(this.cdAtoFHIRCodes, this.systemNamesMapping));
+        CDAHeaderConverter headerConverter = new CDAHeaderConverter(CDABasicElementsConverter);
+        CDAAllergySectionConverter allergySectionConverter = new CDAAllergySectionConverter(CDABasicElementsConverter);
+        CDAMedicationsSectionConverter medicationsSectionConverter = new CDAMedicationsSectionConverter(CDABasicElementsConverter);
 
         Map<String, Resource> resources = new HashMap<>();
         Map<String, Resource> headerResources = headerConverter.convertHeaderResources(cda);

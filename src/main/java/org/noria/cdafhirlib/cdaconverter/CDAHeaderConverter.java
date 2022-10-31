@@ -7,28 +7,28 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CDAHeaderConverter {
-    private final BasicCDAElementsConverter basicCDAElementsConverter;
+    private final CDABasicElementsConverter CDABasicElementsConverter;
 
-    public CDAHeaderConverter(BasicCDAElementsConverter basicCDAElementsConverter) {
-        this.basicCDAElementsConverter = basicCDAElementsConverter;
+    public CDAHeaderConverter(CDABasicElementsConverter CDABasicElementsConverter) {
+        this.CDABasicElementsConverter = CDABasicElementsConverter;
     }
 
     public Map<String, Resource> convertHeaderResources(ClinicalDocument cda) {
         Map<String, Resource> headerResources = new HashMap<>();
         if (cda.getAuthors().size() != 0) {
-            cda.getAuthors().forEach(author -> headerResources.putAll(basicCDAElementsConverter.convertAuthor(author)));
+            cda.getAuthors().forEach(author -> headerResources.putAll(CDACommonElementsConverter.getInstance(this.CDABasicElementsConverter).convertAuthor(author)));
         }
 
         if (cda.getPatientRoles().size() != 0) {
-            cda.getPatientRoles().forEach(patientRole -> headerResources.putAll(basicCDAElementsConverter.convertPatient(patientRole)));
+            cda.getPatientRoles().forEach(patientRole -> headerResources.putAll(CDACommonElementsConverter.getInstance(this.CDABasicElementsConverter).convertPatient(patientRole)));
         }
 
         if (cda.getCustodian() != null) {
-            headerResources.putAll(basicCDAElementsConverter.convertCustodian(cda.getCustodian()));
+            headerResources.putAll(CDACommonElementsConverter.getInstance(this.CDABasicElementsConverter).convertCustodian(cda.getCustodian()));
         }
 
         if (cda.getParticipants().size() != 0) {
-            cda.getParticipants().forEach(participant -> headerResources.putAll(basicCDAElementsConverter.convertParticipant(participant)));
+            cda.getParticipants().forEach(participant -> headerResources.putAll(CDACommonElementsConverter.getInstance(this.CDABasicElementsConverter).convertParticipant(participant)));
         }
 
         return headerResources;

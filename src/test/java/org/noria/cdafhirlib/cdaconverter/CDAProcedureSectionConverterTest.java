@@ -116,8 +116,8 @@ class CDAProcedureSectionConverterTest {
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
         if (cda instanceof ContinuityOfCareDocument2) {
-            BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-            CDAProceduresSectionConverter cdaProceduresSectionConverter = new CDAProceduresSectionConverter(basicCDAElementsConverter);
+            CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
+            CDAProceduresSectionConverter cdaProceduresSectionConverter = new CDAProceduresSectionConverter(CDABasicElementsConverter);
             return cdaProceduresSectionConverter.convertProcedures(((ContinuityOfCareDocument2) cda).getProceduresSection2(), new HashMap<>());
         }
 

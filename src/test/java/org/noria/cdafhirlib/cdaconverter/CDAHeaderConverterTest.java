@@ -1,7 +1,6 @@
 package org.noria.cdafhirlib.cdaconverter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.checkerframework.checker.units.qual.C;
 import org.eclipse.mdht.uml.cda.ClinicalDocument;
 import org.eclipse.mdht.uml.cda.util.CDAUtil;
 import org.hl7.fhir.r4.model.Resource;
@@ -13,8 +12,6 @@ import org.openhealthtools.mdht.uml.cda.consol.ConsolPackage;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -31,8 +28,8 @@ class CDAHeaderConverterTest {
         String decodedPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
-        BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-        CDAHeaderConverter cdaHeaderConverter = new CDAHeaderConverter(basicCDAElementsConverter);
+        CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
+        CDAHeaderConverter cdaHeaderConverter = new CDAHeaderConverter(CDABasicElementsConverter);
         Map<String, Resource> resources = cdaHeaderConverter.convertHeaderResources(cda);
         assertTrue(resources.size() != 0);
         assertEquals(resources.size(), 6);

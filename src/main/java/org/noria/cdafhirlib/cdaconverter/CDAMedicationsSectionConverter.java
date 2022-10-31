@@ -23,10 +23,10 @@ import java.util.stream.Collectors;
 @Log4j2
 public class CDAMedicationsSectionConverter {
 
-    private final BasicCDAElementsConverter basicCDAElementsConverter;
+    private final CDABasicElementsConverter CDABasicElementsConverter;
 
-    public CDAMedicationsSectionConverter(BasicCDAElementsConverter basicCDAElementsConverter) {
-        this.basicCDAElementsConverter = basicCDAElementsConverter;
+    public CDAMedicationsSectionConverter(CDABasicElementsConverter CDABasicElementsConverter) {
+        this.CDABasicElementsConverter = CDABasicElementsConverter;
     }
 
     public Map<String, Resource> convertMedications(MedicationsSection2 medicationsSection, Map<String, Resource> headerResources) {
@@ -60,7 +60,7 @@ public class CDAMedicationsSectionConverter {
         Map<String, Resource> resources = new HashMap<>();
         MedicationDispense medicationDispense = new MedicationDispense();
         if (CollectionUtils.isNotEmpty(medicationDispenseCDA.getIds())) {
-            medicationDispenseCDA.getIds().forEach(id -> medicationDispense.addIdentifier(this.basicCDAElementsConverter.createFHIRIdentifier(id)));
+            medicationDispenseCDA.getIds().forEach(id -> medicationDispense.addIdentifier(this.CDABasicElementsConverter.createFHIRIdentifier(id)));
         }
 
         if ((medicationDispenseCDA.getQuantity() != null && medicationDispenseCDA.getQuantity().getValue() != null) || medicationDispenseCDA.getRepeatNumber() != null) {
@@ -69,14 +69,14 @@ public class CDAMedicationsSectionConverter {
                 medicationDispense.getDosageInstruction().add(dosage);
             }
 
-            SimpleQuantity simpleQuantity = this.basicCDAElementsConverter.createSimpleQuantity(medicationDispenseCDA.getQuantity());
+            SimpleQuantity simpleQuantity = this.CDABasicElementsConverter.createSimpleQuantity(medicationDispenseCDA.getQuantity());
             if (simpleQuantity != null) {
                 medicationDispense.setQuantity(simpleQuantity);
             }
         }
 
         medicationDispenseCDA.getEffectiveTimes().forEach(et -> {
-            DateTimeType recordedDate = this.basicCDAElementsConverter.convertTSDate(et);
+            DateTimeType recordedDate = this.CDABasicElementsConverter.convertTSDate(et);
             if (recordedDate != null){
                 medicationDispense.setWhenPreparedElement(recordedDate);
             }
@@ -84,13 +84,13 @@ public class CDAMedicationsSectionConverter {
         });
 
         if (medicationDispenseCDA.getProduct() != null && medicationDispenseCDA.getProduct().getManufacturedProduct() != null && medicationDispenseCDA.getProduct().getManufacturedProduct().getManufacturedMaterial() != null) {
-            medicationDispense.setMedication(this.basicCDAElementsConverter.createFHIRCodeableConcept(medicationDispenseCDA.getProduct().getManufacturedProduct().getManufacturedMaterial().getCode(), null));
+            medicationDispense.setMedication(this.CDABasicElementsConverter.createFHIRCodeableConcept(medicationDispenseCDA.getProduct().getManufacturedProduct().getManufacturedMaterial().getCode(), null));
         }
 
 
         if (!medicationDispenseCDA.getPerformers().isEmpty()) {
             Map<String, Resource> medicationRequestPerformers = new HashMap<>();
-            medicationDispenseCDA.getPerformers().forEach(performer -> medicationRequestPerformers.putAll(this.basicCDAElementsConverter.convertPerformer(performer, headerResources)));
+            medicationDispenseCDA.getPerformers().forEach(performer -> medicationRequestPerformers.putAll(CDACommonElementsConverter.getInstance(this.CDABasicElementsConverter).convertPerformer(performer, headerResources)));
             if (!medicationRequestPerformers.isEmpty()) {
                 List<Resource> practitioners = medicationRequestPerformers.values().stream().filter(r -> r instanceof Practitioner).collect(Collectors.toList());
                 List<Resource> organizations = medicationRequestPerformers.values().stream().filter(r -> r instanceof Organization).collect(Collectors.toList());
@@ -107,7 +107,7 @@ public class CDAMedicationsSectionConverter {
             }
         }
 
-        Coding coding = basicCDAElementsConverter.createFHIRCoding(medicationDispenseCDA.getStatusCode(), CDAtoFHIRCodeConversionType.MEDICATION_DISPENSE_STATUS.toValue());
+        Coding coding = CDABasicElementsConverter.createFHIRCoding(medicationDispenseCDA.getStatusCode(), CDAtoFHIRCodeConversionType.MEDICATION_DISPENSE_STATUS.toValue());
         if (coding != null) {
             try {
                 medicationDispense.setStatus(MedicationDispense.MedicationDispenseStatus.fromCode(coding.getCode()));
@@ -132,11 +132,11 @@ public class CDAMedicationsSectionConverter {
         Map<String, Resource> resources = new HashMap<>();
         MedicationRequest medicationRequest = new MedicationRequest();
         if (CollectionUtils.isNotEmpty(supplyOrder.getIds())) {
-            supplyOrder.getIds().forEach(id -> medicationRequest.addIdentifier(this.basicCDAElementsConverter.createFHIRIdentifier(id)));
+            supplyOrder.getIds().forEach(id -> medicationRequest.addIdentifier(this.CDABasicElementsConverter.createFHIRIdentifier(id)));
         }
 
         supplyOrder.getEffectiveTimes().forEach(et -> {
-            Type recordedDate = this.basicCDAElementsConverter.convertIVLTSDate((IVL_TS) et);
+            Type recordedDate = this.CDABasicElementsConverter.convertIVLTSDate((IVL_TS) et);
             if (recordedDate instanceof DateTimeType) {
                 medicationRequest.setAuthoredOnElement((DateTimeType) recordedDate);
             } else if (recordedDate instanceof Period) {
@@ -145,11 +145,11 @@ public class CDAMedicationsSectionConverter {
         });
 
         if (!supplyOrder.getAuthors().isEmpty()) {
-                resources.putAll(this.basicCDAElementsConverter.convertAuthors(medicationRequest, supplyOrder.getAuthors(), headerResources));
+                resources.putAll(CDACommonElementsConverter.getInstance(this.CDABasicElementsConverter).convertAuthors(medicationRequest, supplyOrder.getAuthors(), headerResources));
         }
 
         if (supplyOrder.getProduct() != null && supplyOrder.getProduct().getManufacturedProduct() != null && supplyOrder.getProduct().getManufacturedProduct().getManufacturedMaterial() != null) {
-            medicationRequest.setMedication(this.basicCDAElementsConverter.createFHIRCodeableConcept(supplyOrder.getProduct().getManufacturedProduct().getManufacturedMaterial().getCode(), null));
+            medicationRequest.setMedication(this.CDABasicElementsConverter.createFHIRCodeableConcept(supplyOrder.getProduct().getManufacturedProduct().getManufacturedMaterial().getCode(), null));
         }
 
 
@@ -165,7 +165,7 @@ public class CDAMedicationsSectionConverter {
             medicationRequest.setSubject(reference);
         }
 
-        Coding coding = basicCDAElementsConverter.createFHIRCoding(supplyOrder.getStatusCode(), CDAtoFHIRCodeConversionType.MEDICATION_SUPPLY_ORDER_STATUS.toValue());
+        Coding coding = CDABasicElementsConverter.createFHIRCoding(supplyOrder.getStatusCode(), CDAtoFHIRCodeConversionType.MEDICATION_SUPPLY_ORDER_STATUS.toValue());
         if (coding != null) {
             try {
                 medicationRequest.setStatus(MedicationRequest.MedicationRequestStatus.fromCode(coding.getCode()));
@@ -183,7 +183,7 @@ public class CDAMedicationsSectionConverter {
         Map<String, Resource> resources = new HashMap<>();
         MedicationRequest medicationRequest = new MedicationRequest();
         if (CollectionUtils.isNotEmpty(medicationActivity.getIds())) {
-            medicationActivity.getIds().forEach(id -> medicationRequest.addIdentifier(this.basicCDAElementsConverter.createFHIRIdentifier(id)));
+            medicationActivity.getIds().forEach(id -> medicationRequest.addIdentifier(this.CDABasicElementsConverter.createFHIRIdentifier(id)));
         }
 
         medicationRequest.getDosageInstruction().add(this.processDosage(medicationActivity));
@@ -191,7 +191,7 @@ public class CDAMedicationsSectionConverter {
         medicationActivity.getEffectiveTimes().forEach(et -> {
 
             if (!et.isSetOperator() || !et.getOperator().equals(SetOperator.A)) {
-                Type recordedDate = this.basicCDAElementsConverter.convertIVLTSDate((IVL_TS) et);
+                Type recordedDate = this.CDABasicElementsConverter.convertIVLTSDate((IVL_TS) et);
                 if (recordedDate instanceof DateTimeType) {
                     medicationRequest.setAuthoredOnElement((DateTimeType) recordedDate);
                 } else if (recordedDate instanceof Period) {
@@ -201,12 +201,12 @@ public class CDAMedicationsSectionConverter {
         });
 
         if (medicationActivity.getConsumable() != null && medicationActivity.getConsumable().getManufacturedProduct() != null && medicationActivity.getConsumable().getManufacturedProduct().getManufacturedMaterial() != null) {
-            medicationRequest.setMedication(this.basicCDAElementsConverter.createFHIRCodeableConcept(medicationActivity.getConsumable().getManufacturedProduct().getManufacturedMaterial().getCode(), null));
+            medicationRequest.setMedication(this.CDABasicElementsConverter.createFHIRCodeableConcept(medicationActivity.getConsumable().getManufacturedProduct().getManufacturedMaterial().getCode(), null));
         }
 
         if (!medicationActivity.getPerformers().isEmpty()) {
             Map<String, Resource> medicationRequestPerformers = new HashMap<>();
-            medicationActivity.getPerformers().forEach(performer -> medicationRequestPerformers.putAll(this.basicCDAElementsConverter.convertPerformer(performer, headerResources)));
+            medicationActivity.getPerformers().forEach(performer -> medicationRequestPerformers.putAll(CDACommonElementsConverter.getInstance(this.CDABasicElementsConverter).convertPerformer(performer, headerResources)));
             if (!medicationRequestPerformers.isEmpty()) {
                 List<Resource> practitioners = medicationRequestPerformers.values().stream().filter(r -> r instanceof Practitioner).collect(Collectors.toList());
                 List<Resource> organizations = medicationRequestPerformers.values().stream().filter(r -> r instanceof Organization).collect(Collectors.toList());
@@ -221,7 +221,7 @@ public class CDAMedicationsSectionConverter {
         }
 
         if (!medicationActivity.getAuthors().isEmpty()) {
-                resources.putAll(this.basicCDAElementsConverter.convertAuthors(medicationRequest, medicationActivity.getAuthors(), headerResources));
+                resources.putAll(CDACommonElementsConverter.getInstance(this.CDABasicElementsConverter).convertAuthors(medicationRequest, medicationActivity.getAuthors(), headerResources));
         }
 
         medicationRequest.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.MEDICATIONREQUEST, medicationRequest.getIdentifier()));
@@ -230,7 +230,7 @@ public class CDAMedicationsSectionConverter {
             medicationRequest.setSubject(reference);
         }
 
-        Coding coding = basicCDAElementsConverter.createFHIRCoding(medicationActivity.getStatusCode(), CDAtoFHIRCodeConversionType.MEDICATION_ACTIVITY_STATUS.toValue());
+        Coding coding = CDABasicElementsConverter.createFHIRCoding(medicationActivity.getStatusCode(), CDAtoFHIRCodeConversionType.MEDICATION_ACTIVITY_STATUS.toValue());
         if (coding != null) {
             try {
                 medicationRequest.setStatus(MedicationRequest.MedicationRequestStatus.fromCode(coding.getCode()));
@@ -248,19 +248,19 @@ public class CDAMedicationsSectionConverter {
         Map<String, Resource> resources = new HashMap<>();
         MedicationStatement medicationStatement = new MedicationStatement();
         if (CollectionUtils.isNotEmpty(medicationActivity.getIds())) {
-            medicationActivity.getIds().forEach(id -> medicationStatement.addIdentifier(this.basicCDAElementsConverter.createFHIRIdentifier(id)));
+            medicationActivity.getIds().forEach(id -> medicationStatement.addIdentifier(this.CDABasicElementsConverter.createFHIRIdentifier(id)));
         }
 
         medicationStatement.getDosage().add(this.processDosage(medicationActivity));
 
         if (medicationActivity.getConsumable() != null && medicationActivity.getConsumable().getManufacturedProduct() != null && medicationActivity.getConsumable().getManufacturedProduct().getManufacturedMaterial() != null) {
-            medicationStatement.setMedication(this.basicCDAElementsConverter.createFHIRCodeableConcept(medicationActivity.getConsumable().getManufacturedProduct().getManufacturedMaterial().getCode(), null));
+            medicationStatement.setMedication(this.CDABasicElementsConverter.createFHIRCodeableConcept(medicationActivity.getConsumable().getManufacturedProduct().getManufacturedMaterial().getCode(), null));
 
         }
 
         if (!medicationActivity.getPerformers().isEmpty()) {
             Map<String, Resource> medicationRequestPerformers = new HashMap<>();
-            medicationActivity.getPerformers().forEach(performer -> medicationRequestPerformers.putAll(this.basicCDAElementsConverter.convertPerformer(performer, headerResources)));
+            medicationActivity.getPerformers().forEach(performer -> medicationRequestPerformers.putAll(CDACommonElementsConverter.getInstance(this.CDABasicElementsConverter).convertPerformer(performer, headerResources)));
             if (!medicationRequestPerformers.isEmpty()) {
                 List<Resource> practitioners = medicationRequestPerformers.values().stream().filter(r -> r instanceof Practitioner).collect(Collectors.toList());
                 List<Resource> organizations = medicationRequestPerformers.values().stream().filter(r -> r instanceof Organization).collect(Collectors.toList());
@@ -273,7 +273,7 @@ public class CDAMedicationsSectionConverter {
                 resources.putAll(medicationRequestPerformers);
             }
         } else if (!medicationActivity.getAuthors().isEmpty()) {
-              resources.putAll(this.basicCDAElementsConverter.convertAuthors(medicationStatement, medicationActivity.getAuthors(), headerResources));
+              resources.putAll(CDACommonElementsConverter.getInstance(this.CDABasicElementsConverter).convertAuthors(medicationStatement, medicationActivity.getAuthors(), headerResources));
         }
 
         medicationStatement.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.MEDICATIONSTATEMENT, medicationStatement.getIdentifier()));
@@ -282,7 +282,7 @@ public class CDAMedicationsSectionConverter {
             medicationStatement.setSubject(reference);
         }
 
-        Coding coding = basicCDAElementsConverter.createFHIRCoding(medicationActivity.getStatusCode(), CDAtoFHIRCodeConversionType.MEDICATION_ACTIVITY_STATEMENT_STATUS.toValue());
+        Coding coding = CDABasicElementsConverter.createFHIRCoding(medicationActivity.getStatusCode(), CDAtoFHIRCodeConversionType.MEDICATION_ACTIVITY_STATEMENT_STATUS.toValue());
         if (coding != null) {
             try {
                 medicationStatement.setStatus(MedicationStatement.MedicationStatementStatus.fromCode(coding.getCode()));
@@ -301,9 +301,9 @@ public class CDAMedicationsSectionConverter {
 
             if (et.isSetOperator() && et.getOperator().equals(SetOperator.A)) {
                 if (et instanceof EIVL_TS) {
-                    dosage.setTiming(this.basicCDAElementsConverter.convertEIVL_TStoFHIRTiming((EIVL_TS) et));
+                    dosage.setTiming(this.CDABasicElementsConverter.convertEIVL_TStoFHIRTiming((EIVL_TS) et));
                 } else if (et instanceof PIVL_TS) {
-                    dosage.setTiming(this.basicCDAElementsConverter.convertPIVL_TStoFHIRTiming((PIVL_TS) et));
+                    dosage.setTiming(this.CDABasicElementsConverter.convertPIVL_TStoFHIRTiming((PIVL_TS) et));
                 }
             }
         });
@@ -312,24 +312,24 @@ public class CDAMedicationsSectionConverter {
             dosage.getTiming().getRepeat().setCount(medicationActivity.getRepeatNumber().getValue().intValue());
         }
 
-        dosage.setRoute(this.basicCDAElementsConverter.createFHIRCodeableConcept(medicationActivity.getRouteCode(), null));
-        dosage.setSite(this.basicCDAElementsConverter.createFHIRCodeableConceptFromList(medicationActivity.getApproachSiteCodes(), null));
+        dosage.setRoute(this.CDABasicElementsConverter.createFHIRCodeableConcept(medicationActivity.getRouteCode(), null));
+        dosage.setSite(this.CDABasicElementsConverter.createFHIRCodeableConceptFromList(medicationActivity.getApproachSiteCodes(), null));
 
         Dosage.DosageDoseAndRateComponent dosageDoseAndRateComponent = new Dosage.DosageDoseAndRateComponent();
 
 
         if (medicationActivity.getRateQuantity() != null && medicationActivity.getRateQuantity().getValue() != null) {
-            dosageDoseAndRateComponent.setRate(this.basicCDAElementsConverter.createSimpleQuantity(medicationActivity.getRateQuantity()));
+            dosageDoseAndRateComponent.setRate(this.CDABasicElementsConverter.createSimpleQuantity(medicationActivity.getRateQuantity()));
         } else if (medicationActivity.getRateQuantity() != null && medicationActivity.getRateQuantity().getLow() != null && medicationActivity.getRateQuantity().getHigh() != null) {
-            dosageDoseAndRateComponent.setRate(this.basicCDAElementsConverter.createRange(medicationActivity.getRateQuantity()));
+            dosageDoseAndRateComponent.setRate(this.CDABasicElementsConverter.createRange(medicationActivity.getRateQuantity()));
         } else if (medicationActivity.getMaxDoseQuantity() != null) {
-            dosageDoseAndRateComponent.setRate(this.basicCDAElementsConverter.createRatio(medicationActivity.getMaxDoseQuantity()));
+            dosageDoseAndRateComponent.setRate(this.CDABasicElementsConverter.createRatio(medicationActivity.getMaxDoseQuantity()));
         }
 
         if (medicationActivity.getDoseQuantity() != null && medicationActivity.getDoseQuantity().getValue() != null) {
-            dosageDoseAndRateComponent.setDose(this.basicCDAElementsConverter.createSimpleQuantity(medicationActivity.getDoseQuantity()));
+            dosageDoseAndRateComponent.setDose(this.CDABasicElementsConverter.createSimpleQuantity(medicationActivity.getDoseQuantity()));
         } else if (medicationActivity.getDoseQuantity() != null) {
-            dosageDoseAndRateComponent.setDose(this.basicCDAElementsConverter.createRange(medicationActivity.getDoseQuantity()));
+            dosageDoseAndRateComponent.setDose(this.CDABasicElementsConverter.createRange(medicationActivity.getDoseQuantity()));
         }
 
         dosage.getDoseAndRate().add(dosageDoseAndRateComponent);
@@ -352,7 +352,7 @@ public class CDAMedicationsSectionConverter {
                 dosage = new Dosage();
             }
             Dosage.DosageDoseAndRateComponent dosageDoseAndRateComponent = new Dosage.DosageDoseAndRateComponent();
-            dosageDoseAndRateComponent.setRate(this.basicCDAElementsConverter.createSimpleQuantity(quantity));
+            dosageDoseAndRateComponent.setRate(this.CDABasicElementsConverter.createSimpleQuantity(quantity));
             dosage.getDoseAndRate().add(dosageDoseAndRateComponent);
         }
 

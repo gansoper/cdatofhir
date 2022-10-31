@@ -35,8 +35,8 @@ class CDAAllergySectionConverterTest {
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
         if (cda instanceof ContinuityOfCareDocument2) {
-            BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-            CDAAllergySectionConverter allergySectionConverter = new CDAAllergySectionConverter(basicCDAElementsConverter);
+            CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
+            CDAAllergySectionConverter allergySectionConverter = new CDAAllergySectionConverter(CDABasicElementsConverter);
             HashMap<String, Resource> headerResources = new HashMap<>();
             Patient patient = new Patient();
             patient.setId("test");
@@ -83,8 +83,8 @@ class CDAAllergySectionConverterTest {
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
         if (cda instanceof ContinuityOfCareDocument2) {
-            BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-            CDAAllergySectionConverter allergySectionConverter = new CDAAllergySectionConverter(basicCDAElementsConverter);
+            CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
+            CDAAllergySectionConverter allergySectionConverter = new CDAAllergySectionConverter(CDABasicElementsConverter);
             HashMap<String, Resource> headerResources = new HashMap<>();
             Patient patient = new Patient();
             patient.setId("test");

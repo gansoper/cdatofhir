@@ -143,8 +143,8 @@ class CDAImmunizationSectionConverterTest {
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
         if (cda instanceof ContinuityOfCareDocument2) {
-            BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-            CDAImmunizationsSectionConverter immunizationsSectionConverter = new CDAImmunizationsSectionConverter(basicCDAElementsConverter);
+            CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
+            CDAImmunizationsSectionConverter immunizationsSectionConverter = new CDAImmunizationsSectionConverter(CDABasicElementsConverter);
             Map<String, Resource> resources = immunizationsSectionConverter.convertImmunizations(((ContinuityOfCareDocument2) cda).getImmunizationsSection2(), new HashMap<>());
             return resources.values().stream().filter(resource -> resource instanceof Immunization).findAny().orElse(null);
         }
@@ -159,8 +159,8 @@ class CDAImmunizationSectionConverterTest {
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
         if (cda instanceof ContinuityOfCareDocument2) {
-            BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-            CDAImmunizationsSectionConverter immunizationsSectionConverter = new CDAImmunizationsSectionConverter(basicCDAElementsConverter);
+            CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
+            CDAImmunizationsSectionConverter immunizationsSectionConverter = new CDAImmunizationsSectionConverter(CDABasicElementsConverter);
             return immunizationsSectionConverter.convertImmunizations(((ContinuityOfCareDocument2) cda).getImmunizationsSection2(), new HashMap<>());
         }
 

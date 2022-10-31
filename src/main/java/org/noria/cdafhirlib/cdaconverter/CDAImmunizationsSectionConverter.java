@@ -17,10 +17,10 @@ import java.util.stream.Collectors;
 @Log4j2
 public class CDAImmunizationsSectionConverter {
 
-    private final BasicCDAElementsConverter basicCDAElementsConverter;
+    private final CDABasicElementsConverter CDABasicElementsConverter;
 
-    public CDAImmunizationsSectionConverter(BasicCDAElementsConverter basicCDAElementsConverter) {
-        this.basicCDAElementsConverter = basicCDAElementsConverter;
+    public CDAImmunizationsSectionConverter(CDABasicElementsConverter CDABasicElementsConverter) {
+        this.CDABasicElementsConverter = CDABasicElementsConverter;
     }
 
     public Map<String, Resource> convertImmunizations(ImmunizationsSection2 immunizationsSection, Map<String, Resource> headerResources) {
@@ -33,10 +33,10 @@ public class CDAImmunizationsSectionConverter {
         Map<String, Resource> resources = new HashMap<>();
         Immunization fhirImmunization = new Immunization();
         if (CollectionUtils.isNotEmpty(immunizationActivity.getIds())) {
-            immunizationActivity.getIds().forEach(id -> fhirImmunization.addIdentifier(this.basicCDAElementsConverter.createFHIRIdentifier(id)));
+            immunizationActivity.getIds().forEach(id -> fhirImmunization.addIdentifier(this.CDABasicElementsConverter.createFHIRIdentifier(id)));
         }
 
-        Coding coding = basicCDAElementsConverter.createFHIRCoding(immunizationActivity.getStatusCode(), CDAtoFHIRCodeConversionType.IMMUNIZATION_STATUS.toValue());
+        Coding coding = CDABasicElementsConverter.createFHIRCoding(immunizationActivity.getStatusCode(), CDAtoFHIRCodeConversionType.IMMUNIZATION_STATUS.toValue());
         if (coding != null) {
             try {
                 fhirImmunization.setStatus(Immunization.ImmunizationStatus.fromCode(coding.getCode()));
@@ -46,42 +46,42 @@ public class CDAImmunizationsSectionConverter {
         }
 
         immunizationActivity.getEffectiveTimes().forEach(et -> {
-            Type recordedDate = this.basicCDAElementsConverter.convertTSDate(et);
+            Type recordedDate = this.CDABasicElementsConverter.convertTSDate(et);
             fhirImmunization.setOccurrence(recordedDate);
         });
 
-        fhirImmunization.setRoute(this.basicCDAElementsConverter.createFHIRCodeableConcept(immunizationActivity.getRouteCode(), null));
-        fhirImmunization.setSite(this.basicCDAElementsConverter.createFHIRCodeableConceptFromList(immunizationActivity.getApproachSiteCodes(), null));
+        fhirImmunization.setRoute(this.CDABasicElementsConverter.createFHIRCodeableConcept(immunizationActivity.getRouteCode(), null));
+        fhirImmunization.setSite(this.CDABasicElementsConverter.createFHIRCodeableConceptFromList(immunizationActivity.getApproachSiteCodes(), null));
 
         if (immunizationActivity.getDoseQuantity() != null && immunizationActivity.getDoseQuantity().getValue() != null) {
-            fhirImmunization.setDoseQuantity(this.basicCDAElementsConverter.createSimpleQuantity(immunizationActivity.getDoseQuantity()));
+            fhirImmunization.setDoseQuantity(this.CDABasicElementsConverter.createSimpleQuantity(immunizationActivity.getDoseQuantity()));
         }
 
         if (immunizationActivity.getConsumable() != null && immunizationActivity.getConsumable().getManufacturedProduct() != null && immunizationActivity.getConsumable().getManufacturedProduct().getManufacturedMaterial() != null) {
-            fhirImmunization.setVaccineCode(this.basicCDAElementsConverter.createFHIRCodeableConcept(immunizationActivity.getConsumable().getManufacturedProduct().getManufacturedMaterial().getCode(), null));
+            fhirImmunization.setVaccineCode(this.CDABasicElementsConverter.createFHIRCodeableConcept(immunizationActivity.getConsumable().getManufacturedProduct().getManufacturedMaterial().getCode(), null));
         }
 
         if (!immunizationActivity.getPerformers().isEmpty()) {
             Map<String, Resource> immunizationPerformers = new HashMap<>();
-            immunizationActivity.getPerformers().forEach(performer -> immunizationPerformers.putAll(this.basicCDAElementsConverter.convertPerformer(performer, headerResources)));
+            immunizationActivity.getPerformers().forEach(performer -> immunizationPerformers.putAll(CDACommonElementsConverter.getInstance(this.CDABasicElementsConverter).convertPerformer(performer, headerResources)));
             if (!immunizationPerformers.isEmpty()) {
                 List<Resource> practitioners = immunizationPerformers.values().stream().filter(r -> r instanceof Practitioner).collect(Collectors.toList());
                 List<Resource> organizations = immunizationPerformers.values().stream().filter(r -> r instanceof Organization).collect(Collectors.toList());
 
-                List< Immunization.ImmunizationPerformerComponent> immunizationPerformerComponents = new ArrayList<>();
-                for(Resource practitioner: practitioners){
+                List<Immunization.ImmunizationPerformerComponent> immunizationPerformerComponents = new ArrayList<>();
+                for (Resource practitioner : practitioners) {
                     Immunization.ImmunizationPerformerComponent immunizationPerformerComponent = new Immunization.ImmunizationPerformerComponent();
                     immunizationPerformerComponent.setActor(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId()));
                     immunizationPerformerComponents.add(immunizationPerformerComponent);
                 }
 
-                for(Resource organization: organizations){
+                for (Resource organization : organizations) {
                     Immunization.ImmunizationPerformerComponent immunizationPerformerComponent = new Immunization.ImmunizationPerformerComponent();
                     immunizationPerformerComponent.setActor(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.ORGANIZATION, organization.getId()));
                     immunizationPerformerComponents.add(immunizationPerformerComponent);
                 }
 
-                if (!immunizationPerformerComponents.isEmpty()){
+                if (!immunizationPerformerComponents.isEmpty()) {
                     fhirImmunization.setPerformer(immunizationPerformerComponents);
                     resources.putAll(immunizationPerformers);
                 }
@@ -89,10 +89,10 @@ public class CDAImmunizationsSectionConverter {
         }
 
         if (immunizationActivity.getReactionObservation() != null) {
-            Map<String, Resource> observationResources = this.basicCDAElementsConverter.createFHIRObservation(immunizationActivity.getReactionObservation(), ObservationCategory.EXAM, resources, headerResources);
-            Resource observationResource = observationResources.values().stream().filter(r-> r instanceof Observation).findFirst().orElse(null);
+            Map<String, Resource> observationResources = CDACommonElementsConverter.getInstance(this.CDABasicElementsConverter).createFHIRObservation(immunizationActivity.getReactionObservation(), ObservationCategory.EXAM, resources, headerResources);
+            Resource observationResource = observationResources.values().stream().filter(r -> r instanceof Observation).findFirst().orElse(null);
             if (observationResource != null) {
-                Observation observation = (Observation)observationResource;
+                Observation observation = (Observation) observationResource;
                 Immunization.ImmunizationReactionComponent immunizationReactionComponent = new Immunization.ImmunizationReactionComponent();
                 if (observation.getEffective() != null) {
                     Type effective = observation.getEffective();

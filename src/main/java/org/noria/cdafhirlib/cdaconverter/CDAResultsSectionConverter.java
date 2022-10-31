@@ -20,10 +20,10 @@ import java.util.stream.Collectors;
 @Log4j2
 public class CDAResultsSectionConverter {
 
-    private final BasicCDAElementsConverter basicCDAElementsConverter;
+    private final CDABasicElementsConverter CDABasicElementsConverter;
 
-    public CDAResultsSectionConverter(BasicCDAElementsConverter basicCDAElementsConverter) {
-        this.basicCDAElementsConverter = basicCDAElementsConverter;
+    public CDAResultsSectionConverter(CDABasicElementsConverter CDABasicElementsConverter) {
+        this.CDABasicElementsConverter = CDABasicElementsConverter;
     }
 
     public Map<String, Resource> convertResult(ResultsSection2 resultsSection, Map<String, Resource> headerResources) {
@@ -36,10 +36,10 @@ public class CDAResultsSectionConverter {
         Map<String, Resource> resources = new HashMap<>();
         DiagnosticReport diagnosticReport = new DiagnosticReport();
         if (CollectionUtils.isNotEmpty(resultOrganizer.getIds())) {
-            resultOrganizer.getIds().forEach(id -> diagnosticReport.addIdentifier(this.basicCDAElementsConverter.createFHIRIdentifier(id)));
+            resultOrganizer.getIds().forEach(id -> diagnosticReport.addIdentifier(this.CDABasicElementsConverter.createFHIRIdentifier(id)));
         }
 
-        Coding coding = basicCDAElementsConverter.createFHIRCoding(resultOrganizer.getStatusCode(), CDAtoFHIRCodeConversionType.RESULT_STATUS.toValue());
+        Coding coding = CDABasicElementsConverter.createFHIRCoding(resultOrganizer.getStatusCode(), CDAtoFHIRCodeConversionType.RESULT_STATUS.toValue());
         if (coding != null) {
             try {
                 diagnosticReport.setStatus(DiagnosticReport.DiagnosticReportStatus.fromCode(coding.getCode()));
@@ -49,11 +49,11 @@ public class CDAResultsSectionConverter {
         }
 
         if (resultOrganizer.getCode() != null) {
-            diagnosticReport.setCode(this.basicCDAElementsConverter.createFHIRCodeableConcept(resultOrganizer.getCode(), null));
+            diagnosticReport.setCode(this.CDABasicElementsConverter.createFHIRCodeableConcept(resultOrganizer.getCode(), null));
         }
 
         if (resultOrganizer.getEffectiveTime() != null) {
-            diagnosticReport.setEffective(this.basicCDAElementsConverter.convertIVLTSDate(resultOrganizer.getEffectiveTime()));
+            diagnosticReport.setEffective(this.CDABasicElementsConverter.convertIVLTSDate(resultOrganizer.getEffectiveTime()));
         }
 
         Reference reference = ConvertedElementsHelper.getPatientReference(headerResources);
@@ -62,17 +62,17 @@ public class CDAResultsSectionConverter {
         }
 
         if (!resultOrganizer.getAuthors().isEmpty()) {
-            resources.putAll(this.basicCDAElementsConverter.convertAuthors(diagnosticReport, resultOrganizer.getAuthors(), headerResources));
+            resources.putAll(CDACommonElementsConverter.getInstance(this.CDABasicElementsConverter).convertAuthors(diagnosticReport, resultOrganizer.getAuthors(), headerResources));
         }
 
         diagnosticReport.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.DIAGNOSTICREPORT, diagnosticReport.getIdentifier()));
 
         if (!resultOrganizer.getResultObservations().isEmpty()) {
             Map<String, Resource> observationResources = new HashMap<>();
-            for(ResultObservation2 ro: resultOrganizer.getConsolResultObservation2s()){
-                observationResources.putAll(this.basicCDAElementsConverter.createFHIRObservation(ro, ObservationCategory.EXAM, resources, headerResources));
+            for (ResultObservation2 ro : resultOrganizer.getConsolResultObservation2s()) {
+                observationResources.putAll(CDACommonElementsConverter.getInstance(this.CDABasicElementsConverter).createFHIRObservation(ro, ObservationCategory.EXAM, resources, headerResources));
             }
-            List<Resource> observations = observationResources.values().stream().filter(r-> r instanceof Observation).collect(Collectors.toList());
+            List<Resource> observations = observationResources.values().stream().filter(r -> r instanceof Observation).collect(Collectors.toList());
             observations.forEach(o -> {
                 diagnosticReport.getResult().add(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.OBSERVATION, o.getId()));
             });

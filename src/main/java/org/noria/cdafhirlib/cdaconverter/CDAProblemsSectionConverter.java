@@ -13,17 +13,16 @@ import org.openhealthtools.mdht.uml.cda.consol.ProblemObservation2;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemSection2;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 @Log4j2
 public class CDAProblemsSectionConverter {
 
-    private final BasicCDAElementsConverter basicCDAElementsConverter;
+    private final CDABasicElementsConverter CDABasicElementsConverter;
 
-    public CDAProblemsSectionConverter(BasicCDAElementsConverter basicCDAElementsConverter) {
-        this.basicCDAElementsConverter = basicCDAElementsConverter;
+    public CDAProblemsSectionConverter(CDABasicElementsConverter CDABasicElementsConverter) {
+        this.CDABasicElementsConverter = CDABasicElementsConverter;
     }
 
     public Map<String, Resource> convertProblems(ProblemSection2 problemSection, Map<String, Resource> headerResources) {
@@ -31,7 +30,7 @@ public class CDAProblemsSectionConverter {
 
         problemSection.getConsolProblemConcernAct2s().forEach(act -> {
             Map<String, Resource> actAuthors = new HashMap<>();
-            act.getAuthors().forEach(author -> actAuthors.putAll(this.basicCDAElementsConverter.convertSectionAuthor(author, headerResources)));
+            act.getAuthors().forEach(author -> actAuthors.putAll(CDACommonElementsConverter.getInstance(this.CDABasicElementsConverter).convertSectionAuthor(author, headerResources)));
             resources.putAll(actAuthors);
             resources.putAll(this.convertProblem(act, headerResources, actAuthors));
         });
@@ -42,13 +41,13 @@ public class CDAProblemsSectionConverter {
         Map<String, Resource> resources = new HashMap<>();
 
         if (!act.getAuthors().isEmpty()) {
-            resources.putAll(this.basicCDAElementsConverter.convertAuthors(null, act.getAuthors(), headerResources));
+            resources.putAll(CDACommonElementsConverter.getInstance(this.CDABasicElementsConverter).convertAuthors(null, act.getAuthors(), headerResources));
         }
-        Type recordedDate = this.basicCDAElementsConverter.convertIVLTSDate(act.getEffectiveTime());
+        Type recordedDate = this.CDABasicElementsConverter.convertIVLTSDate(act.getEffectiveTime());
         for (ProblemObservation2 problemObservation : act.getConsolProblemObservation2s()) {
             Condition condition = new Condition();
             if (CollectionUtils.isNotEmpty(problemObservation.getIds())) {
-                problemObservation.getIds().forEach(id -> condition.addIdentifier(this.basicCDAElementsConverter.createFHIRIdentifier(id)));
+                problemObservation.getIds().forEach(id -> condition.addIdentifier(this.CDABasicElementsConverter.createFHIRIdentifier(id)));
             }
 
             if (recordedDate != null){
@@ -61,7 +60,7 @@ public class CDAProblemsSectionConverter {
             }
 
             if (problemObservation.getEffectiveTime() != null) {
-                Type onSetDate = this.basicCDAElementsConverter.convertIVLTSDate(problemObservation.getEffectiveTime());
+                Type onSetDate = this.CDABasicElementsConverter.convertIVLTSDate(problemObservation.getEffectiveTime());
                 condition.setOnset(onSetDate);
                 if (onSetDate instanceof Period){
                     Period period = (Period) onSetDate;
@@ -72,21 +71,21 @@ public class CDAProblemsSectionConverter {
             }
 
             if (problemObservation.getConsolProblemStatus() != null && !problemObservation.getConsolProblemStatus().getValues().isEmpty()) {
-                condition.setClinicalStatus(this.basicCDAElementsConverter.createFHIRCodeableConcept((CD) problemObservation.getConsolProblemStatus().getValues().get(0), CDAtoFHIRCodeConversionType.PROBLEM_STATUS.toValue()));
+                condition.setClinicalStatus(this.CDABasicElementsConverter.createFHIRCodeableConcept((CD) problemObservation.getConsolProblemStatus().getValues().get(0), CDAtoFHIRCodeConversionType.PROBLEM_STATUS.toValue()));
             } else {
-                condition.setClinicalStatus(this.basicCDAElementsConverter.createFHIRCodeableConcept(problemObservation.getStatusCode(), CDAtoFHIRCodeConversionType.PROBLEM_STATUS.toValue()));
+                condition.setClinicalStatus(this.CDABasicElementsConverter.createFHIRCodeableConcept(problemObservation.getStatusCode(), CDAtoFHIRCodeConversionType.PROBLEM_STATUS.toValue()));
             }
 
             if (problemObservation.getCode() != null) {
-                condition.setCategory(Collections.singletonList(this.basicCDAElementsConverter.createFHIRCodeableConcept(problemObservation.getCode(), CDAtoFHIRCodeConversionType.PROBLEM_TYPE.toValue())));
+                condition.setCategory(Collections.singletonList(this.CDABasicElementsConverter.createFHIRCodeableConcept(problemObservation.getCode(), CDAtoFHIRCodeConversionType.PROBLEM_TYPE.toValue())));
             }
 
             if (!problemObservation.getValues().isEmpty()) {
-                condition.setCode(this.basicCDAElementsConverter.createFHIRCodeableConcept((CD) problemObservation.getValues().get(0), null));
+                condition.setCode(this.CDABasicElementsConverter.createFHIRCodeableConcept((CD) problemObservation.getValues().get(0), null));
             }
 
             if (!problemObservation.getAuthors().isEmpty()) {
-                resources.putAll(this.basicCDAElementsConverter.convertAuthors(condition, problemObservation.getAuthors(), headerResources));
+                resources.putAll(CDACommonElementsConverter.getInstance(this.CDABasicElementsConverter).convertAuthors(condition, problemObservation.getAuthors(), headerResources));
             } else if (!actAuthors.isEmpty()){
                 actAuthors.values().stream().filter(r -> r instanceof Practitioner).findFirst().ifPresent(practitioner ->
                         condition.setRecorder(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId())));
@@ -94,7 +93,7 @@ public class CDAProblemsSectionConverter {
             }
 
             if (problemObservation.getAgeObservation() != null && !problemObservation.getAgeObservation().getValues().isEmpty() && !condition.hasOnset()) {
-                condition.setOnset(this.basicCDAElementsConverter.createAge((PQ) problemObservation.getAgeObservation().getValues().get(0)));
+                condition.setOnset(this.CDABasicElementsConverter.createAge((PQ) problemObservation.getAgeObservation().getValues().get(0)));
             }
 
             Reference reference = ConvertedElementsHelper.getPatientReference(headerResources);

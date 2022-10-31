@@ -146,8 +146,8 @@ class CDAVitalSignsSectionConverterTest {
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
         if (cda instanceof ContinuityOfCareDocument2) {
-            BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-            CDAVitalSignsSectionConverter vsSectionConverter = new CDAVitalSignsSectionConverter(basicCDAElementsConverter);
+            CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
+            CDAVitalSignsSectionConverter vsSectionConverter = new CDAVitalSignsSectionConverter(CDABasicElementsConverter);
             return vsSectionConverter.convertVitalSigns(((ContinuityOfCareDocument2) cda).getVitalSignsSection2(), new HashMap<>());
         }
 

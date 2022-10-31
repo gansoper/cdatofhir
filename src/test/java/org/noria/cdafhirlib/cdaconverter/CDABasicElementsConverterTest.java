@@ -29,19 +29,19 @@ import java.util.Objects;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Log4j2
-class BasicCDAElementsConverterTest {
+class CDABasicElementsConverterTest {
 
 
     @Test
     void createFHIRCodingNull() {
-        BasicCDAElementsConverter simpleCDATypesConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(null, getSystems()));
+        CDABasicElementsConverter simpleCDATypesConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(null, getSystems()));
         Coding coding = simpleCDATypesConverter.createFHIRCoding(null, null);
         assertEquals(coding, null);
     }
 
     @Test
     void createFHIRCodingNotInJSONEmptyCD() {
-        BasicCDAElementsConverter simpleCDATypesConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(null, getSystems()));
+        CDABasicElementsConverter simpleCDATypesConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(null, getSystems()));
         CD cd = DatatypesFactory.eINSTANCE.createCD();
         Coding coding = simpleCDATypesConverter.createFHIRCoding(cd, "test");
         assertNotEquals(coding, null);
@@ -50,7 +50,7 @@ class BasicCDAElementsConverterTest {
 
     @Test
     void createFHIRCodingNotInJSONCDValue() {
-        BasicCDAElementsConverter simpleCDATypesConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(null, getSystems()));
+        CDABasicElementsConverter simpleCDATypesConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(null, getSystems()));
         CD cd = DatatypesFactory.eINSTANCE.createCD();
         cd.setCode("test");
         Coding coding = simpleCDATypesConverter.createFHIRCoding(cd, "test");
@@ -60,7 +60,7 @@ class BasicCDAElementsConverterTest {
 
     @Test
     void createFHIRCodingNotInJSONCDValueFilled() {
-        BasicCDAElementsConverter simpleCDATypesConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
+        CDABasicElementsConverter simpleCDATypesConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
         CD cd = DatatypesFactory.eINSTANCE.createCD();
         cd.setCode("completed");
         Coding coding = simpleCDATypesConverter.createFHIRCoding(cd, CDAtoFHIRCodeConversionType.OBSERVATION_STATUS.toValue());
@@ -71,7 +71,7 @@ class BasicCDAElementsConverterTest {
 
     @Test
     void codeabelConceptNull() {
-        BasicCDAElementsConverter simpleCDATypesConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(null, getSystems()));
+        CDABasicElementsConverter simpleCDATypesConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(null, getSystems()));
         CD cd = DatatypesFactory.eINSTANCE.createCD();
         cd.setCode("test");
         CodeableConcept codeableConcept = simpleCDATypesConverter.createFHIRCodeableConcept(null, null);
@@ -81,7 +81,7 @@ class BasicCDAElementsConverterTest {
 
     @Test
     void codeabelConceptNotNull() {
-        BasicCDAElementsConverter simpleCDATypesConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(null, getSystems()));
+        CDABasicElementsConverter simpleCDATypesConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(null, getSystems()));
         CD cd = DatatypesFactory.eINSTANCE.createCD();
         cd.setCode("test");
         CodeableConcept codeableConcept = simpleCDATypesConverter.createFHIRCodeableConcept(cd, null);
@@ -92,7 +92,7 @@ class BasicCDAElementsConverterTest {
 
     @Test
     void codeabelConceptNotNullFromJson() {
-        BasicCDAElementsConverter simpleCDATypesConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
+        CDABasicElementsConverter simpleCDATypesConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
         CD cd = DatatypesFactory.eINSTANCE.createCD();
         cd.setCode("completed");
         CD translation = DatatypesFactory.eINSTANCE.createCD();
@@ -108,7 +108,7 @@ class BasicCDAElementsConverterTest {
 
     @Test
     void addressEmptyConversionTest() {
-        BasicCDAElementsConverter simpleCDATypesConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
+        CDABasicElementsConverter simpleCDATypesConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
         AD ad = DatatypesFactory.eINSTANCE.createAD();
         Address address = simpleCDATypesConverter.createFHIRAddress(ad);
         assertNotNull(address);
@@ -117,7 +117,7 @@ class BasicCDAElementsConverterTest {
 
     @Test
     void addressConversionTestLinesAndUses() {
-        BasicCDAElementsConverter simpleCDATypesConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
+        CDABasicElementsConverter simpleCDATypesConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
         AD ad = DatatypesFactory.eINSTANCE.createAD();
         ad.getUses().add(PostalAddressUse.BAD);
         ADXP adxp = DatatypesFactory.eINSTANCE.createADXP();
@@ -135,7 +135,7 @@ class BasicCDAElementsConverterTest {
 
     @Test
     void addressConversionTestCities() {
-        BasicCDAElementsConverter simpleCDATypesConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
+        CDABasicElementsConverter simpleCDATypesConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
         AD ad = DatatypesFactory.eINSTANCE.createAD();
         ADXP adxp = DatatypesFactory.eINSTANCE.createADXP();
         adxp.addText("test1");
@@ -150,7 +150,7 @@ class BasicCDAElementsConverterTest {
 
     @Test
     void createContactPoint() {
-        BasicCDAElementsConverter simpleCDATypesConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
+        CDABasicElementsConverter simpleCDATypesConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
         ContactPoint contactPoint = simpleCDATypesConverter.createContactPoint(null);
         assertNotNull(contactPoint);
         assertNull(contactPoint.getUse());
@@ -158,7 +158,7 @@ class BasicCDAElementsConverterTest {
 
     @Test
     void createContactPointFilled() {
-        BasicCDAElementsConverter simpleCDATypesConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
+        CDABasicElementsConverter simpleCDATypesConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
         TEL telecom = DatatypesFactory.eINSTANCE.createTEL();
         telecom.getUses().add(TelecommunicationAddressUse.HP);
         telecom.setValue("test");
@@ -171,7 +171,7 @@ class BasicCDAElementsConverterTest {
 
     @Test
     void convertEIVL_TStoFHIRTimingNull() {
-        BasicCDAElementsConverter simpleCDATypesConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
+        CDABasicElementsConverter simpleCDATypesConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
         EIVL_TS eventInterval = null;
         Timing timing = simpleCDATypesConverter.convertEIVL_TStoFHIRTiming(eventInterval);
         assertNull(timing);
@@ -180,7 +180,7 @@ class BasicCDAElementsConverterTest {
 
     @Test
     void convertEIVL_TStoFHIRTimingNotNull() {
-        BasicCDAElementsConverter simpleCDATypesConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
+        CDABasicElementsConverter simpleCDATypesConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
         EIVL_TS eventInterval = DatatypesFactory.eINSTANCE.createEIVL_TS();
         IVL_PQ offsetValue = DatatypesFactory.eINSTANCE.createIVL_PQ();
         offsetValue.setValue(new BigDecimal(22));
@@ -202,7 +202,7 @@ class BasicCDAElementsConverterTest {
 
     @Test
     void convertPIVL_TStoFHIRTimingNull() {
-        BasicCDAElementsConverter simpleCDATypesConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
+        CDABasicElementsConverter simpleCDATypesConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
         PIVL_TS periodicInterval = null;
         Timing timing = simpleCDATypesConverter.convertPIVL_TStoFHIRTiming(periodicInterval);
         assertNull(timing);
@@ -211,7 +211,7 @@ class BasicCDAElementsConverterTest {
 
     @Test
     void convertPIVL_TStoFHIRTimingNotNullPeriod() {
-        BasicCDAElementsConverter simpleCDATypesConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
+        CDABasicElementsConverter simpleCDATypesConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
         PIVL_TS periodicInterval = DatatypesFactory.eINSTANCE.createPIVL_TS();
         periodicInterval.setValue("20130311");
         PQ period = DatatypesFactory.eINSTANCE.createIVL_PQ();
@@ -229,7 +229,7 @@ class BasicCDAElementsConverterTest {
 
     @Test
     void convertPIVL_TStoFHIRTimingNotNullPhase() {
-        BasicCDAElementsConverter simpleCDATypesConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
+        CDABasicElementsConverter simpleCDATypesConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(this.getTestCodes(), getSystems()));
         PIVL_TS periodicInterval = DatatypesFactory.eINSTANCE.createPIVL_TS();
         periodicInterval.setValue("20130311");
         IVL_TS phase = DatatypesFactory.eINSTANCE.createIVL_TS();
@@ -255,8 +255,8 @@ class BasicCDAElementsConverterTest {
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
         Author author = cda.getAuthors().get(0);
-        BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-        Map<String, Resource> resources = basicCDAElementsConverter.convertAuthor(author);
+        CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
+        Map<String, Resource> resources = CDACommonElementsConverter.getInstance(CDABasicElementsConverter).convertAuthor(author);
         assertEquals(1, resources.size());
         resources.forEach((key, value) -> {
             assertTrue(key.contains("Practitioner"));
@@ -278,8 +278,8 @@ class BasicCDAElementsConverterTest {
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
         Author author = cda.getAuthors().get(0);
-        BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-        Map<String, Resource> resources = basicCDAElementsConverter.convertAuthor(author);
+        CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
+        Map<String, Resource> resources = CDACommonElementsConverter.getInstance(CDABasicElementsConverter).convertAuthor(author);
         assertEquals(3, resources.size());
         assertNotEquals(resources.entrySet().stream().filter(k -> k.getValue() instanceof Organization).findAny().orElse(null), null);
         resources.forEach((key, value) -> {
@@ -302,8 +302,8 @@ class BasicCDAElementsConverterTest {
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
         Performer1 performer = cda.getDocumentationOfs().get(0).getServiceEvent().getPerformers().get(0);
-        BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-        Map<String, Resource> resources = basicCDAElementsConverter.convertPerformer(performer, null);
+        CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
+        Map<String, Resource> resources = CDACommonElementsConverter.getInstance(CDABasicElementsConverter).convertPerformer(performer, null);
         assertEquals(resources.size(), 2);
         assertNotEquals(resources.entrySet().stream().filter(k -> k.getValue() instanceof Practitioner).findAny().orElse(null), null);
         assertNotEquals(resources.entrySet().stream().filter(k -> k.getValue() instanceof PractitionerRole).findAny().orElse(null), null);
@@ -329,8 +329,8 @@ class BasicCDAElementsConverterTest {
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
         Performer1 performer = cda.getDocumentationOfs().get(0).getServiceEvent().getPerformers().get(0);
-        BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-        Map<String, Resource> resources = basicCDAElementsConverter.convertPerformer(performer, null);
+        CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
+        Map<String, Resource> resources = CDACommonElementsConverter.getInstance(CDABasicElementsConverter).convertPerformer(performer, null);
         assertEquals(resources.size(), 4);
         assertNotEquals(resources.entrySet().stream().filter(k -> k.getValue() instanceof Practitioner).findAny().orElse(null), null);
         assertNotNull(resources.entrySet().stream().filter(k -> k.getValue() instanceof PractitionerRole).findAny().orElse(null));
@@ -380,8 +380,8 @@ class BasicCDAElementsConverterTest {
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
         Performer1 performer = cda.getDocumentationOfs().get(0).getServiceEvent().getPerformers().get(0);
-        BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-        Map<String, Resource> resources = basicCDAElementsConverter.convertPerformer(performer, null);
+        CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
+        Map<String, Resource> resources = CDACommonElementsConverter.getInstance(CDABasicElementsConverter).convertPerformer(performer, null);
         assertEquals(resources.size(), 4);
         assertNotEquals(resources.entrySet().stream().filter(k -> k.getValue() instanceof Practitioner).findAny().orElse(null), null);
         assertNotEquals(resources.entrySet().stream().filter(k -> k.getValue() instanceof PractitionerRole).findAny().orElse(null), null);
@@ -414,8 +414,8 @@ class BasicCDAElementsConverterTest {
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
         PatientRole patientRole = cda.getPatientRoles().get(0);
-        BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-        Map<String, Resource> resources = basicCDAElementsConverter.convertPatient(patientRole);
+        CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
+        Map<String, Resource> resources = CDACommonElementsConverter.getInstance(CDABasicElementsConverter).convertPatient(patientRole);
         assertEquals(resources.size(), 2);
         assertNotEquals(resources.entrySet().stream().filter(k -> k.getValue() instanceof Patient).findAny().orElse(null), null);
         assertNotEquals(resources.entrySet().stream().filter(k -> k.getValue() instanceof Organization).findAny().orElse(null), null);
@@ -464,8 +464,8 @@ class BasicCDAElementsConverterTest {
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
         PatientRole patientRole = cda.getPatientRoles().get(0);
-        BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-        Map<String, Resource> resources = basicCDAElementsConverter.convertPatient(patientRole);
+        CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
+        Map<String, Resource> resources = CDACommonElementsConverter.getInstance(CDABasicElementsConverter).convertPatient(patientRole);
         assertEquals(resources.size(), 1);
         assertNotNull(resources.entrySet().stream().filter(k -> k.getValue() instanceof Patient).findAny().orElse(null));
         assertNull(resources.entrySet().stream().filter(k -> k.getValue() instanceof Organization).findAny().orElse(null));
@@ -489,8 +489,8 @@ class BasicCDAElementsConverterTest {
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
         Custodian custodian = cda.getCustodian();
-        BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-        Map<String, Resource> resources = basicCDAElementsConverter.convertCustodian(custodian);
+        CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
+        Map<String, Resource> resources = CDACommonElementsConverter.getInstance(CDABasicElementsConverter).convertCustodian(custodian);
         assertEquals(resources.size(), 1);
         resources.forEach((key, value) -> {
             if (value instanceof Organization) {
@@ -517,8 +517,8 @@ class BasicCDAElementsConverterTest {
         FileInputStream fis = new FileInputStream(decodedPath);
         ClinicalDocument cda = CDAUtil.load(fis);
         Participant1 participant = cda.getParticipants().get(0);
-        BasicCDAElementsConverter basicCDAElementsConverter = new BasicCDAElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
-        Map<String, Resource> resources = basicCDAElementsConverter.convertParticipant(participant);
+        CDABasicElementsConverter CDABasicElementsConverter = new CDABasicElementsConverter(CodeMappingProcessor.getInstance(getTestCodes(), getSystems()));
+        Map<String, Resource> resources = CDACommonElementsConverter.getInstance(CDABasicElementsConverter).convertParticipant(participant);
         assertEquals(resources.size(), 1);
         resources.forEach((key, value) -> {
             if (value instanceof Practitioner) {
