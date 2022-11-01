@@ -36,7 +36,7 @@ public class CDAVitalSignsSectionConverter {
 
         if (!vitalSignsOrganizer2.getConsolVitalSignObservation2s().isEmpty()) {
             for (VitalSignObservation2 vso : vitalSignsOrganizer2.getConsolVitalSignObservation2s()) {
-                resources.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).createFHIRObservation(vso, ObservationCategory.VITALSIGNS, resources, headerResources));
+                resources.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).convertObservation(vso, ObservationCategory.VITALSIGNS, resources, headerResources));
             }
         }
 

@@ -72,7 +72,7 @@ public class CDAResultsSectionConverter {
         if (!resultOrganizer.getResultObservations().isEmpty()) {
             Map<String, Resource> observationResources = new HashMap<>();
             for (ResultObservation2 ro : resultOrganizer.getConsolResultObservation2s()) {
-                observationResources.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).createFHIRObservation(ro, ObservationCategory.EXAM, resources, headerResources));
+                observationResources.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).convertObservation(ro, ObservationCategory.EXAM, resources, headerResources));
             }
             List<Resource> observations = observationResources.values().stream().filter(r -> r instanceof Observation).collect(Collectors.toList());
             observations.forEach(o -> {

@@ -19,7 +19,7 @@ public class CDAProceduresSectionConverter {
 
     public Map<String, Resource> convertProcedures(ProceduresSection2 proceduresSection, Map<String, Resource> headerResources) {
         Map<String, Resource> resources = new HashMap<>();
-        proceduresSection.getConsolProcedureActivityProcedure2s().forEach(procedureActivityProcedure -> resources.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).convertProcedureActivityProcedure(procedureActivityProcedure, headerResources)));
+        proceduresSection.getConsolProcedureActivityProcedure2s().forEach(procedureActivityProcedure -> resources.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).convertProcedure(procedureActivityProcedure, headerResources)));
         return resources;
     }
 

@@ -34,7 +34,7 @@ public class CDASocialHistorySectionConverter {
         Map<String, Resource> resources = new HashMap<>();
 
         for (SocialHistoryObservation2 so : socialHistorySection.getConsolSocialHistoryObservation2s()) {
-            resources.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).createFHIRObservation(so, ObservationCategory.SOCIALHISTORY, new HashMap<>(), headerResources));
+            resources.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).convertObservation(so, ObservationCategory.SOCIALHISTORY, new HashMap<>(), headerResources));
         }
 
         for (PregnancyObservation po : socialHistorySection.getPregnancyObservations()) {
@@ -42,11 +42,11 @@ public class CDASocialHistorySectionConverter {
         }
 
         for (SmokingStatusMeaningfulUse2 smsmu : socialHistorySection.getConsolCurrentSmokingStatus2s()) {
-            resources.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).createFHIRObservation(smsmu, ObservationCategory.SOCIALHISTORY, new HashMap<>(), headerResources));
+            resources.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).convertObservation(smsmu, ObservationCategory.SOCIALHISTORY, new HashMap<>(), headerResources));
         }
 
         for (TobaccoUse2 tu : socialHistorySection.getConsolTobaccoUse2s()) {
-            resources.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).createFHIRObservation(tu, ObservationCategory.SOCIALHISTORY, new HashMap<>(), headerResources));
+            resources.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).convertObservation(tu, ObservationCategory.SOCIALHISTORY, new HashMap<>(), headerResources));
         }
 
         return resources;

@@ -7,6 +7,7 @@ import org.eclipse.mdht.uml.cda.Person;
 import org.eclipse.mdht.uml.cda.*;
 import org.eclipse.mdht.uml.hl7.datatypes.*;
 import org.eclipse.mdht.uml.hl7.rim.Participation;
+import org.eclipse.mdht.uml.hl7.vocab.SetOperator;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.model.Location;
 import org.hl7.fhir.r4.model.Observation;
@@ -21,7 +22,8 @@ import org.noria.cdafhirlib.constants.BaseConstants;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
 import org.noria.cdafhirlib.helper.ConvertedElementsHelper;
 import org.noria.cdafhirlib.helper.FHIRElementsHelper;
-import org.openhealthtools.mdht.uml.cda.consol.ProcedureActivityProcedure2;
+import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
+import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity2;
 import org.openhealthtools.mdht.uml.cda.consol.ResultObservation2;
 
 import java.util.*;
@@ -358,7 +360,7 @@ public class CDACommonElementsConverter {
         return organization;
     }
 
-    public Map<String, Resource> createFHIRObservation(org.eclipse.mdht.uml.cda.Observation cdaObservation, ObservationCategory observationCategory, Map<String, Resource> outerResources, Map<String, Resource> headerResources) {
+    public Map<String, Resource> convertObservation(org.eclipse.mdht.uml.cda.Observation cdaObservation, ObservationCategory observationCategory, Map<String, Resource> outerResources, Map<String, Resource> headerResources) {
         Map<String, Resource> resources = new HashMap<>();
         CDABasicElementsConverter cdaBasicElementsConverter = CDABasicElementsConverter.getInstance(this.codeMappingProcessor);
         Observation observation = new Observation();
@@ -482,7 +484,7 @@ public class CDACommonElementsConverter {
     }
 
 
-    public Map<String, Resource> convertProcedureActivityProcedure(ProcedureActivityProcedure2 procedureActivityProcedure, Map<String, Resource> headerResources) {
+    public Map<String, Resource> convertProcedure(org.eclipse.mdht.uml.cda.Procedure procedureActivityProcedure, Map<String, Resource> headerResources) {
         Map<String, Resource> resources = new HashMap<>();
         CDABasicElementsConverter cdaBasicElementsConverter = CDABasicElementsConverter.getInstance(this.codeMappingProcessor);
         Procedure procedure = new Procedure();
@@ -583,6 +585,103 @@ public class CDACommonElementsConverter {
         practitionerRole.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.PRACTITIONERROLE, Collections.singletonList(identifier)));
         return practitionerRole;
     }
+
+
+    public Map<String, Resource> convertToMedicationStatement(SubstanceAdministration medicationActivity, Map<String, Resource> headerResources) {
+        Map<String, Resource> resources = new HashMap<>();
+        CDABasicElementsConverter cdaBasicElementsConverter = CDABasicElementsConverter.getInstance(this.codeMappingProcessor);
+        MedicationStatement medicationStatement = new MedicationStatement();
+        if (CollectionUtils.isNotEmpty(medicationActivity.getIds())) {
+            medicationActivity.getIds().forEach(id -> medicationStatement.addIdentifier(cdaBasicElementsConverter.createFHIRIdentifier(id)));
+        }
+
+        medicationStatement.getDosage().add(this.processDosage(medicationActivity));
+
+        if (medicationActivity.getConsumable() != null && medicationActivity.getConsumable().getManufacturedProduct() != null && medicationActivity.getConsumable().getManufacturedProduct().getManufacturedMaterial() != null) {
+            medicationStatement.setMedication(cdaBasicElementsConverter.createFHIRCodeableConcept(medicationActivity.getConsumable().getManufacturedProduct().getManufacturedMaterial().getCode(), null));
+
+        }
+
+        if (!medicationActivity.getPerformers().isEmpty()) {
+            Map<String, Resource> medicationRequestPerformers = new HashMap<>();
+            medicationActivity.getPerformers().forEach(performer -> medicationRequestPerformers.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).convertPerformer(performer, headerResources)));
+            if (!medicationRequestPerformers.isEmpty()) {
+                List<Resource> practitioners = medicationRequestPerformers.values().stream().filter(r -> r instanceof Practitioner).collect(Collectors.toList());
+                List<Resource> organizations = medicationRequestPerformers.values().stream().filter(r -> r instanceof Organization).collect(Collectors.toList());
+                if (!practitioners.isEmpty()) {
+                    medicationStatement.setInformationSource(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioners.get(0).getId()));
+                } else if (!organizations.isEmpty()) {
+                    medicationStatement.setInformationSource(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.ORGANIZATION, organizations.get(0).getId()));
+                }
+
+                resources.putAll(medicationRequestPerformers);
+            }
+        } else if (!medicationActivity.getAuthors().isEmpty()) {
+            resources.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).convertAuthors(medicationStatement, medicationActivity.getAuthors(), headerResources));
+        }
+
+        medicationStatement.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.MEDICATIONSTATEMENT, medicationStatement.getIdentifier()));
+        Reference reference = ConvertedElementsHelper.getPatientReference(headerResources);
+        if (reference != null) {
+            medicationStatement.setSubject(reference);
+        }
+
+        Coding coding = cdaBasicElementsConverter.createFHIRCoding(medicationActivity.getStatusCode(), CDAtoFHIRCodeConversionType.MEDICATION_ACTIVITY_STATEMENT_STATUS.toValue());
+        if (coding != null) {
+            try {
+                medicationStatement.setStatus(MedicationStatement.MedicationStatementStatus.fromCode(coding.getCode()));
+            } catch (FHIRException e) {
+                log.error(e.getMessage(), e);
+            }
+        }
+
+        resources.put(medicationStatement.getId(), medicationStatement);
+        return resources;
+    }
+
+    public Dosage processDosage(SubstanceAdministration medicationActivity) {
+        Dosage dosage = new Dosage();
+        CDABasicElementsConverter cdaBasicElementsConverter = CDABasicElementsConverter.getInstance(this.codeMappingProcessor);
+        medicationActivity.getEffectiveTimes().forEach(et -> {
+
+            if (et.isSetOperator() && et.getOperator().equals(SetOperator.A)) {
+                if (et instanceof EIVL_TS) {
+                    dosage.setTiming(cdaBasicElementsConverter.convertEIVL_TStoFHIRTiming((EIVL_TS) et));
+                } else if (et instanceof PIVL_TS) {
+                    dosage.setTiming(cdaBasicElementsConverter.convertPIVL_TStoFHIRTiming((PIVL_TS) et));
+                }
+            }
+        });
+
+        if (medicationActivity.getRepeatNumber() != null && medicationActivity.getRepeatNumber().getValue() != null) {
+            dosage.getTiming().getRepeat().setCount(medicationActivity.getRepeatNumber().getValue().intValue());
+        }
+
+        dosage.setRoute(cdaBasicElementsConverter.createFHIRCodeableConcept(medicationActivity.getRouteCode(), null));
+        dosage.setSite(cdaBasicElementsConverter.createFHIRCodeableConceptFromList(medicationActivity.getApproachSiteCodes(), null));
+
+        Dosage.DosageDoseAndRateComponent dosageDoseAndRateComponent = new Dosage.DosageDoseAndRateComponent();
+
+
+        if (medicationActivity.getRateQuantity() != null && medicationActivity.getRateQuantity().getValue() != null) {
+            dosageDoseAndRateComponent.setRate(cdaBasicElementsConverter.createSimpleQuantity(medicationActivity.getRateQuantity()));
+        } else if (medicationActivity.getRateQuantity() != null && medicationActivity.getRateQuantity().getLow() != null && medicationActivity.getRateQuantity().getHigh() != null) {
+            dosageDoseAndRateComponent.setRate(cdaBasicElementsConverter.createRange(medicationActivity.getRateQuantity()));
+        } else if (medicationActivity.getMaxDoseQuantity() != null) {
+            dosageDoseAndRateComponent.setRate(cdaBasicElementsConverter.createRatio(medicationActivity.getMaxDoseQuantity()));
+        }
+
+        if (medicationActivity.getDoseQuantity() != null && medicationActivity.getDoseQuantity().getValue() != null) {
+            dosageDoseAndRateComponent.setDose(cdaBasicElementsConverter.createSimpleQuantity(medicationActivity.getDoseQuantity()));
+        } else if (medicationActivity.getDoseQuantity() != null) {
+            dosageDoseAndRateComponent.setDose(cdaBasicElementsConverter.createRange(medicationActivity.getDoseQuantity()));
+        }
+
+        dosage.getDoseAndRate().add(dosageDoseAndRateComponent);
+
+        return dosage;
+    }
+
 
     private Coding createObservationStatusCoding(org.eclipse.mdht.uml.cda.Observation cdaObservation) {
         CDABasicElementsConverter cdaBasicElementsConverter = CDABasicElementsConverter.getInstance(this.codeMappingProcessor);

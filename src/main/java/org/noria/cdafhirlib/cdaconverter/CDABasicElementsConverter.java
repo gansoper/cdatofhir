@@ -350,4 +350,28 @@ public class CDABasicElementsConverter {
 
         return timing;
     }
+
+    public Dosage convertQuantityToDosageRate(PQ quantity, IVL_INT repeatNumber) {
+        CDABasicElementsConverter cdaBasicElementsConverter = CDABasicElementsConverter.getInstance(this.codeMappingProcessor);
+        Dosage dosage = null;
+        if (repeatNumber != null && repeatNumber.getValue() != null) {
+            dosage = new Dosage();
+            Timing timing = new Timing();
+            Timing.TimingRepeatComponent repeatComponent = new Timing.TimingRepeatComponent();
+            repeatComponent.setCount(repeatNumber.getValue().intValue());
+            timing.setRepeat(repeatComponent);
+            dosage.setTiming(timing);
+        }
+        if (quantity != null) {
+            if (dosage == null) {
+                dosage = new Dosage();
+            }
+            Dosage.DosageDoseAndRateComponent dosageDoseAndRateComponent = new Dosage.DosageDoseAndRateComponent();
+            dosageDoseAndRateComponent.setRate(cdaBasicElementsConverter.createSimpleQuantity(quantity));
+            dosage.getDoseAndRate().add(dosageDoseAndRateComponent);
+        }
+
+        return dosage;
+    }
+
 }

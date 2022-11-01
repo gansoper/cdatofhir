@@ -91,7 +91,7 @@ public class CDAImmunizationsSectionConverter {
         }
 
         if (immunizationActivity.getReactionObservation() != null) {
-            Map<String, Resource> observationResources = CDACommonElementsConverter.getInstance(this.codeMappingProcessor).createFHIRObservation(immunizationActivity.getReactionObservation(), ObservationCategory.EXAM, resources, headerResources);
+            Map<String, Resource> observationResources = CDACommonElementsConverter.getInstance(this.codeMappingProcessor).convertObservation(immunizationActivity.getReactionObservation(), ObservationCategory.EXAM, resources, headerResources);
             Resource observationResource = observationResources.values().stream().filter(r -> r instanceof Observation).findFirst().orElse(null);
             if (observationResource != null) {
                 Observation observation = (Observation) observationResource;
