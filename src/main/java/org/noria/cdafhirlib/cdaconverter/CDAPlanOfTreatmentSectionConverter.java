@@ -1,7 +1,6 @@
 package org.noria.cdafhirlib.cdaconverter;
 
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.model.CarePlan;
 import org.hl7.fhir.r4.model.*;
@@ -58,7 +57,7 @@ public class CDAPlanOfTreatmentSectionConverter {
         Map<String, Resource> resources = new HashMap<>();
         CDABasicElementsConverter cdaBasicElementsConverter = CDABasicElementsConverter.getInstance(this.codeMappingProcessor);
         CarePlan carePlan = new CarePlan();
-        if (!plannedAct.getIds().isEmpty()){
+        if (!plannedAct.getIds().isEmpty()) {
             plannedAct.getIds().forEach(id -> carePlan.addIdentifier(cdaBasicElementsConverter.createFHIRIdentifier(id)));
         }
         carePlan.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.CAREPLAN, carePlan.getIdentifier()));
@@ -67,29 +66,27 @@ public class CDAPlanOfTreatmentSectionConverter {
             resources.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).convertAuthors(carePlan, plannedAct.getAuthors(), headerResources));
         }
 
-        if (plannedAct.getStatusCode() != null && !plannedAct.getStatusCode().isSetNullFlavor()){
+        if (plannedAct.getStatusCode() != null && !plannedAct.getStatusCode().isSetNullFlavor()) {
             try {
                 carePlan.setStatus(CarePlan.CarePlanStatus.fromCode(plannedAct.getStatusCode().getCode()));
-            }
-            catch (FHIRException e){
+            } catch (FHIRException e) {
                 log.error(e.getMessage(), e);
             }
         }
 
-        if (!carePlan.hasStatus()){
+        if (!carePlan.hasStatus()) {
             carePlan.setStatus(CarePlan.CarePlanStatus.ACTIVE);
         }
 
-        if (plannedAct.getCode() != null && !plannedAct.getCode().isSetNullFlavor()){
+        if (plannedAct.getCode() != null && !plannedAct.getCode().isSetNullFlavor()) {
             carePlan.setCategory(Collections.singletonList(cdaBasicElementsConverter.createFHIRCodeableConcept(plannedAct.getCode(), null)));
         }
 
-        if (plannedAct.getEffectiveTime() != null && !plannedAct.getEffectiveTime().isSetNullFlavor()){
+        if (plannedAct.getEffectiveTime() != null && !plannedAct.getEffectiveTime().isSetNullFlavor()) {
             Type dateTime = cdaBasicElementsConverter.convertIVLTSDate(plannedAct.getEffectiveTime());
-            if (dateTime instanceof  Period){
+            if (dateTime instanceof Period) {
                 carePlan.setPeriod((Period) dateTime);
-            }
-            else if (dateTime instanceof DateTimeType){
+            } else if (dateTime instanceof DateTimeType) {
                 Period period = new Period();
                 period.setStartElement((DateTimeType) dateTime);
                 carePlan.setPeriod(period);

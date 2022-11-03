@@ -714,7 +714,7 @@ public class CDACommonElementsConverter {
         return dosage;
     }
 
-    public Map<String, Resource> convertObservationToCondition(org.eclipse.mdht.uml.cda.Observation observation, Type recordedDate, Map<String, Resource> actAuthors, Map<String, Resource> headerResources){
+    public Map<String, Resource> convertObservationToCondition(org.eclipse.mdht.uml.cda.Observation observation, Type recordedDate, Map<String, Resource> actAuthors, Map<String, Resource> headerResources) {
         Map<String, Resource> resources = new HashMap<>();
         CDABasicElementsConverter cdaBasicElementsConverter = CDABasicElementsConverter.getInstance(this.codeMappingProcessor);
         Condition condition = new Condition();
@@ -722,11 +722,10 @@ public class CDACommonElementsConverter {
             observation.getIds().forEach(id -> condition.addIdentifier(cdaBasicElementsConverter.createFHIRIdentifier(id)));
         }
 
-        if (recordedDate != null){
+        if (recordedDate != null) {
             if (recordedDate instanceof DateTimeType) {
                 condition.setRecordedDateElement((DateTimeType) recordedDate);
-            }
-            else if (recordedDate instanceof Period){
+            } else if (recordedDate instanceof Period) {
                 condition.setRecordedDateElement(((Period) recordedDate).getStartElement());
             }
         }
@@ -734,7 +733,7 @@ public class CDACommonElementsConverter {
         if (observation.getEffectiveTime() != null) {
             Type onSetDate = cdaBasicElementsConverter.convertIVLTSDate(observation.getEffectiveTime());
             condition.setOnset(onSetDate);
-            if (onSetDate instanceof Period){
+            if (onSetDate instanceof Period) {
                 Period period = (Period) onSetDate;
                 if (!period.getEndElement().isEmpty()) {
                     condition.setAbatement(period.getEndElement());
@@ -743,14 +742,13 @@ public class CDACommonElementsConverter {
         }
 
         if (observation instanceof ProblemObservation2) {
-            ProblemObservation2 pbObs2 = (ProblemObservation2)observation;
+            ProblemObservation2 pbObs2 = (ProblemObservation2) observation;
             if (pbObs2.getConsolProblemStatus() != null && !pbObs2.getConsolProblemStatus().getValues().isEmpty()) {
                 condition.setClinicalStatus(cdaBasicElementsConverter.createFHIRCodeableConcept((CD) pbObs2.getConsolProblemStatus().getValues().get(0), CDAtoFHIRCodeConversionType.PROBLEM_STATUS.toValue()));
             }
         }
 
-        if (!condition.hasClinicalStatus())
-        {
+        if (!condition.hasClinicalStatus()) {
             condition.setClinicalStatus(cdaBasicElementsConverter.createFHIRCodeableConcept(observation.getStatusCode(), CDAtoFHIRCodeConversionType.PROBLEM_STATUS.toValue()));
         }
 
@@ -764,13 +762,13 @@ public class CDACommonElementsConverter {
 
         if (!observation.getAuthors().isEmpty()) {
             resources.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).convertAuthors(condition, observation.getAuthors(), headerResources));
-        } else if (!actAuthors.isEmpty()){
+        } else if (!actAuthors.isEmpty()) {
             actAuthors.values().stream().filter(r -> r instanceof Practitioner).findFirst().ifPresent(practitioner ->
                     condition.setRecorder(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId())));
         }
 
         if (observation instanceof ProblemObservation) {
-            ProblemObservation2 pbObs2 = (ProblemObservation2)observation;
+            ProblemObservation2 pbObs2 = (ProblemObservation2) observation;
             if (pbObs2.getAgeObservation() != null && !pbObs2.getAgeObservation().getValues().isEmpty() && !condition.hasOnset()) {
                 condition.setOnset(cdaBasicElementsConverter.createAge((PQ) pbObs2.getAgeObservation().getValues().get(0)));
             }
@@ -784,7 +782,7 @@ public class CDACommonElementsConverter {
         condition.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.CONDITION, condition.getIdentifier()));
         resources.put(condition.getId(), condition);
 
-        return  resources;
+        return resources;
     }
 
     private Coding createObservationStatusCoding(org.eclipse.mdht.uml.cda.Observation cdaObservation) {

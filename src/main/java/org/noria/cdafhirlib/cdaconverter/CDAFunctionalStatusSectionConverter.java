@@ -25,7 +25,7 @@ public class CDAFunctionalStatusSectionConverter {
         CDACommonElementsConverter cdaCommonElementsConverter = CDACommonElementsConverter.getInstance(this.codeMappingProcessor);
         functionalStatusSection2.getConsolFunctionalStatusOrganizer2s().forEach(organizer -> {
             Map<String, Resource> organizerAuthors = new HashMap<>();
-            organizer.getAuthors().forEach(author -> organizerAuthors.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).convertSectionAuthor(author, headerResources)));
+            organizer.getAuthors().forEach(author -> organizerAuthors.putAll(cdaCommonElementsConverter.convertSectionAuthor(author, headerResources)));
             resources.putAll(organizerAuthors);
             resources.putAll(this.convertFunctionalStatusOrganizer(organizer, headerResources, organizerAuthors));
         });

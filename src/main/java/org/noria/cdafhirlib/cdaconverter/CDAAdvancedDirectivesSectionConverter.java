@@ -2,10 +2,11 @@ package org.noria.cdafhirlib.cdaconverter;
 
 import lombok.extern.log4j.Log4j2;
 import org.hl7.fhir.r4.model.Resource;
-import org.hl7.fhir.r4.model.Type;
 import org.hl7.fhir.r4.model.codesystems.ObservationCategory;
 import org.noria.cdafhirlib.codemapping.CodeMappingProcessor;
-import org.openhealthtools.mdht.uml.cda.consol.*;
+import org.openhealthtools.mdht.uml.cda.consol.AdvanceDirectiveObservation2;
+import org.openhealthtools.mdht.uml.cda.consol.AdvanceDirectiveOrganizer;
+import org.openhealthtools.mdht.uml.cda.consol.AdvanceDirectivesSectionEntriesOptional2;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,10 +20,10 @@ public class CDAAdvancedDirectivesSectionConverter {
         this.codeMappingProcessor = codeMappingProcessor;
     }
 
-    public Map<String, Resource> convertFucntionalStatusObservations(AdvanceDirectivesSection2 advanceDirectivesSection, Map<String, Resource> headerResources) {
+    public Map<String, Resource> convertAdvancedDirectives(AdvanceDirectivesSectionEntriesOptional2 advanceDirectivesSection, Map<String, Resource> headerResources) {
         Map<String, Resource> resources = new HashMap<>();
         CDACommonElementsConverter cdaCommonElementsConverter = CDACommonElementsConverter.getInstance(this.codeMappingProcessor);
-        advanceDirectivesSection.getConsolAdvanceDirectiveOrganizers().forEach(organizer -> {
+        advanceDirectivesSection.getAdvanceDirectiveOrganizers().forEach(organizer -> {
             Map<String, Resource> organizerAuthors = new HashMap<>();
             organizer.getAuthors().forEach(author -> organizerAuthors.putAll(cdaCommonElementsConverter.convertSectionAuthor(author, headerResources)));
             resources.putAll(organizerAuthors);

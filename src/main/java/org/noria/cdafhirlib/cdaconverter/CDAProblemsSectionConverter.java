@@ -1,19 +1,13 @@
 package org.noria.cdafhirlib.cdaconverter;
 
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
-import org.eclipse.mdht.uml.hl7.datatypes.CD;
-import org.eclipse.mdht.uml.hl7.datatypes.PQ;
-import org.hl7.fhir.r4.model.*;
+import org.hl7.fhir.r4.model.Resource;
+import org.hl7.fhir.r4.model.Type;
 import org.noria.cdafhirlib.codemapping.CodeMappingProcessor;
-import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
-import org.noria.cdafhirlib.helper.ConvertedElementsHelper;
-import org.noria.cdafhirlib.helper.FHIRElementsHelper;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemConcernAct2;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemObservation2;
 import org.openhealthtools.mdht.uml.cda.consol.ProblemSection2;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,7 +40,7 @@ public class CDAProblemsSectionConverter {
         }
         Type recordedDate = cdaBasicElementsConverter.convertIVLTSDate(act.getEffectiveTime());
         for (ProblemObservation2 problemObservation : act.getConsolProblemObservation2s()) {
-           resources.putAll(cdaCommonElementsConverter.convertObservationToCondition(problemObservation, recordedDate, actAuthors, headerResources));
+            resources.putAll(cdaCommonElementsConverter.convertObservationToCondition(problemObservation, recordedDate, actAuthors, headerResources));
         }
 
         return resources;
