@@ -22,8 +22,9 @@ import org.noria.cdafhirlib.constants.BaseConstants;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
 import org.noria.cdafhirlib.helper.ConvertedElementsHelper;
 import org.noria.cdafhirlib.helper.FHIRElementsHelper;
-import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity;
-import org.openhealthtools.mdht.uml.cda.consol.MedicationActivity2;
+import org.openhealthtools.mdht.uml.cda.consol.PlannedMedicationActivity2;
+import org.openhealthtools.mdht.uml.cda.consol.PlannedObservation2;
+import org.openhealthtools.mdht.uml.cda.consol.PlannedProcedure2;
 import org.openhealthtools.mdht.uml.cda.consol.ResultObservation2;
 
 import java.util.*;
@@ -392,12 +393,16 @@ public class CDACommonElementsConverter {
             observation.setCode(cdaBasicElementsConverter.createFHIRCodeableConcept(cdaObservation.getCode(), null));
         }
 
-        Coding coding = this.createObservationStatusCoding(cdaObservation);
-        if (coding != null) {
-            try {
-                observation.setStatus(Observation.ObservationStatus.fromCode(coding.getCode()));
-            } catch (FHIRException e) {
-                log.error(e.getMessage(), e);
+        if (cdaObservation instanceof PlannedObservation2) {
+            observation.setStatus(Observation.ObservationStatus.PRELIMINARY);
+        } else {
+            Coding coding = this.createObservationStatusCoding(cdaObservation);
+            if (coding != null) {
+                try {
+                    observation.setStatus(Observation.ObservationStatus.fromCode(coding.getCode()));
+                } catch (FHIRException e) {
+                    log.error(e.getMessage(), e);
+                }
             }
         }
 
@@ -476,6 +481,12 @@ public class CDACommonElementsConverter {
                 } else if (fhirResource instanceof Condition) {
                     authors.values().stream().filter(r -> r instanceof Practitioner).findFirst().ifPresent(practitioner ->
                             ((Condition) fhirResource).setRecorder(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId())));
+                } else if (fhirResource instanceof Procedure) {
+                    authors.values().stream().filter(r -> r instanceof Practitioner).findFirst().ifPresent(practitioner ->
+                            ((Procedure) fhirResource).setRecorder(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId())));
+                } else if (fhirResource instanceof CarePlan) {
+                    authors.values().stream().filter(r -> r instanceof Practitioner).findFirst().ifPresent(practitioner ->
+                            ((CarePlan) fhirResource).setAuthor(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId())));
                 }
             }
         }
@@ -501,12 +512,16 @@ public class CDACommonElementsConverter {
             procedure.setCode(cdaBasicElementsConverter.createFHIRCodeableConcept(procedureActivityProcedure.getCode(), null));
         }
 
-        if (procedureActivityProcedure.getStatusCode() != null && !procedureActivityProcedure.getStatusCode().isSetNullFlavor()) {
-            try {
-                Coding procedureStatusCoding = cdaBasicElementsConverter.createFHIRCoding(procedureActivityProcedure.getStatusCode(), CDAtoFHIRCodeConversionType.PROCEDURE_STATUS.toValue());
-                procedure.setStatus(Procedure.ProcedureStatus.fromCode(procedureStatusCoding.getCode()));
-            } catch (FHIRException e) {
-                log.error(e.getMessage(), e);
+        if (procedureActivityProcedure instanceof PlannedProcedure2) {
+            procedure.setStatus(Procedure.ProcedureStatus.PREPARATION);
+        } else {
+            if (procedureActivityProcedure.getStatusCode() != null && !procedureActivityProcedure.getStatusCode().isSetNullFlavor()) {
+                try {
+                    Coding procedureStatusCoding = cdaBasicElementsConverter.createFHIRCoding(procedureActivityProcedure.getStatusCode(), CDAtoFHIRCodeConversionType.PROCEDURE_STATUS.toValue());
+                    procedure.setStatus(Procedure.ProcedureStatus.fromCode(procedureStatusCoding.getCode()));
+                } catch (FHIRException e) {
+                    log.error(e.getMessage(), e);
+                }
             }
         }
 
@@ -552,6 +567,10 @@ public class CDACommonElementsConverter {
                 }
 
             }
+        }
+
+        if (CollectionUtils.isNotEmpty(procedureActivityProcedure.getAuthors())) {
+            resources.putAll(this.convertAuthors(procedure, procedureActivityProcedure.getAuthors(), headerResources));
         }
 
         procedure.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.PROCEDURE, procedure.getIdentifier()));
@@ -626,12 +645,27 @@ public class CDACommonElementsConverter {
             medicationStatement.setSubject(reference);
         }
 
-        Coding coding = cdaBasicElementsConverter.createFHIRCoding(medicationActivity.getStatusCode(), CDAtoFHIRCodeConversionType.MEDICATION_ACTIVITY_STATEMENT_STATUS.toValue());
-        if (coding != null) {
-            try {
-                medicationStatement.setStatus(MedicationStatement.MedicationStatementStatus.fromCode(coding.getCode()));
-            } catch (FHIRException e) {
-                log.error(e.getMessage(), e);
+        if (!medicationActivity.getEffectiveTimes().isEmpty() && !medicationActivity.getEffectiveTimes().get(0).isSetNullFlavor()) {
+            Type performedDate;
+            if (medicationActivity.getEffectiveTimes().get(0) instanceof IVL_TS) {
+                performedDate = cdaBasicElementsConverter.convertIVLTSDate((IVL_TS) medicationActivity.getEffectiveTimes().get(0));
+            } else {
+                performedDate = cdaBasicElementsConverter.convertTSDate(medicationActivity.getEffectiveTimes().get(0));
+            }
+
+            medicationStatement.setEffective(performedDate);
+        }
+
+        if (medicationActivity instanceof PlannedMedicationActivity2) {
+            medicationStatement.setStatus(MedicationStatement.MedicationStatementStatus.INTENDED);
+        } else {
+            Coding coding = cdaBasicElementsConverter.createFHIRCoding(medicationActivity.getStatusCode(), CDAtoFHIRCodeConversionType.MEDICATION_ACTIVITY_STATEMENT_STATUS.toValue());
+            if (coding != null) {
+                try {
+                    medicationStatement.setStatus(MedicationStatement.MedicationStatementStatus.fromCode(coding.getCode()));
+                } catch (FHIRException e) {
+                    log.error(e.getMessage(), e);
+                }
             }
         }
 

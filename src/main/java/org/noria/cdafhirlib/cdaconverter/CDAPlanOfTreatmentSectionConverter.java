@@ -84,20 +84,33 @@ public class CDAPlanOfTreatmentSectionConverter {
             carePlan.setCategory(Collections.singletonList(cdaBasicElementsConverter.createFHIRCodeableConcept(plannedAct.getCode(), null)));
         }
 
+        if (plannedAct.getEffectiveTime() != null && !plannedAct.getEffectiveTime().isSetNullFlavor()){
+            Type dateTime = cdaBasicElementsConverter.convertIVLTSDate(plannedAct.getEffectiveTime());
+            if (dateTime instanceof  Period){
+                carePlan.setPeriod((Period) dateTime);
+            }
+            else if (dateTime instanceof DateTimeType){
+                Period period = new Period();
+                period.setStartElement((DateTimeType) dateTime);
+                carePlan.setPeriod(period);
+            }
+        }
+
+        carePlan.setActivity(carePlanActivityComponents);
         carePlan.setIntent(CarePlan.CarePlanIntent.PLAN);
         resources.put(carePlan.getId(), carePlan);
         return resources;
     }
 
     private List<CarePlan.CarePlanActivityComponent> createCarePlanActivityComponents(Map<String, Resource> resources) {
-        List<CarePlan.CarePlanActivityComponent> carePlanActivityComponents = resources.values().stream().map(r -> {
+        List<CarePlan.CarePlanActivityComponent> carePlanActivityComponents = resources.values().stream().filter(r -> !(r instanceof Practitioner)).map(r -> {
             CarePlan.CarePlanActivityComponent carePlanActivityComponent = new CarePlan.CarePlanActivityComponent();
             if (r instanceof Procedure) {
-                FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PROCEDURE, r.getId());
+                carePlanActivityComponent.setReference(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PROCEDURE, r.getId()));
             } else if (r instanceof Observation) {
-                FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.OBSERVATION, r.getId());
+                carePlanActivityComponent.setReference(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.OBSERVATION, r.getId()));
             } else if (r instanceof MedicationStatement) {
-                FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.MEDICATIONSTATEMENT, r.getId());
+                carePlanActivityComponent.setReference(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.MEDICATIONSTATEMENT, r.getId()));
             }
             return carePlanActivityComponent;
         }).collect(Collectors.toList());
