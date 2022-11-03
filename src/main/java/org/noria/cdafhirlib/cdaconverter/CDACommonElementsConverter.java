@@ -9,6 +9,7 @@ import org.eclipse.mdht.uml.hl7.datatypes.*;
 import org.eclipse.mdht.uml.hl7.rim.Participation;
 import org.eclipse.mdht.uml.hl7.vocab.SetOperator;
 import org.hl7.fhir.exceptions.FHIRException;
+import org.hl7.fhir.r4.model.CarePlan;
 import org.hl7.fhir.r4.model.Location;
 import org.hl7.fhir.r4.model.Observation;
 import org.hl7.fhir.r4.model.Organization;
@@ -22,10 +23,7 @@ import org.noria.cdafhirlib.constants.BaseConstants;
 import org.noria.cdafhirlib.enumerations.CDAtoFHIRCodeConversionType;
 import org.noria.cdafhirlib.helper.ConvertedElementsHelper;
 import org.noria.cdafhirlib.helper.FHIRElementsHelper;
-import org.openhealthtools.mdht.uml.cda.consol.PlannedMedicationActivity2;
-import org.openhealthtools.mdht.uml.cda.consol.PlannedObservation2;
-import org.openhealthtools.mdht.uml.cda.consol.PlannedProcedure2;
-import org.openhealthtools.mdht.uml.cda.consol.ResultObservation2;
+import org.openhealthtools.mdht.uml.cda.consol.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -716,6 +714,78 @@ public class CDACommonElementsConverter {
         return dosage;
     }
 
+    public Map<String, Resource> convertObservationToCondition(org.eclipse.mdht.uml.cda.Observation observation, Type recordedDate, Map<String, Resource> actAuthors, Map<String, Resource> headerResources){
+        Map<String, Resource> resources = new HashMap<>();
+        CDABasicElementsConverter cdaBasicElementsConverter = CDABasicElementsConverter.getInstance(this.codeMappingProcessor);
+        Condition condition = new Condition();
+        if (CollectionUtils.isNotEmpty(observation.getIds())) {
+            observation.getIds().forEach(id -> condition.addIdentifier(cdaBasicElementsConverter.createFHIRIdentifier(id)));
+        }
+
+        if (recordedDate != null){
+            if (recordedDate instanceof DateTimeType) {
+                condition.setRecordedDateElement((DateTimeType) recordedDate);
+            }
+            else if (recordedDate instanceof Period){
+                condition.setRecordedDateElement(((Period) recordedDate).getStartElement());
+            }
+        }
+
+        if (observation.getEffectiveTime() != null) {
+            Type onSetDate = cdaBasicElementsConverter.convertIVLTSDate(observation.getEffectiveTime());
+            condition.setOnset(onSetDate);
+            if (onSetDate instanceof Period){
+                Period period = (Period) onSetDate;
+                if (!period.getEndElement().isEmpty()) {
+                    condition.setAbatement(period.getEndElement());
+                }
+            }
+        }
+
+        if (observation instanceof ProblemObservation2) {
+            ProblemObservation2 pbObs2 = (ProblemObservation2)observation;
+            if (pbObs2.getConsolProblemStatus() != null && !pbObs2.getConsolProblemStatus().getValues().isEmpty()) {
+                condition.setClinicalStatus(cdaBasicElementsConverter.createFHIRCodeableConcept((CD) pbObs2.getConsolProblemStatus().getValues().get(0), CDAtoFHIRCodeConversionType.PROBLEM_STATUS.toValue()));
+            }
+        }
+
+        if (!condition.hasClinicalStatus())
+        {
+            condition.setClinicalStatus(cdaBasicElementsConverter.createFHIRCodeableConcept(observation.getStatusCode(), CDAtoFHIRCodeConversionType.PROBLEM_STATUS.toValue()));
+        }
+
+        if (observation.getCode() != null) {
+            condition.setCategory(Collections.singletonList(cdaBasicElementsConverter.createFHIRCodeableConcept(observation.getCode(), CDAtoFHIRCodeConversionType.PROBLEM_TYPE.toValue())));
+        }
+
+        if (!observation.getValues().isEmpty()) {
+            condition.setCode(cdaBasicElementsConverter.createFHIRCodeableConcept((CD) observation.getValues().get(0), null));
+        }
+
+        if (!observation.getAuthors().isEmpty()) {
+            resources.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).convertAuthors(condition, observation.getAuthors(), headerResources));
+        } else if (!actAuthors.isEmpty()){
+            actAuthors.values().stream().filter(r -> r instanceof Practitioner).findFirst().ifPresent(practitioner ->
+                    condition.setRecorder(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioner.getId())));
+        }
+
+        if (observation instanceof ProblemObservation) {
+            ProblemObservation2 pbObs2 = (ProblemObservation2)observation;
+            if (pbObs2.getAgeObservation() != null && !pbObs2.getAgeObservation().getValues().isEmpty() && !condition.hasOnset()) {
+                condition.setOnset(cdaBasicElementsConverter.createAge((PQ) pbObs2.getAgeObservation().getValues().get(0)));
+            }
+        }
+
+        Reference reference = ConvertedElementsHelper.getPatientReference(headerResources);
+        if (reference != null) {
+            condition.setSubject(reference);
+        }
+
+        condition.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.CONDITION, condition.getIdentifier()));
+        resources.put(condition.getId(), condition);
+
+        return  resources;
+    }
 
     private Coding createObservationStatusCoding(org.eclipse.mdht.uml.cda.Observation cdaObservation) {
         CDABasicElementsConverter cdaBasicElementsConverter = CDABasicElementsConverter.getInstance(this.codeMappingProcessor);
