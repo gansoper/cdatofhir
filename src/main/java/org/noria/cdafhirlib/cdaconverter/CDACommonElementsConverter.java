@@ -760,7 +760,7 @@ public class CDACommonElementsConverter {
             condition.setCode(cdaBasicElementsConverter.createFHIRCodeableConcept((CD) observation.getValues().get(0), null));
         }
 
-        if (!observation.getAuthors().isEmpty()) {
+        if (observation.getAuthors() != null && !observation.getAuthors().isEmpty()) {
             resources.putAll(CDACommonElementsConverter.getInstance(this.codeMappingProcessor).convertAuthors(condition, observation.getAuthors(), headerResources));
         } else if (!actAuthors.isEmpty()) {
             actAuthors.values().stream().filter(r -> r instanceof Practitioner).findFirst().ifPresent(practitioner ->
