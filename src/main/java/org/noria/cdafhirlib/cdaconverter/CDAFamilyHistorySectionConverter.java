@@ -95,17 +95,28 @@ public class CDAFamilyHistorySectionConverter {
                         .ifPresent(value -> familyMemberHistoryConditionComponent.setCode(cdaBasicElementsConverter.createFHIRCodeableConcept((CD) value, null)));
             }
             if (fhObs.getEffectiveTime() != null && !fhObs.getEffectiveTime().isSetNullFlavor()) {
-                familyMemberHistoryConditionComponent.setOnset(cdaBasicElementsConverter.convertTSDate(fhObs.getEffectiveTime()));
+                Type time = cdaBasicElementsConverter.convertTSDate(fhObs.getEffectiveTime());
+                StringType st;
+                if (time instanceof DateType){
+                    st = new StringType(((DateType) time).getValueAsString());
+                    familyMemberHistoryConditionComponent.setOnset(st);
+                }
+                else if (time instanceof DateTimeType){
+                    st = new StringType(((DateTimeType) time).getValueAsString());
+                    familyMemberHistoryConditionComponent.setOnset(st);
+                }
             }
 
-            if (familyMemberHistoryConditionComponent.getOnset() != null && fhObs.getAgeObservation() != null && !fhObs.getAgeObservation().getValues().isEmpty()) {
+            if (!familyMemberHistoryConditionComponent.hasOnset()  && fhObs.getAgeObservation() != null && !fhObs.getAgeObservation().getValues().isEmpty()) {
                 familyMemberHistoryConditionComponent.setOnset(cdaBasicElementsConverter.createAge((PQ) fhObs.getAgeObservation().getValues().get(0)));
             }
 
             if (fhObs.getFamilyHistoryDeathObservation() != null && !fhObs.getFamilyHistoryDeathObservation().getValues().isEmpty()) {
-                familyMemberHistory.setDeceased(cdaBasicElementsConverter.createAge((PQ) fhObs.getFamilyHistoryDeathObservation().getValues().get(0)));
+                familyMemberHistory.setDeceased(new BooleanType(true));
+                familyMemberHistoryConditionComponent.setContributedToDeath(true);
             }
 
+            familyMemberHistory.getCondition().add(familyMemberHistoryConditionComponent);
         }
 
         familyMemberHistory.setId(FHIRElementsHelper.createFHIRID(Enumerations.FHIRAllTypes.FAMILYMEMBERHISTORY, familyMemberHistory.getIdentifier()));

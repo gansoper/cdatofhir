@@ -299,12 +299,22 @@ public class CDABasicElementsConverter {
         return null;
     }
 
-    DateTimeType convertTSDate(TS cdaDateTime) {
+
+    Type convertTSDate(TS cdaDateTime) {
         if (cdaDateTime != null) {
-            return new DateTimeType(this.convertCDAToFHIRDate(cdaDateTime.getValue()));
+            String date = this.convertCDAToFHIRDate(cdaDateTime.getValue());
+            if (date == null)
+                return null;
+            if (date.length()>4) {
+                return new DateTimeType(date);
+            }
+            else{
+                return new DateType(date);
+            }
         }
         return null;
     }
+
 
 
     //TODO: add test for this method
