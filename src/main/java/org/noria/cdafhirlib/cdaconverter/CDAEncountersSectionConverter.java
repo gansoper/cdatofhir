@@ -21,7 +21,7 @@ public class CDAEncountersSectionConverter {
         this.codeMappingProcessor = codeMappingProcessor;
     }
 
-    public Map<String, Resource> convertEncounters(EncountersSection2 encountersSection2, Map<String, Resource> headerResources) {
+    public Map<String, Resource> convertEncounters(EncountersSectionEntriesOptional2 encountersSection2, Map<String, Resource> headerResources) {
         Map<String, Resource> resources = new HashMap<>();
         encountersSection2.getConsolEncounterActivity2s().stream().forEach(e -> resources.putAll(this.convertEncounterActivity(e, headerResources)));
         return resources;
@@ -62,17 +62,30 @@ public class CDAEncountersSectionConverter {
                 if (!practitioners.isEmpty()) {
                     Encounter.EncounterParticipantComponent encounterParticipantComponent = new Encounter.EncounterParticipantComponent();
                     encounterParticipantComponent.setIndividual(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.PRACTITIONER, practitioners.get(0).getId()));
+                    encounter.getParticipant().add(encounterParticipantComponent);
                 }
 
                 resources.putAll(encounterParticipants);
             }
         }
 
+        List<Location> locations = null;
+
         if (!encounterActivity.getConsolServiceDeliveryLocations().isEmpty()) {
-            List<Location> locations = encounterActivity.getConsolServiceDeliveryLocations()
+            locations = encounterActivity.getConsolServiceDeliveryLocations()
                     .stream()
                     .map(this::convertLocation)
                     .collect(Collectors.toList());
+        }
+        else if (!encounterActivity.getParticipants().isEmpty()){
+            locations = encounterActivity.getParticipants()
+                    .stream()
+                    .filter(pl-> pl.getParticipantRole() instanceof ServiceDeliveryLocation)
+                    .map(pl-> this.convertLocation((ServiceDeliveryLocation) pl.getParticipantRole()))
+                    .collect(Collectors.toList());
+        }
+
+        if (CollectionUtils.isNotEmpty(locations)){
 
             locations.forEach(l -> {
                 Encounter.EncounterLocationComponent encounterLocationComponent = new Encounter.EncounterLocationComponent();
@@ -80,8 +93,6 @@ public class CDAEncountersSectionConverter {
                 encounter.getLocation().add(encounterLocationComponent);
                 resources.put(l.getId(), l);
             });
-
-
         }
 
 
@@ -89,13 +100,13 @@ public class CDAEncountersSectionConverter {
             for (EncounterDiagnosis2 ed : encounterActivity.getConsolEncounterDiagnosis2s()) {
                 if (CollectionUtils.isNotEmpty(ed.getConsolProblemObservation2s())) {
                     for (ProblemObservation2 po : ed.getConsolProblemObservation2s()) {
-                        Map<String, Resource> observations = cdaCommonElementsConverter.convertObservationToCondition(po, null, null, headerResources);
-                        observations.values().stream().filter(resource -> resource instanceof Observation).forEach(o -> {
+                        Map<String, Resource> conditions = cdaCommonElementsConverter.convertObservationToCondition(po, null, null, headerResources);
+                        conditions.values().stream().filter(resource -> resource instanceof Condition).forEach(o -> {
                             Encounter.DiagnosisComponent diagnosisComponent = new Encounter.DiagnosisComponent();
                             diagnosisComponent.setCondition(FHIRElementsHelper.createReference(Enumerations.FHIRAllTypes.CONDITION, o.getId()));
                             encounter.getDiagnosis().add(diagnosisComponent);
                         });
-                        resources.putAll(observations);
+                        resources.putAll(conditions);
                     }
                 }
             }

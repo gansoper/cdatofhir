@@ -71,7 +71,7 @@ class CDAAdvancedDirectivesSectionConverterTest {
         Resource practResource = resources.values().stream().filter(r -> r instanceof Practitioner).findFirst().orElse(null);
         assertNotNull(practResource);
         assertFalse(observation.getPerformer().isEmpty());
-        assertEquals("Practitioner/" + practResource.getId(), observation.getPerformerFirstRep().getReference());
+        assertTrue(observation.getPerformer().stream().anyMatch(e -> e.getReference().equals("Practitioner/" + practResource.getId())));
         assertTrue(observation.hasEffectivePeriod());
         assertEquals("2011-02-19", observation.getEffectivePeriod().getStartElement().getValueAsString());
         assertFalse(observation.getEffectivePeriod().hasEnd());
